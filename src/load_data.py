@@ -35,19 +35,40 @@ class DatasetFromArrayOfArrays(Dataset):
         return len(self.data)
 
 
-def get_data_loader(dataSetName: str, set: str, batch_size: int):
+def get_data_loader(name: str, set: str, batch_size: int):
     """
-    :param dataSetName: The name of the data set we want to use. Either JSB_Chorales, MuseData, Nottingham, or Piano_midi.
+    :param name: The name of the data set we want to use. Either JSB_Chorales, MuseData, Nottingham, or Piano_midi.
     :param set: either test or valid.
     :return: DataLoader for our desired data set.
     """
 
-    path = "../data/" + dataSetName + ".mat"
+    path = "../data/" + name + ".mat"
 
     train_data = None
     test_val_data = None
 
-    if dataSetName == "MuseData":
+    if name == "MuseData":
+
+        # get the data from the matlab file
+        mat_data = loadmat(path)
+
+        # construct the training set loader
+        train_data = DatasetFromArrayOfArrays(mat_data['traindata'][0])
+
+        # figure out if we want the testing or validation loader
+        if set == 'test':
+            test_val_data = DatasetFromArrayOfArrays(mat_data['testdata'][0])
+        elif set == 'valid':
+            test_val_data = DatasetFromArrayOfArrays(mat_data['validdata'][0])
+        else:
+            raise RuntimeError("set {} not supported".format(set))
+
+        train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+        test_val_loader = DataLoader(test_val_data, batch_size=batch_size, shuffle=False)
+
+        return train_loader, test_val_loader
+
+    elif name == "Nottingham":
 
         mat_data = loadmat(path)
         train_data = DatasetFromArrayOfArrays(mat_data['traindata'][0])
@@ -63,7 +84,7 @@ def get_data_loader(dataSetName: str, set: str, batch_size: int):
 
         return train_loader, test_val_loader
 
-    elif dataSetName == "Nottingham":
+    elif name == "Piano_midi":
 
         mat_data = loadmat(path)
         train_data = DatasetFromArrayOfArrays(mat_data['traindata'][0])
@@ -79,23 +100,7 @@ def get_data_loader(dataSetName: str, set: str, batch_size: int):
 
         return train_loader, test_val_loader
 
-    elif dataSetName == "Piano_midi":
-
-        mat_data = loadmat(path)
-        train_data = DatasetFromArrayOfArrays(mat_data['traindata'][0])
-        if set == 'test':
-            test_val_data = DatasetFromArrayOfArrays(mat_data['testdata'][0])
-        elif set == 'valid':
-            test_val_data = DatasetFromArrayOfArrays(mat_data['validdata'][0])
-        else:
-            raise RuntimeError("set {} not supported".format(set))
-
-        train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
-        test_val_loader = DataLoader(test_val_data, batch_size=batch_size, shuffle=False)
-
-        return train_loader, test_val_loader
-
-    elif dataSetName == "JSB_Chorales":
+    elif name == "JSB_Chorales":
 
         mat_data = loadmat(path)
         train_data = DatasetFromArrayOfArrays(mat_data['traindata'][0])
@@ -112,4 +117,4 @@ def get_data_loader(dataSetName: str, set: str, batch_size: int):
         return train_loader, test_val_loader
 
     else:
-        raise ValueError("Data set {} not found.".format(dataSetName))
+        raise ValueError("Data set {} not found.".format(name))

@@ -25,6 +25,14 @@ class LINEAR(nn.Module):
         self.mt19937 = np.random.MT19937()
         self.hh_seed = np.random.get_state()
 
+        if self.initializer['init'] == identity:
+            self.weight_hh_l0.weight.data = torch.zeros(self.weight_hh_l0.data.shape)
+            for i in range(self.weight.data.shape[0]):
+                self.weight.hh_l0.weight.data[i, i] = 1.0
+
+        elif self.initializer['init'] != 'default':
+            raise ValueError("Initialization {} is not recognized".format(self.initializer['init']))
+
     def reset_parameters(self) -> None:
         """
         Initializes weights (in place)

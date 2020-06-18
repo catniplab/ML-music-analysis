@@ -9,6 +9,7 @@ import torch.nn as nn
 import torch.jit as jit
 import torch.nn.functional as F
 
+from custom_models import LINEAR
 
 # From the name of the architecture, return its constructor.
 arch_to_constructor = {"LINEAR": LINEAR, "RNN_TANH": nn.RNN, "GRU": nn.GRU, "LSTM": nn.LSTM}
