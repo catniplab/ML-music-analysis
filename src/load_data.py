@@ -1,5 +1,5 @@
 """
-This script is called to create a DataLoader for the specific dataset we want to use.
+This module provides a function which returns a pytorch DataLoader for a desired music database.
 """
 
 import numpy as np
@@ -13,7 +13,9 @@ from torch.utils.data import Dataset
 
 from scipy.io import loadmat
 
-# TODO: investigate MATLAB files to ensure data is being loaded properly, and figure out what the hell is wrong with JSB_Chorales
+# TODO
+# Investigate MATLAB files to ensure data is being loaded properly, and figure out what the hell is wrong with JSB_Chorales
+# Document DatasetFromArrayOfArrays
 
 class DatasetFromArrayOfArrays(Dataset):
 
