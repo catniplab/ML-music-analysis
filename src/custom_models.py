@@ -33,16 +33,6 @@ class LINEAR(nn.Module):
         elif self.initializer['init'] != 'default':
             raise ValueError("Initialization {} is not recognized".format(self.initializer['init']))
 
-    def reset_parameters(self) -> None:
-        """
-        Initializes weights (in place)
-        """
-
-        kwargs = self.init_kwargs
-        init = self.kwargs['initializer']
-
-        raise NotImplementedError
-
     def forward(self, x):
 
         #dev = x.get_device()
