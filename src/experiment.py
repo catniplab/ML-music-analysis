@@ -3,7 +3,9 @@ This script creates an instance of a sacred experiment and defines default confi
 """
 
 import load_data
-import jits_model
+import jit_model
+
+from custom_models import Accuracy
 
 import numpy as np
 
@@ -62,9 +64,49 @@ def cfg():
     # initializer dictionary contains all initialization information
     initializer = {'init': 'default', 'scale': 1.0, 'min_angle': 0.0, 'max_angle': 2.0}
 
+
+def compute_loss(loss_fcn, model, loader):
+    """
+    :param loss_fcn: pytorch module whose forward function computes a loss
+    :param model: model which we are testing
+    :param loader: DataLoader for either testing or validation data
+    :return: average loss for every batch in the loader
+    """
+
+    all_loss = []
+
+    for input_tensor, target_tensor in loader:
+
+        output, hiddens = model(input_tensor)
+        loss = loss_fcn(output, target_tensor)
+        all_loss.append(loss.cpu().detach().item())
+
+    return np.mean(all_loss)
+
+
+def compute_accuracy(model, loader):
+    """
+    :param model: model which we are testing
+    :param loader: DataLoader for either testing or validation data
+    :return: average accuracy for every batch in the loader
+    """
+
+    all_acc = []
+
+    acc_fcn = Accuracy()
+
+    for input_tensor, target_tensor in loader:
+
+        output, hiddens = model(input_tensor)
+        acc = acc_fcn(output, target_tensor)
+        all_acc.append(acc.cpu().detach().item())
+
+    return np.mean(all_loss)
+
+
 # main function
 @ex.automain
-def do_training(
+def train_model(
                 cuda,
                 gpu,
                 save_dir,
@@ -99,49 +141,75 @@ def do_training(
 
     with device:
 
-        # get the data loaders
-        train_loader, test_val_loader = load_data.get_data_loader(name, set, batch_size)
+        # standard training loop
+        if not hpsearch['do_hpsearch']:
 
-        # we always use this loss function because it is specific to the binary prediction task
-        loss_fcn = nn.BCEWithLogitsLoss(reduction='sum')
+            # get the data loaders
+            train_loader, test_loader, val_loader = load_data.get_data_loader(name, set, batch_size)
 
-        # construct the optimizer
-        if optimizer == "SGD":
-            optimizer = optim.SGD(lr=lr)
-        elif optimizer == "Adam":
-            optimizer = optim.Adam(lr=lr)
-        elif optimizer == "RMSprop":
-            optimizer = optim.RMSprop(lr=lr)
-        else
-            raise ValueError("Optimizer {} not recognized".format(optimizer))
+            # we always use this loss function because it is specific to the binary prediction task
+            loss_fcn = nn.BCEWithLogitsLoss(reduction='sum')
 
-        # learning rate decay
-        scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: decay**epoch)
+            # construct the optimizer
+            if optimizer == "SGD":
+                optimizer = optim.SGD(lr=lr)
+            elif optimizer == "Adam":
+                optimizer = optim.Adam(lr=lr)
+            elif optimizer == "RMSprop":
+                optimizer = optim.RMSprop(lr=lr)
+            else
+                raise ValueError("Optimizer {} not recognized.".format(optimizer))
 
-        # construct the model
-        model_kwargs = {
-                        "architecture": architecture,
-                        "gradient_clipping": gradient_clipping,
-                        "input_size": input_size,
-                        "hidden_size": hidden_size,
-                        "num_layers": num_layers,
-                        "output_size": output_size,
-                        "initializer": initializer
-                        }
-        model = jits_model.get_model(**model_kwargs)
+            # learning rate decay
+            scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: decay**epoch)
 
-        # begin training loop
-        for epoch in range(num_epochs):
+            # construct the model
+            model_kwargs = {
+                            "architecture": architecture,
+                            "gradient_clipping": gradient_clipping,
+                            "input_size": input_size,
+                            "hidden_size": hidden_size,
+                            "num_layers": num_layers,
+                            "output_size": output_size,
+                            "initializer": initializer
+                            }
+            model = jit_model.get_model(**model_kwargs)
 
-            for i, data in enumerate(train_loader):
+            # begin training loop
+            for epoch in range(num_epochs):
 
-                input_tensor, target_tensor = data
+                for input_tensor, target_tensor in train_loader:
 
-                optimizer.zero_grad()
+                    optimizer.zero_grad()
 
-                output_tensor, hidden_tensor = model(input_tensor)
-                loss = loss_fcn(output_tensor, target_tensor)
-                loss.backward()
-                optimizer.step()
+                    output_tensor, hidden_tensor = model(input_tensor)
+                    loss = loss_fcn(output_tensor, target_tensor)
 
-            scheduler.step()
+                    loss.backward()
+                    optimizer.step()
+
+                    # use sacred to log training loss and accuracy
+                    _run.log_scalar("training.loss", loss.cpu().detach().item())
+                    _run.log_scalar("training.accuracy", compute_accuracy(model, train_loader))
+
+                # learning rate decay
+                scheduler.step()
+
+                # use sacred to log testing and validation loss and accuracy
+
+                test_loss = compute_loss(loss_fcn, model, test_loader)
+                _run.log_scalar("testing.loss", test_loss)
+
+                val_loss = compute_loss(loss_fcn, model, val_loader)
+                _run.log_scalar("validation.loss", val_loss)
+
+                test_acc = compute_accuracy(model, test_loader)
+                _run.log_scalar("testing.accuracy", test_acc)
+
+                val_acc = compute_accuracy(model, val_loader)
+                _run.log_scalar("validation.accuracy", val_acc)
+
+
+        # only goal here is to find the best initial learning rate
+        else:
+            raise NotImplementedError

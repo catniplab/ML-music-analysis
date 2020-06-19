@@ -6,15 +6,31 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+# Not a model, but a pytorch module which computes the accuracy of binary data
+class Accuracy(nn.Module):
+
+    def __init__(self):
+
+        super(Accuracy, self).__init__()
+
+    def forward(self, output, target):
+
+        size = 0
+        for d in output.shape
+            size += d
+
+        prediction = 1.0*(torch.softmax(output) > 0.5)
+
+        agreement = torch.sum(prediction*target + (1 - prediction)*(1 - target))
+
+        return agreement/size
+
 # A linear dynamical system whose input is a linear transformation of the data.
 class LINEAR(nn.Module):
 
     def __init__(self, *args, **kwargs):
 
         super(LINEAR, self).__init__()
-
-        # a dictionary containing all initialization parameters
-        self.initializer = kwargs['initializer']
 
         self.input_size = kwargs['input_size']
         self.hidden_size = kwargs['hidden_size']
@@ -24,14 +40,6 @@ class LINEAR(nn.Module):
 
         self.mt19937 = np.random.MT19937()
         self.hh_seed = np.random.get_state()
-
-        if self.initializer['init'] == identity:
-            self.weight_hh_l0.weight.data = torch.zeros(self.weight_hh_l0.data.shape)
-            for i in range(self.weight.data.shape[0]):
-                self.weight.hh_l0.weight.data[i, i] = 1.0
-
-        elif self.initializer['init'] != 'default':
-            raise ValueError("Initialization {} is not recognized".format(self.initializer['init']))
 
     def forward(self, x):
 

@@ -8,8 +8,7 @@ import torch
 import torch.tensor
 import torch.nn.functional as F
 
-from torch.utils.data import TensorDataset, DataLoader
-from torch.utils.data import Dataset
+from torch.utils.data import TensorDataset, DataSet, DataLoader
 
 from scipy.io import loadmat
 
@@ -39,7 +38,7 @@ def get_data_loader(name: str, set: str, batch_size: int):
     """
     :param name: The name of the data set we want to use. Either JSB_Chorales, MuseData, Nottingham, or Piano_midi.
     :param set: either test or valid.
-    :return: DataLoader for our desired data set.
+    :return: DataLoaders for training, testing, and validation.
     """
 
     path = "../data/" + name + ".mat"
@@ -47,74 +46,22 @@ def get_data_loader(name: str, set: str, batch_size: int):
     train_data = None
     test_val_data = None
 
-    if name == "MuseData":
+    if name in ["JSB_Chorales", "MuseData", "Nottingham", "Piano_midi"]:
 
         # get the data from the matlab file
         mat_data = loadmat(path)
 
-        # construct the training set loader
+        # construct the datasets
         train_data = DatasetFromArrayOfArrays(mat_data['traindata'][0])
+        test_data = DatasetFromArrayOfArrays(mat_data['testdata'][0])
+        val_data = DatasetFromArrayOfArrays(mat_data['validdata'][0])
 
-        # figure out if we want the testing or validation loader
-        if set == 'test':
-            test_val_data = DatasetFromArrayOfArrays(mat_data['testdata'][0])
-        elif set == 'valid':
-            test_val_data = DatasetFromArrayOfArrays(mat_data['validdata'][0])
-        else:
-            raise RuntimeError("set {} not supported".format(set))
-
+        # construct the data loaders
         train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
-        test_val_loader = DataLoader(test_val_data, batch_size=batch_size, shuffle=False)
+        test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
+        val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
 
-        return train_loader, test_val_loader
-
-    elif name == "Nottingham":
-
-        mat_data = loadmat(path)
-        train_data = DatasetFromArrayOfArrays(mat_data['traindata'][0])
-        if set == 'test':
-            test_val_data = DatasetFromArrayOfArrays(mat_data['testdata'][0])
-        elif set == 'valid':
-            test_val_data = DatasetFromArrayOfArrays(mat_data['validdata'][0])
-        else:
-            raise RuntimeError("set {} not supported".format(set))
-
-        train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
-        test_val_loader = DataLoader(test_val_data, batch_size=batch_size, shuffle=False)
-
-        return train_loader, test_val_loader
-
-    elif name == "Piano_midi":
-
-        mat_data = loadmat(path)
-        train_data = DatasetFromArrayOfArrays(mat_data['traindata'][0])
-        if set == 'test':
-            test_val_data = DatasetFromArrayOfArrays(mat_data['testdata'][0])
-        elif set == 'valid':
-            test_val_data = DatasetFromArrayOfArrays(mat_data['validdata'][0])
-        else:
-            raise RuntimeError("set {} not supported".format(set))
-
-        train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
-        test_val_loader = DataLoader(test_val_data, batch_size=batch_size, shuffle=False)
-
-        return train_loader, test_val_loader
-
-    elif name == "JSB_Chorales":
-
-        mat_data = loadmat(path)
-        train_data = DatasetFromArrayOfArrays(mat_data['traindata'][0])
-        if set == 'test':
-            test_val_data = DatasetFromArrayOfArrays(mat_data['testdata'][0])
-        elif set == 'valid':
-            test_val_data = DatasetFromArrayOfArrays(mat_data['validdata'][0])
-        else:
-            raise RuntimeError("set {} not supported".format(set))
-
-        train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
-        test_val_loader = DataLoader(test_val_data, batch_size=batch_size, shuffle=False)
-
-        return train_loader, test_val_loader
+        return train_loader, test_loader, val_loader
 
     else:
         raise ValueError("Data set {} not found.".format(name))
