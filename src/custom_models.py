@@ -29,12 +29,12 @@ class Accuracy(nn.Module):
 # A linear dynamical system whose input is a linear transformation of the data.
 class LINEAR(nn.Module):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, dict):
 
         super(LINEAR, self).__init__()
 
-        self.input_size = kwargs['input_size']
-        self.hidden_size = kwargs['hidden_size']
+        self.input_size = dict['input_size']
+        self.hidden_size = dict['hidden_size']
 
         self.weight_ih_l0 = nn.Linear(self.input_size, self.hidden_size)
         self.weight_hh_l0 = nn.Linear(self.hidden_size, self.hidden_size, bias=False)
@@ -56,11 +56,13 @@ class LINEAR(nn.Module):
         #initial = torch.randn((N, self.hidden_size), dtype=torch.float, device=dev)
         #hiddens[:, 0] = initial + self.weight_ih_l0(x[:, 0])
 
-        hiddens[:, 0] = initial + self.weight_ih_l0(x[:, 0])
+        with torch.no_grad():
+            hiddens[:, 0] = initial + self.weight_ih_l0(x[:, 0])
 
         for t in range(1, T):
             hidden = self.weight_hh_l0(hiddens[:, t - 1]) + self.weight_ih_l0(x[:, t - 1])
-            hiddens[:, t] = hidden
+            with torch.no_grad():
+                hiddens[:, t] = hidden
 
         return hiddens, hiddens
 

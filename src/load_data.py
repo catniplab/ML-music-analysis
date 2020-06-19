@@ -34,7 +34,7 @@ class DatasetFromArrayOfArrays(Dataset):
         return len(self.data)
 
 
-def get_data_loader(name: str, set: str, batch_size: int):
+def get_data_loader(name: str, batch_size: int):
     """
     :param name: The name of the data set we want to use. Either JSB_Chorales, MuseData, Nottingham, or Piano_midi.
     :param set: either test or valid.

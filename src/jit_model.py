@@ -18,7 +18,7 @@ from src.custom_models import LINEAR
 
 
 # From the name of the architecture, return its constructor.
-arch_to_constructor = {"LINEAR": LINEAR, "RNN_TANH": nn.RNN, "GRU": nn.GRU, "LSTM": nn.LSTM}
+arch_to_constructor = {"LINEAR": LINEAR, "TANH_RNN": nn.RNN, "GRU": nn.GRU, "LSTM": nn.LSTM}
 
 def make_identity(shape):
     """
@@ -33,7 +33,7 @@ def make_identity(shape):
 
     return result
 
-def _initialize(model, **initializer):
+def _initialize(model, initializer):
     """
     :param model: ReadOutModel
     :param initializer: a dictionary specifying all information about the desired initialization
@@ -54,18 +54,16 @@ def _initialize(model, **initializer):
 # A pytorch model together with a linear read-out
 class ReadOutModel(nn.Module):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, dict):
 
         super(ReadOutModel, self).__init__()
 
-        print(kwargs)
-
-        self.hidden_size = kwargs['hidden_size']
-        self.output_size = kwargs['output_size']
+        self.hidden_size = dict['hidden_size']
+        self.output_size = dict['output_size']
         self.output_weights = nn.Linear(self.hidden_size, self.output_size)
 
-        constructor = arch_to_constructor[kwargs['architecture']]
-        self.rnn = constructor(**kwargs)
+        constructor = arch_to_constructor[dict['architecture']]
+        self.rnn = constructor(dict)
 
     def forward(self, x):
 
@@ -75,12 +73,15 @@ class ReadOutModel(nn.Module):
 
 
 # Get a just-in-time-compiled model from the argument dictionary.
-def get_model(**kwargs):
+def get_model(model, initializer):
 
-    model = ReadOutModel(**kwargs)
-    _initialize(model, **kwargs['initializer'])
+    jit = model['jit']
 
-    jit_model = jit.script(model)
+    model = ReadOutModel(model)
+    _initialize(model, initializer)
 
-    return jit_model
+    if jit:
+        model = jit.script(model)
+
+    return model
 

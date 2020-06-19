@@ -34,59 +34,69 @@ ex = Experiment(name=str(random.randint(0, 1000000)))
 @ex.config
 def cfg():
 
-    # system arguments
-    cuda = torch.cuda.is_available()
-    gpu = 0
-    save_dir = os.getcwd()
+    system = {
+              'cuda': torch.cuda.is_available(),
+              'gpu': 0,
+              'save_dir': os.getcwd()
+             }
 
-    # training arguments
-    name = "Nottingham"
-    set = "test"
-    num_epochs = 150
-    batch_size = 128
-    lr = 1e-3
-    decay = 1.0
-    optimizer = "SGD"
+    # supported datasets
+    # Nottingham
+    # Piano_midi
+    # MuseData
+    training = {
+                'name': "Nottingham",
+                'set': "test",
+                'num_epochs': 150,
+                'batch_size': 128,
+                'lr': 0.001,
+                'decay': 1.0,
+                'optimizer': "SGD"
+                }
 
-    # dictionary containing all the information about hyper-parameter search
-    hpsearch = {'do_hpsearch': False, 'learning_rates': 10**np.linspace(-2, -4, 5), 'epochs': 50}
+    hpsearch = {
+                'do_hpsearch': False,
+                'learning_rates': 10**np.linspace(-2, -4, 5),
+                'epochs': 50
+                }
+
+    # supported architectures
+    # LINEAR
+    # TANH_RNN
+    # GRU
+    # LSTM
+    model = {
+             'architecture': 'LINEAR',
+             'gradient_clipping': None,
+             'jit': False,
+             'input_size': 88,
+             'hidden_size': 300,
+             'num_layers': 1,
+             'output_size': 88
+            }
+
+    # supported initializations
+    # Identity
+    initializer = {
+                  'init': 'default',
+                  'scale': 1.0,
+                  'min_angle': 0.0,
+                  'max_angle': 2.0
+                  }
 
     # detect backprop anamolies
     detect_anomaly = False
-
-    #RNN arguments
-    architecture = 'LINEAR'
-    gradient_clipping = None
-    input_size = 88
-    hidden_size = 300
-    num_layers = 1
-    output_size = 88
-
-    # initializer dictionary contains all initialization information
-    initializer = {'init': 'default', 'scale': 1.0, 'min_angle': 0.0, 'max_angle': 2.0}
 
 
 # main function
 @ex.automain
 def train_model(
-                cuda,
-                gpu,
-                save_dir,
-                name,
-                set,
-                num_epochs,
-                batch_size,
-                lr,
-                optimizer,
+                system,
+                training,
                 hpsearch,
-                detect_anomaly,
-                architecture,
-                gradient_clipping,
-                input_size,
-                hidden_size,
-                num_layers,
-                output_size,
+                model,
                 initializer,
+                detect_anomaly,
                 _seed,
                 _run):
 
@@ -97,40 +107,31 @@ def train_model(
     torch.autograd.set_detect_anomaly(detect_anomaly)
 
     # get the data loaders
-    train_loader, test_loader, val_loader = get_data_loader(name, set, batch_size)
+    train_loader, test_loader, val_loader = get_data_loader(training['name'], training['batch_size'])
 
     # standard training loop
     if not hpsearch['do_hpsearch']:
 
         # if we are on cuda we construct the device and run everything on it
         device = util.NullContext()
-        if cuda:
-            device = torch.cuda.device('cuda:' + str(gpu))
+        if system['cuda']:
+            device = torch.cuda.device('cuda:' + str(system['gpu']))
 
         with device:
 
-            # construct the model
-            model_kwargs = {
-                            "architecture": architecture,
-                            "gradient_clipping": gradient_clipping,
-                            "input_size": input_size,
-                            "hidden_size": hidden_size,
-                            "num_layers": num_layers,
-                            "output_size": output_size,
-                            "initializer": initializer
-                            }
-            model = get_model(**model_kwargs)
+            model = get_model(model, initializer)
 
             # always use this loss function for multi-variate binary prediction
             loss_fcn = nn.BCEWithLogitsLoss(reduction='sum')
 
             # construct the optimizer
-            if optimizer == "SGD":
-                optimizer = optim.SGD(model.parameters(), lr=lr)
-            elif optimizer == "Adam":
-                optimizer = optim.Adam(model.parameters(), lr=lr)
-            elif optimizer == "RMSprop":
-                optimizer = optim.RMSprop(model.parameters(), lr=lr)
+            optimizer = None
+            if training['optimizer'] == "SGD":
+                optimizer = optim.SGD(model.parameters(), lr=training['lr'])
+            elif training['optimizer'] == "Adam":
+                optimizer = optim.Adam(model.parameters(), lr=training['lr'])
+            elif training['optimizer'] == "RMSprop":
+                optimizer = optim.RMSprop(model.parameters(), lr=training['lr'])
             else:
                 raise ValueError("Optimizer {} not recognized.".format(optimizer))
 
@@ -143,7 +144,7 @@ def train_model(
             _run.add_artifact('initial_state_dict.pt')
 
             # begin training loop
-            for epoch in tqdm(range(num_epochs)):
+            for epoch in tqdm(range(training['num_epochs'])):
 
                 for input_tensor, target_tensor in train_loader:
 
