@@ -8,7 +8,7 @@ import torch
 import torch.tensor
 import torch.nn.functional as F
 
-from torch.utils.data import TensorDataset, DataSet, DataLoader
+from torch.utils.data import TensorDataset, Dataset, DataLoader
 
 from scipy.io import loadmat
 
@@ -41,7 +41,7 @@ def get_data_loader(name: str, set: str, batch_size: int):
     :return: DataLoaders for training, testing, and validation.
     """
 
-    path = "../data/" + name + ".mat"
+    path = "data/" + name + ".mat"
 
     train_data = None
     test_val_data = None

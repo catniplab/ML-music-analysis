@@ -2,6 +2,7 @@
 This module is defines custom pytorch modules that do thing we like.
 """
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -16,7 +17,7 @@ class Accuracy(nn.Module):
     def forward(self, output, target):
 
         size = 0
-        for d in output.shape
+        for d in output.shape:
             size += d
 
         prediction = 1.0*(torch.softmax(output) > 0.5)

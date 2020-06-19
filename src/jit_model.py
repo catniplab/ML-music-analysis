@@ -11,7 +11,7 @@ import torch.nn as nn
 import torch.jit as jit
 import torch.nn.functional as F
 
-from custom_models import LINEAR
+from src.custom_models import LINEAR
 
 # TODO
 # make sure we are using the same conventions as pytorch RNNs in terms of storing hidden states
@@ -48,7 +48,7 @@ def _initialize(model, **initializer):
         raise ValueError("Initialization {} not recognized.".format(initializer['init']))
 
     # scale field of the dictionary applies to all intializations
-    model.rnn.weight_hh_l0.weight.data *= intializer['scale']
+    model.rnn.weight_hh_l0.weight.data *= initializer['scale']
 
 
 # A pytorch model together with a linear read-out
