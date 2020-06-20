@@ -26,13 +26,18 @@ class LINEAR(nn.Module):
 
     def forward(self, x):
 
-        #dev = x.get_device()
+        dev = x.get_device()
+        if dev < 0:
+            dev = 'cpu'
+        else:
+            dev = 'cuda:' + str(dev)
+        #print(dev)
 
         N = x.shape[0]
         T = x.shape[1]
 
-        hiddens = torch.zeros((N, T, self.hidden_size), dtype=torch.float)
-        initial = torch.randn((N, self.hidden_size), dtype=torch.float)
+        hiddens = torch.zeros((N, T, self.hidden_size), dtype=torch.float, device=dev)
+        initial = torch.randn((N, self.hidden_size), dtype=torch.float, device=dev)
 
         #hiddens = torch.zeros((N, T, self.hidden_size), dtype=torch.float, device=dev)
         #initial = torch.randn((N, self.hidden_size), dtype=torch.float, device=dev)

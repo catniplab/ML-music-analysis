@@ -35,9 +35,10 @@ def cfg():
              }
 
     # supported datasets
-    # Nottingham
-    # Piano_midi
-    # MuseData
+    # JSB_Chorales (short)
+    # Nottingham (medium)
+    # Piano_midi (long)
+    # MuseData (extra long)
     training = {
                 'dataset': "JSB_Chorales",
                 'num_epochs': 150,
@@ -199,21 +200,26 @@ def train_model(
     # standard training loop
     if not hpsearch['do_hpsearch']:
 
+        # construct and initialize the model
+        model = get_model(model_dict, initializer)
+
+        # save a copy of the initial model and make sacred remember it
+        if saving['init_model']:
+            init_sd = deepcopy(model.state_dict())
+            torch.save(init_sd, save_dir + 'initial_state_dict.pt')
+            _run.add_artifact(save_dir + 'initial_state_dict.pt')
+
         # if we are on cuda we construct the device and run everything on it
-        device = NullContext()
-        if system['cuda']:
-            device = torch.cuda.device('cuda:' + str(system['gpu']))
+        cuda = system['cuda']
+        cuda_device = NullContext()
+        device = None
+        if cuda:
+            dev_name = 'cuda:' + str(system['gpu'])
+            cuda_device = torch.cuda.device(dev_name)
+            device = torch.device(dev_name)
+            model = model.to(device)
 
-        with device:
-
-            # construct and initialize the model
-            model = get_model(model_dict, initializer)
-
-            # save a copy of the initial model and make sacred remember it
-            if saving['init_model']:
-                init_sd = deepcopy(model.state_dict())
-                torch.save(init_sd, save_dir + 'initial_state_dict.pt')
-                _run.add_artifact(save_dir + 'initial_state_dict.pt')
+        with cuda_device:
 
             # always use this loss function for multi-variate binary prediction
             # on piano music where there are 88 possible notes
@@ -238,8 +244,12 @@ def train_model(
 
                 for input_tensor, target_tensor in train_loader:
 
-                    #_log.warning("\nInput tensor: " + str(input_tensor.shape))
-                    #_log.warning("Target tensor: " + str(target_tensor.shape))
+                    if cuda:
+                        input_tensor = input_tensor.to(device)
+                        target_tensor = target_tensor.to(device)
+
+                    #print(cuda)
+                    #print(input_tensor.get_device())
 
                     optimizer.zero_grad()
 
