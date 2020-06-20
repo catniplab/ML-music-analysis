@@ -2,7 +2,7 @@
 Random utilities which don't seem to belong anywhere.
 """
 
-from src.base_models import Accuracy
+from src.custom_models import Accuracy
 
 import os
 import numpy as np

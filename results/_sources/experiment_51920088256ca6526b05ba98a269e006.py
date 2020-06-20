@@ -4,7 +4,7 @@ This script creates an instance of a sacred experiment and defines default confi
 
 import src.util as util
 from src.load_data import get_data_loader
-from src.models import get_model
+from src.jit_model import get_model
 
 import os
 import numpy as np

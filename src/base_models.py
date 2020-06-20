@@ -20,7 +20,8 @@ class Accuracy(nn.Module):
         for d in output.shape:
             size += d
 
-        prediction = 1.0*(torch.softmax(output) > 0.5)
+        prediction = 1.0*(torch.softmax(output, dim=1) > 0.5)
+        #print(prediction)
 
         agreement = torch.sum(prediction*target + (1 - prediction)*(1 - target))
 

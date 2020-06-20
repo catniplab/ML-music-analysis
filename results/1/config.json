@@ -1,0 +1,48 @@
+{
+  "detect_anomaly": false,
+  "hpsearch": {
+    "do_hpsearch": false,
+    "epochs": 50,
+    "learning_rates": {
+      "dtype": "float64",
+      "py/object": "numpy.ndarray",
+      "values": [
+        0.01,
+        0.0031622776601683794,
+        0.001,
+        0.00031622776601683794,
+        0.0001
+      ]
+    }
+  },
+  "initializer": {
+    "init": "default",
+    "max_angle": 2.0,
+    "min_angle": 0.0,
+    "scale": 1.0
+  },
+  "model": {
+    "architecture": "LINEAR",
+    "gradient_clipping": null,
+    "hidden_size": 300,
+    "input_size": 88,
+    "jit": false,
+    "num_layers": 1,
+    "output_size": 88
+  },
+  "seed": 742214713,
+  "system": {
+    "cuda": false,
+    "gpu": 0,
+    "save_dir": "/home/kadile/Projects/ML-music-analysis"
+  },
+  "training": {
+    "batch_size": 128,
+    "decay": 1.0,
+    "lr": 0.001,
+    "name": "Nottingham",
+    "num_epochs": 150,
+    "optimizer": "SGD",
+    "set": "test"
+  }
+}
