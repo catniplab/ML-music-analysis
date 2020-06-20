@@ -78,7 +78,7 @@ def cfg():
     # supported initializations
     # Identity
     initializer = {
-                  'init': 'identity',
+                  'init': 'default',
                   'scale': 1.0,
                   'min_angle': 0.0,
                   'max_angle': 2.0
@@ -145,6 +145,8 @@ def train_model(
             # always use this loss function for multi-variate binary prediction
             # on piano music where there are 88 possible notes
             loss_fcn = lambda out, targ: 88*nn.BCEWithLogitsLoss()(out, targ)
+
+            _log.warning(str([p for p in model.parameters()]))
 
             # construct the optimizer
             optimizer = None

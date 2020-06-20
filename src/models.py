@@ -18,16 +18,17 @@ from src.base_models import LINEAR
 
 # TODO
 # make sure we are using the same conventions as pytorch RNNs in terms of storing hidden states
+# get jit working
 
 def make_identity(shape: torch.Size):
     """
-    :param shape: shape of the desired tensor
-    :return: tensor which is zeroes everywhere and ones on diagonal
+    :param shape: shape of the desired matrix
+    :return: matrix which is zeroes everywhere and ones on diagonal
     """
 
     result = torch.zeros(shape)
 
-    for i in range(shape[0]):
+    for i in range(np.minimum(shape[0], shape[1])):
         result[i, i] = 1.0
 
     return result
@@ -49,6 +50,11 @@ class ReadOutModel(nn.Module):
 
         constructor = arch_to_constructor[model_dict['architecture']]
         self.rnn = constructor(model_dict)
+
+        clip = model_dict['gradient_clipping']
+        if clip != None:
+            for p in self.parameters():
+                p.register_hook(lambda grad: torch.clamp(grad, -clip, clip))
 
     def forward(self, x):
 
