@@ -16,6 +16,7 @@ import random
 
 from sacred import Experiment
 from copy import deepcopy
+from time import sleep
 from tqdm import tqdm
 
 
@@ -37,7 +38,7 @@ def cfg():
     system = {
               'cuda': torch.cuda.is_available(),
               'gpu': 0,
-              'save_dir': os.getcwd()
+              'base_dir': os.getcwd()
              }
 
     # supported datasets
@@ -45,8 +46,7 @@ def cfg():
     # Piano_midi
     # MuseData
     training = {
-                'name': "Nottingham",
-                'set': "test",
+                'name': "JSB_Chorales",
                 'num_epochs': 150,
                 'batch_size': 128,
                 'lr': 0.001,
@@ -65,7 +65,7 @@ def cfg():
     # TANH_RNN
     # GRU
     # LSTM
-    model = {
+    model_dict = {
              'architecture': 'LINEAR',
              'gradient_clipping': None,
              'jit': False,
@@ -78,11 +78,18 @@ def cfg():
     # supported initializations
     # Identity
     initializer = {
-                  'init': 'default',
+                  'init': 'identity',
                   'scale': 1.0,
                   'min_angle': 0.0,
                   'max_angle': 2.0
                   }
+
+    # when to save state dictionaries
+    saving = {
+              'init_model': True,
+              'final_model': True,
+              'every_epoch': False
+             }
 
     # detect backprop anamolies
     detect_anomaly = False
@@ -94,8 +101,9 @@ def train_model(
                 system,
                 training,
                 hpsearch,
-                model,
+                model_dict,
                 initializer,
+                saving,
                 detect_anomaly,
                 _seed,
                 _log,
@@ -103,6 +111,11 @@ def train_model(
 
     # give all random number generators the same seed
     _seed_all(_seed)
+
+    # save artifacts to a temporary directory that gets erased when the experiment is over
+    save_dir = system['base_dir'] + '/tmp_' + str(_seed)
+    os.system('mkdir ' + save_dir)
+    save_dir += '/'
 
     # if we are debugging we may want to detect autograd anomalies
     torch.autograd.set_detect_anomaly(detect_anomaly)
@@ -120,10 +133,18 @@ def train_model(
 
         with device:
 
-            model = get_model(model, initializer)
+            # construct and initialize the model
+            model = get_model(model_dict, initializer)
+
+            # save a copy of the initial model and make sacred remember it
+            if saving['init_model']:
+                init_sd = deepcopy(model.state_dict())
+                torch.save(init_sd, save_dir + 'initial_state_dict.pt')
+                _run.add_artifact(save_dir + 'initial_state_dict.pt')
 
             # always use this loss function for multi-variate binary prediction
-            loss_fcn = nn.BCEWithLogitsLoss(reduction='sum')
+            # on piano music where there are 88 possible notes
+            loss_fcn = lambda out, targ: 88*nn.BCEWithLogitsLoss()(out, targ)
 
             # construct the optimizer
             optimizer = None
@@ -134,15 +155,10 @@ def train_model(
             elif training['optimizer'] == "RMSprop":
                 optimizer = optim.RMSprop(model.parameters(), lr=training['lr'])
             else:
-                raise ValueError("Optimizer {} not recognized.".format(optimizer))
+                raise ValueError("Optimizer {} not recognized.".format(training['optimizer']))
 
             # learning rate decay
             #scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: decay**epoch)
-
-            # save a copy of the initial model and make sacred remember it
-            init_sd = deepcopy(model.state_dict())
-            torch.save(init_sd, 'initial_state_dict.pt')
-            _run.add_artifact('initial_state_dict.pt')
 
             # begin training loop
             for epoch in tqdm(range(training['num_epochs'])):
@@ -165,6 +181,12 @@ def train_model(
                     _run.log_scalar("training.loss", loss.cpu().detach().item())
                     _run.log_scalar("training.accuracy", util.compute_accuracy(model, train_loader))
 
+                    # save a copy of the model and make sacred remember it each epoch
+                    if saving['every_epoch']:
+                        sd = deepcopy(model.state_dict())
+                        torch.save(init_sd, save_dir + 'state_dict_' + str(epoch) + '.pt')
+                        _run.add_artifact(save_dir + 'state_dict_' + str(epoch) + '.pt')
+
                 # learning rate decay
                 #scheduler.step()
 
@@ -183,9 +205,13 @@ def train_model(
                 _run.log_scalar("validation.accuracy", val_acc)
 
             # save a copy of the trained model and make sacred remember it
-            sd = model.state_dict()
-            torch.save(sd, 'final_state_dict.pt')
-            _run.add_artifact('final_state_dict.pt')
+            if saving['final_model']:
+                fin_sd = deepcopy(model.state_dict())
+                torch.save(fin_sd, save_dir + 'final_state_dict.pt')
+                _run.add_artifact(save_dir + 'final_state_dict.pt')
+
+            sleep(1)
+            os.system('rm -r ' + save_dir)
 
     # only goal here is to find the best hyper parameters
     else:

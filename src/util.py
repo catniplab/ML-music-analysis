@@ -73,3 +73,20 @@ def compute_accuracy(model: nn.Module, loader: DataLoader) -> float:
     return np.mean(all_acc)
 
 
+# a hacky way of figuring out where to save artifacts when using a file storage observer
+def probe_result_dir() -> str:
+
+    names = os.listdir('results')
+
+    numbered_dirs = []
+
+    for name in names:
+
+        try:
+            num = int(name)
+            numbered_dirs.append(num)
+
+        except ValueError:
+            pass
+
+    return '/' + str(np.max(numbered_dirs)) + '/'
