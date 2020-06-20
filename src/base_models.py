@@ -7,25 +7,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# Not a model, but a pytorch module which computes the accuracy of binary data
-class Accuracy(nn.Module):
-
-    def __init__(self):
-
-        super(Accuracy, self).__init__()
-
-    def forward(self, output, target):
-
-        size = 0
-        for d in output.shape:
-            size += d
-
-        prediction = 1.0*(torch.softmax(output, dim=1) > 0.5)
-        #print(prediction)
-
-        agreement = torch.sum(prediction*target + (1 - prediction)*(1 - target))
-
-        return agreement/size
 
 # A linear dynamical system whose input is a linear transformation of the data.
 class LINEAR(nn.Module):

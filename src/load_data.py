@@ -44,19 +44,19 @@ class DatasetFromArrayOfArrays(Dataset):
         return len(self.data)
 
 
-def get_data_loader(name: str, batch_size: int) -> Tuple:
+def get_data_loader(dataset: str, batch_size: int) -> Tuple:
     """
-    :param name: The name of the data set we want to use. Either JSB_Chorales, MuseData, Nottingham, or Piano_midi.
+    :param dataset: The name of the dataset we want to use. Either JSB_Chorales, MuseData, Nottingham, or Piano_midi.
     :param set: either test or valid.
     :return: DataLoaders for training, testing, and validation.
     """
 
-    path = "data/" + name + ".mat"
+    path = "data/" + dataset + ".mat"
 
     train_data = None
     test_val_data = None
 
-    if name in ["JSB_Chorales", "MuseData", "Nottingham", "Piano_midi"]:
+    if dataset in ["JSB_Chorales", "MuseData", "Nottingham", "Piano_midi"]:
 
         # get the data from the matlab file
         mat_data = loadmat(path)
@@ -77,4 +77,4 @@ def get_data_loader(name: str, batch_size: int) -> Tuple:
         return train_loader, test_loader, val_loader
 
     else:
-        raise ValueError("Data set {} not found.".format(name))
+        raise ValueError("Dataset {} not found.".format(dataset))
