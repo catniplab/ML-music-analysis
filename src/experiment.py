@@ -62,7 +62,7 @@ def cfg():
     model_dict = {
                   'architecture': 'LINEAR',
                   'gradient_clipping': None,
-                  'jit': False,
+                  'jit': True,
                   'input_size': 88,
                   'hidden_size': 300,
                   'num_layers': 1,
@@ -134,9 +134,9 @@ def log_loss(loss_fcn: nn.Module,
 
 @ex.capture
 def log_accuracy(model: nn.Module,
-                loader: DataLoader,
-                log_name: str,
-                _run):
+                 loader: DataLoader,
+                 log_name: str,
+                 _run):
     """
     :param model: model which we are testing
     :param loader: DataLoader for either testing or validation data
@@ -212,7 +212,7 @@ def train_model(
         # if we are on cuda we construct the device and run everything on it
         cuda = system['cuda']
         cuda_device = NullContext()
-        device = None
+        device = torch.device('cpu')
         if cuda:
             dev_name = 'cuda:' + str(system['gpu'])
             cuda_device = torch.cuda.device(dev_name)
@@ -244,15 +244,12 @@ def train_model(
 
                 for input_tensor, target_tensor in train_loader:
 
-                    if cuda:
-                        input_tensor = input_tensor.to(device)
-                        target_tensor = target_tensor.to(device)
-
-                    #print(cuda)
-                    #print(input_tensor.get_device())
+                    input_tensor = input_tensor.to(device)
+                    target_tensor = target_tensor.to(device)
 
                     optimizer.zero_grad()
 
+                    #_log.warning(str([p for p in model.parameters()]))
                     output_tensor, hidden_tensor = model(input_tensor)
                     prediction = output_tensor[:, -1]
 

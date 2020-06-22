@@ -16,6 +16,12 @@ import torch.nn.functional as F
 
 from src.base_models import LINEAR
 
+# From the name of the architecture, return its constructor.
+arch_to_constructor = {"LINEAR": LINEAR,
+                       "TANH_RNN": nn.RNNCell,
+                       "GRU": nn.GRUCell,
+                       "LSTM": nn.LSTMCell}
+
 # TODO
 # make sure we are using the same conventions as pytorch RNNs in terms of storing hidden states
 # get jit working
@@ -45,9 +51,6 @@ class ReadOutModel(nn.Module):
         self.output_size = model_dict['output_size']
         self.output_weights = nn.Linear(self.hidden_size, self.output_size)
 
-        # From the name of the architecture, return its constructor.
-        arch_to_constructor = {"LINEAR": LINEAR, "TANH_RNN": nn.RNN, "GRU": nn.GRU, "LSTM": nn.LSTM}
-
         constructor = arch_to_constructor[model_dict['architecture']]
         self.rnn = constructor(model_dict)
 
@@ -71,19 +74,20 @@ def _initialize(model: ReadOutModel, initializer: dict) -> ReadOutModel:
     """
 
     if initializer['init'] == 'identity':
-        shape = model.rnn.weight_hh_l0.weight.data.shape
-        model.rnn.weight_hh_l0.weight.data = make_identity(shape)
+        shape = model.rnn.weight_hh.weight.data.shape
+        #shape = model.weight_hh.weight.data.shape
+        model.rnn.weight_hh = initializer['scale']*make_identity(shape)
+        #model.weight_hh = initializer['scale']*make_identity(shape)
 
     elif initializer['init'] != 'default':
         raise ValueError("Initialization {} not recognized.".format(initializer['init']))
-
-    # scale field of the dictionary applies to all intializations
-    model.rnn.weight_hh_l0.weight.data *= initializer['scale']
 
 
 # Get a just-in-time-compiled model from the argument dictionary.
 def get_model(model_dict: dict, initializer: dict) -> ReadOutModel:
 
+    #constructor = arch_to_constructor[model_dict['architecture']]
+    #model = constructor(model_dict)
     model = ReadOutModel(model_dict)
     _initialize(model, initializer)
 
