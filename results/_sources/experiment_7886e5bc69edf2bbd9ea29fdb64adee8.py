@@ -72,7 +72,7 @@ def cfg():
     # supported initializations
     # Identity
     initializer = {
-                   'init': 'default',
+                   'init': 'identity',
                    'scale': 1.0,
                    'min_angle': 0.0,
                    'max_angle': 2.0

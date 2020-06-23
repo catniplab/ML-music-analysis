@@ -40,7 +40,7 @@ def cfg():
     # Piano_midi (long)
     # MuseData (extra long)
     training = {
-                'dataset': "Nottingham",
+                'dataset': "JSB_Chorales",
                 'num_epochs': 150,
                 'batch_size': 128,
                 'lr': 0.001,
@@ -72,7 +72,7 @@ def cfg():
     # supported initializations
     # Identity
     initializer = {
-                   'init': 'default',
+                   'init': 'identity',
                    'scale': 1.0,
                    'min_angle': 0.0,
                    'max_angle': 2.0
