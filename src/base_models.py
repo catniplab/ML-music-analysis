@@ -15,35 +15,37 @@ class LINEAR(nn.Module):
 
         super(LINEAR, self).__init__()
 
+        self.mt19937 = np.random.MT19937()
+        self.hh_seed = np.random.get_state()
+
         self.input_size = model_dict['input_size']
         self.hidden_size = model_dict['hidden_size']
         self.output_size = model_dict['output_size']
 
-        self.weight_ih = nn.Parameter(torch.randn(self.input_size, self.hidden_size,))
-        self.bias = nn.Parameter(torch.randn(self.hidden_size))
-        self.weight_hh = nn.Parameter(torch.randn(self.hidden_size, self.hidden_size))
-        #self.weight_ih = nn.Linear(self.input_size, self.hidden_size, bias=False)
-        #self.weight_hh = nn.Linear(self.hidden_size, self.hidden_size, bias=False)
+        #self.weight_ih = nn.Parameter(torch.randn(self.input_size, self.hidden_size,))
+        #self.bias = nn.Parameter(torch.randn(self.hidden_size))
+        #self.weight_hh = nn.Parameter(torch.randn(self.hidden_size, self.hidden_size))
+        self.weight_ih_l0 = nn.Linear(self.input_size, self.hidden_size)
+        self.weight_hh_l0 = nn.Linear(self.hidden_size, self.hidden_size, bias=False)
         #self.weight_ho = nn.Linear(self.hidden_size, self.output_size, bias=False)
-
-        self.mt19937 = np.random.MT19937()
-        self.hh_seed = np.random.get_state()
 
     def forward(self, x):
 
         dev = 'cpu'
-        #if torch.cuda.is_available():
-        #    dev = torch.cuda.current_device()
+        if torch.cuda.is_available():
+            dev = torch.cuda.current_device()
 
         N = x.shape[0]
         T = x.shape[1]
 
-        hiddens = torch.tensor((N, T, self.hidden_size), dtype=torch.float, device=dev)
+        hiddens = []
         initial = torch.randn((N, self.hidden_size), dtype=torch.float, device=dev)
-        hiddens[:, 0] = initial + torch.mm(self.weight_ih, x[:, 0])
+        hidden = initial + self.weight_ih_l0(x[:, 0])
+        hiddens.append(hidden)
 
         for t in range(1, T):
-            hiddens[:, t] = torch.mm(self.weight_hh, hiddens[:, t - 1]) + torch.mm(self.weight_ih, x[:, t - 1]) + self.bias
+            hidden = self.weight_hh_l0(hidden) + self.weight_ih_l0(x[:, t - 1])
+            hiddens.append(hidden)
 
         return hiddens, hiddens
 
