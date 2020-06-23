@@ -237,7 +237,6 @@ def train_model(
                 raise ValueError("Optimizer {} not recognized.".format(training['optimizer']))
 
             # learning rate decay
-            decay = training['decay']
             scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: decay**epoch)
 
             # begin training loop

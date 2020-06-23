@@ -13,7 +13,22 @@ from sacred.observers import FileStorageObserver
 import os
 
 # custom configuration
-config_updates = {}
+config_updates = {
+                  'training': {
+                              'dataset': "Nottingham",
+                              'num_epochs': 150,
+                              'batch_size': 128,
+                              'lr': 0.001,
+                              'decay': 0.96,
+                              'optimizer': "SGD"
+                              },
+                  'initializer': {
+                                 'init': 'default',
+                                 'scale': 1.0,
+                                 'min_angle': 0.0,
+                                 'max_angle': 2.0
+                                 }
+                }
 
 # store in local directory for now
 base_dir = os.getcwd()
