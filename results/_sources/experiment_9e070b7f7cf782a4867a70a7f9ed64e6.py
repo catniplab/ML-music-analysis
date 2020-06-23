@@ -61,7 +61,7 @@ def cfg():
     # LSTM
     model_dict = {
                   'architecture': 'LINEAR',
-                  'gradient_clipping': 1,
+                  'gradient_clipping': 100,
                   'jit': False,
                   'input_size': 88,
                   'hidden_size': 300,
