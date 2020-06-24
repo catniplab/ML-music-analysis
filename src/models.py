@@ -13,6 +13,9 @@ import torch
 import torch.nn as nn
 import torch.jit as jit
 import torch.nn.functional as F
+from torch.distributions import Bernoulli
+
+from math import sin, cos
 
 from src.base_models import LINEAR
 
@@ -26,7 +29,7 @@ arch_to_constructor = {"LINEAR": LINEAR,
 # make sure we are using the same conventions as pytorch RNNs in terms of storing hidden states
 # get jit working
 
-def make_identity(shape: torch.Size):
+def make_identity(shape: torch.Size) -> torch.Tensor:
     """
     :param shape: shape of the desired matrix
     :return: matrix which is zeroes everywhere and ones on diagonal
@@ -36,6 +39,36 @@ def make_identity(shape: torch.Size):
 
     for i in range(np.minimum(shape[0], shape[1])):
         result[i, i] = 1.0
+
+    return result
+
+
+def make_block_ortho(shape: torch.Size, t_distrib: torch.Distribution, parity=None) -> torch.Tensor:
+    """
+    :param shape: shape of the block orthogonal matrix that we desire
+    :param t_distrib: pytorch distribution from which we will sample the angles
+    :param parity: None will return a mixed parity block orthogonal matrix, 'reflect' will return a decoupled system of 2D reflections, and anything else will return decoupled system of rotations.
+    """
+
+    if shape[0] != shape[1] or shape[0]%2 == 1:
+        raise ValueError("Tried to get block orthogonal matrix of shape {}".format(str(shape)))
+
+    n = shape[0]//2
+    result = torch.zeroes(shape)
+
+    bern = Bernoulli(torch.tensor[0.5])
+
+    for i in range(n):
+
+        t = t_distrib.sample()
+        mat = torch.tensor([[cos(t), sin(t)], [-sin(t), cos(t)]])
+
+        if parity == None:
+            mat[0] *= 2*bern.sample() - 1
+        elif parity == 'reflect':
+            mat[0] *= -1
+
+        result[2*i : 2*(i + 1), 2*i : 2*(i + 1)] = mat
 
     return result
 
@@ -77,15 +110,26 @@ def _initialize(model: ReadOutModel, initializer: dict) -> ReadOutModel:
 
     if initializer['init'] == 'identity':
         shape = model.rnn.weight_hh_l0.weight.data.shape
-        #shape = model.weight_hh.weight.data.shape
         model.rnn.weight_hh_l0.weight.data = initializer['scale']*make_identity(shape)
-        #model.weight_hh = initializer['scale']*make_identity(shape)
+
+    elif initializer['init'] == 'blockortho':
+        shape = model.rnn.weight_hh_l0.weight.data.shape
+        t_distrib = initializer['t_distrib']
+        parity = initializer['parity']
+        scale = initializer['scale']
+        model.rnn.weight_hh_l0.weight.data = scale*make_block_ortho(shape, t_distrib, parity)
+
+    elif initializer['init'] == 'ortho':
+        nn.init.orthogonal_(model.rnn.weight_hh_l0.weight.data)
+
+    elif initializer['init'] == 'stdnormal':
+        shape = model.rnn.weight_hh_l0.weight.data.shape
+        model.rnn.weight_hh_l0.weight.data = initializer['scale']*torch.randn(shape)
 
     elif initializer['init'] != 'default':
         raise ValueError("Initialization {} not recognized.".format(initializer['init']))
 
 
-# Get a just-in-time-compiled model from the argument dictionary.
 def get_model(model_dict: dict, initializer: dict) -> ReadOutModel:
 
     #constructor = arch_to_constructor[model_dict['architecture']]
