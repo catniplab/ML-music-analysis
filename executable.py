@@ -15,7 +15,7 @@ import os
 # custom configuration
 config_updates = {
                   'training': {
-                              'dataset': "Nottingham",
+                              'dataset': "JSB_Chorales",
                               'num_epochs': 150,
                               'batch_size': 128,
                               'lr': 0.001,
@@ -23,11 +23,21 @@ config_updates = {
                               'optimizer': "SGD"
                               },
                   'initializer': {
-                                 'init': 'default',
-                                 'scale': 1.0,
+                                 'init': 'identity',
+                                 'scale': 0.01,
                                  'min_angle': 0.0,
                                  'max_angle': 2.0
+                                 },
+                   'model_dict': {
+                                  'architecture': 'LINEAR',
+                                  'gradient_clipping': 1,
+                                  'jit': True,
+                                  'input_size': 88,
+                                  'hidden_size': 300,
+                                  'num_layers': 1,
+                                  'output_size': 88
                                  }
+
                 }
 
 # store in local directory for now

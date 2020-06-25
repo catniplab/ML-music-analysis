@@ -18,7 +18,13 @@ from torch.distributions.distribution import Distribution
 
 from math import sin, cos
 
-from src.base_models import LINEAR_CUDA, LINEAR_JIT
+from src.base_models import LINEAR
+
+# From the name of the architecture, return its constructor.
+arch_to_constructor = {"LINEAR": LINEAR,
+                       "TANH_RNN": nn.RNNCell,
+                       "GRU": nn.GRUCell,
+                       "LSTM": nn.LSTMCell}
 
 # TODO
 # make sure we are using the same conventions as pytorch RNNs in terms of storing hidden states
@@ -67,25 +73,11 @@ def make_block_ortho(shape: torch.Size, t_distrib: Distribution, parity=None) ->
 
     return result
 
-def get_constructor(architecture: str, cuda: bool):
-    """
-    :param architecture: name of the architecture we want to use
-    :param cuda: whether or not the model needs to be run on the gpu
-    """
-
-    if architecture == 'LINEAR':
-        if cuda:
-            return LINEAR_JIT
-        else:
-            return LINEAR_JIT
-
-    else:
-        raise ValueError("Architecture {} not recognized.".format(architecture))
 
 # A pytorch model together with a linear read-out
 class ReadOutModel(nn.Module):
 
-    def __init__(self, model_dict, cuda):
+    def __init__(self, model_dict):
 
         super(ReadOutModel, self).__init__()
 
@@ -93,7 +85,7 @@ class ReadOutModel(nn.Module):
         self.output_size = model_dict['output_size']
         self.output_weights = nn.Linear(self.hidden_size, self.output_size)
 
-        constructor = get_constructor(model_dict['architecture'], cuda)
+        constructor = arch_to_constructor[model_dict['architecture']]
         self.rnn = constructor(model_dict)
 
         clip = model_dict['gradient_clipping']
@@ -139,16 +131,14 @@ def _initialize(model: ReadOutModel, initializer: dict) -> ReadOutModel:
         raise ValueError("Initialization {} not recognized.".format(initializer['init']))
 
 
-def get_model(model_dict: dict, initializer: dict, cuda: bool) -> ReadOutModel:
+def get_model(model_dict: dict, initializer: dict) -> ReadOutModel:
 
-    # construct the model
-    model = ReadOutModel(model_dict, cuda)
-
-    # initialize the model
+    #constructor = arch_to_constructor[model_dict['architecture']]
+    #model = constructor(model_dict)
+    model = ReadOutModel(model_dict)
     _initialize(model, initializer)
 
-    # if running on the cpu we may want to use just-in-time compilation
-    if not cuda and model_dict['jit']:
+    if model_dict['jit']:
         model = jit.script(model)
 
     return model
