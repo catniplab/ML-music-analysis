@@ -15,7 +15,7 @@ import os
 # custom configuration
 config_updates = {
                   'training': {
-                              'dataset': "JSB_Chorales",
+                              'dataset': "MuseData",
                               'num_epochs': 150,
                               'batch_size': 128,
                               'lr': 0.001,
@@ -24,14 +24,14 @@ config_updates = {
                               },
                   'initializer': {
                                  'init': 'identity',
-                                 'scale': 0.01,
+                                 'scale': 1.0,
                                  'min_angle': 0.0,
                                  'max_angle': 2.0
                                  },
                    'model_dict': {
                                   'architecture': 'LINEAR',
                                   'gradient_clipping': 1,
-                                  'jit': True,
+                                  'jit': False,
                                   'input_size': 88,
                                   'hidden_size': 300,
                                   'num_layers': 1,

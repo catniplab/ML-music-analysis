@@ -126,7 +126,7 @@ def log_loss(loss_fcn: nn.Module,
         output, hiddens = model(input_tensor)
         prediction = output[-1]
 
-        loss = loss_fcn(prediction.cpu(), target_tensor.cpu())
+        loss = loss_fcn(prediction, target_tensor)
         all_loss.append(loss.cpu().detach().item())
 
     _run.log_scalar(log_name, np.mean(all_loss))
@@ -149,20 +149,22 @@ def log_accuracy(model: nn.Module,
     # one way of computing accuracy?
     def acc_fcn(output, target):
 
-        prediction = (torch.sigmoid(output) > 0.5).type(torch.get_default_dtype())
+        with device:
 
-        true_pos = torch.sum(prediction*target)
-        false_pos = torch.sum(prediction*(1 - target))
-        false_neg = torch.sum((1 - prediction)*target)
+            prediction = (torch.sigmoid(output) > 0.5).type(torch.get_default_dtype())
 
-        return true_pos/(true_pos + false_pos + false_neg)
+            true_pos = torch.sum(prediction*target)
+            false_pos = torch.sum(prediction*(1 - target))
+            false_neg = torch.sum((1 - prediction)*target)
+
+            return true_pos/(true_pos + false_pos + false_neg)
 
     for input_tensor, target_tensor in loader:
 
         output, hiddens = model(input_tensor)
         prediction = output[-1]
 
-        acc = acc_fcn(prediction.cpu(), target_tensor.cpu())
+        acc = acc_fcn(prediction, target_tensor)
         all_acc.append(acc.cpu().detach().item())
 
     _run.log_scalar(log_name, np.mean(all_acc))
@@ -253,7 +255,7 @@ def train_model(
 
                     #_log.warning(str([p for p in model.parameters()]))
                     output_tensor, hidden_tensor = model(input_tensor)
-                    prediction = output_tensor[-1].to(device)
+                    prediction = output_tensor[-1]
 
                     loss = loss_fcn(prediction, target_tensor)
                     loss.backward()

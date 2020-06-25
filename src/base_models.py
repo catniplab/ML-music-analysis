@@ -66,19 +66,17 @@ class LINEAR_CUDA(nn.Module):
         device = self.weight_hh_l0.weight.data.get_device()
         x = x.to(device)
 
-        with device:
+        N = x.shape[0]
+        T = x.shape[1]
 
-            N = x.shape[0]
-            T = x.shape[1]
+        hiddens = []
+        initial = torch.randn((N, self.hidden_size), dtype=torch.float, device=device)
+        hidden = initial + self.weight_ih_l0(x[:, 0])
+        hiddens.append(hidden)
 
-            hiddens = []
-            initial = torch.randn((N, self.hidden_size), dtype=torch.float)
-            hidden = initial + self.weight_ih_l0(x[:, 0])
+        for t in range(1, T):
+            hidden = self.weight_hh_l0(hidden) + self.weight_ih_l0(x[:, t - 1])
             hiddens.append(hidden)
 
-            for t in range(1, T):
-                hidden = self.weight_hh_l0(hidden) + self.weight_ih_l0(x[:, t - 1])
-                hiddens.append(hidden)
-
-            return hiddens, hiddens
+        return hiddens, hiddens
 

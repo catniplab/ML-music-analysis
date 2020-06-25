@@ -61,7 +61,7 @@ def cfg():
     # LSTM
     model_dict = {
                   'architecture': 'LINEAR',
-                  'gradient_clipping': 1,
+                  'gradient_clipping': None,
                   'jit': False,
                   'input_size': 88,
                   'hidden_size': 300,
@@ -124,9 +124,9 @@ def log_loss(loss_fcn: nn.Module,
     for input_tensor, target_tensor in loader:
 
         output, hiddens = model(input_tensor)
-        prediction = output[-1]
+        prediction = output[:, -1]
 
-        loss = loss_fcn(prediction.cpu(), target_tensor.cpu())
+        loss = loss_fcn(prediction, target_tensor)
         all_loss.append(loss.cpu().detach().item())
 
     _run.log_scalar(log_name, np.mean(all_loss))
@@ -134,10 +134,9 @@ def log_loss(loss_fcn: nn.Module,
 
 @ex.capture
 def log_accuracy(model: nn.Module,
-                 loader: DataLoader,
-                 log_name: str,
-                 device,
-                 _run):
+                loader: DataLoader,
+                log_name: str,
+                _run):
     """
     :param model: model which we are testing
     :param loader: DataLoader for either testing or validation data
@@ -160,9 +159,9 @@ def log_accuracy(model: nn.Module,
     for input_tensor, target_tensor in loader:
 
         output, hiddens = model(input_tensor)
-        prediction = output[-1]
+        prediction = output[:, -1]
 
-        acc = acc_fcn(prediction.cpu(), target_tensor.cpu())
+        acc = acc_fcn(prediction, target_tensor)
         all_acc.append(acc.cpu().detach().item())
 
     _run.log_scalar(log_name, np.mean(all_acc))
@@ -202,8 +201,7 @@ def train_model(
     if not hpsearch['do_hpsearch']:
 
         # construct and initialize the model
-        cuda = system['cuda']
-        model = get_model(model_dict, initializer, cuda)
+        model = get_model(model_dict, initializer)
 
         # save a copy of the initial model and make sacred remember it
         if saving['init_model']:
@@ -212,8 +210,9 @@ def train_model(
             _run.add_artifact(save_dir + 'initial_state_dict.pt')
 
         # if we are on cuda we construct the device and run everything on it
+        cuda = system['cuda']
         cuda_device = NullContext()
-        device = torch.device('cpu')
+        device = None
         if cuda:
             dev_name = 'cuda:' + str(system['gpu'])
             cuda_device = torch.cuda.device(dev_name)
@@ -238,22 +237,21 @@ def train_model(
                 raise ValueError("Optimizer {} not recognized.".format(training['optimizer']))
 
             # learning rate decay
-            decay = training['decay']
-            scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: decay**epoch)
+            #scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: decay**epoch)
 
             # begin training loop
             for epoch in tqdm(range(training['num_epochs'])):
 
                 for input_tensor, target_tensor in train_loader:
 
-                    input_tensor = input_tensor.to(device)
-                    target_tensor = target_tensor.to(device)
+                    if cuda:
+                        input_tensor.device = device
+                        target_tensor.device = device
 
                     optimizer.zero_grad()
 
-                    #_log.warning(str([p for p in model.parameters()]))
                     output_tensor, hidden_tensor = model(input_tensor)
-                    prediction = output_tensor[-1].to(device)
+                    prediction = output_tensor[:, -1]
 
                     loss = loss_fcn(prediction, target_tensor)
                     loss.backward()
@@ -261,7 +259,7 @@ def train_model(
 
                     # use sacred to log training loss and accuracy
                     _run.log_scalar("trainLoss", loss.cpu().detach().item())
-                    log_accuracy(model, train_loader, "trainAccuracy", cuda_device, _run)
+                    log_accuracy(model, train_loader, "trainAccuracy", _run)
 
                     # save a copy of the model and make sacred remember it each epoch
                     if saving['every_epoch']:
@@ -270,7 +268,7 @@ def train_model(
                         _run.add_artifact(save_dir + 'state_dict_' + str(epoch) + '.pt')
 
                 # learning rate decay
-                scheduler.step()
+                #scheduler.step()
 
                 # use sacred to log testing and validation loss and accuracy
                 log_loss(loss_fcn, model, test_loader, 'testLoss', _run)

@@ -1,0 +1,123 @@
+{
+  "artifacts": [
+    "initial_state_dict.pt"
+  ],
+  "command": "train_model",
+  "experiment": {
+    "base_dir": "/home/eben/Programs/ML-music-analysis/src",
+    "dependencies": [
+      "numpy==1.18.1",
+      "sacred==0.8.1",
+      "torch==1.4.0",
+      "tqdm==4.46.1"
+    ],
+    "mainfile": "experiment.py",
+    "name": "847793",
+    "repositories": [
+      {
+        "commit": "cc5b6955f1ceaa02af49b9094ef4b3c8a7516e23",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "cc5b6955f1ceaa02af49b9094ef4b3c8a7516e23",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "cc5b6955f1ceaa02af49b9094ef4b3c8a7516e23",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      }
+    ],
+    "sources": [
+      [
+        "experiment.py",
+        "_sources/experiment_a9cdb652d69a1a7303895394affd873c.py"
+      ],
+      [
+        "load_data.py",
+        "_sources/load_data_5ef224119f0a529310f2e94b7571446f.py"
+      ],
+      [
+        "models.py",
+        "_sources/models_56af0bd1c58146f861faa5af1d25f44b.py"
+      ]
+    ]
+  },
+  "fail_trace": [
+    "Traceback (most recent call last):\n",
+    "  File \"/home/eben/anaconda3/envs/music/lib/python3.8/site-packages/sacred/config/captured_function.py\", line 42, in captured_function\n    result = wrapped(*args, **kwargs)\n",
+    "  File \"/home/eben/Programs/ML-music-analysis/src/experiment.py\", line 254, in train_model\n    output_tensor, hidden_tensor = model(input_tensor)\n",
+    "  File \"/home/eben/anaconda3/envs/music/lib/python3.8/site-packages/torch/nn/modules/module.py\", line 532, in __call__\n    result = self.forward(*input, **kwargs)\n",
+    "  File \"/home/eben/Programs/ML-music-analysis/src/models.py\", line 106, in forward\n    hiddens, hn = self.rnn(x)\n",
+    "  File \"/home/eben/anaconda3/envs/music/lib/python3.8/site-packages/torch/nn/modules/module.py\", line 532, in __call__\n    result = self.forward(*input, **kwargs)\n",
+    "  File \"/home/eben/Programs/ML-music-analysis/src/base_models.py\", line 69, in forward\n    with device:\n",
+    "AttributeError: __enter__\n"
+  ],
+  "heartbeat": "2020-06-25T06:51:55.681901",
+  "host": {
+    "ENV": {},
+    "cpu": "Intel(R) Xeon(R) Gold 6248 CPU @ 2.50GHz",
+    "gpus": {
+      "driver_version": "440.33.01",
+      "gpus": [
+        {
+          "model": "GeForce RTX 2080 Ti",
+          "persistence_mode": false,
+          "total_memory": 11019
+        },
+        {
+          "model": "GeForce RTX 2080 Ti",
+          "persistence_mode": false,
+          "total_memory": 11019
+        },
+        {
+          "model": "GeForce RTX 2080 Ti",
+          "persistence_mode": false,
+          "total_memory": 11019
+        },
+        {
+          "model": "GeForce RTX 2080 Ti",
+          "persistence_mode": false,
+          "total_memory": 11019
+        }
+      ]
+    },
+    "hostname": "erdos",
+    "os": [
+      "Linux",
+      "Linux-4.18.0-80.11.2.el8_0.x86_64-x86_64-with-glibc2.10"
+    ],
+    "python_version": "3.8.3"
+  },
+  "meta": {
+    "command": "train_model",
+    "options": {
+      "--beat-interval": null,
+      "--capture": null,
+      "--comment": null,
+      "--debug": false,
+      "--enforce_clean": false,
+      "--file_storage": null,
+      "--force": false,
+      "--help": false,
+      "--loglevel": null,
+      "--mongo_db": null,
+      "--name": null,
+      "--pdb": false,
+      "--print-config": false,
+      "--priority": null,
+      "--queue": false,
+      "--s3": null,
+      "--sql": null,
+      "--tiny_db": null,
+      "--unobserved": false
+    }
+  },
+  "resources": [],
+  "result": null,
+  "start_time": "2020-06-25T06:51:54.218853",
+  "status": "FAILED",
+  "stop_time": "2020-06-25T06:51:55.687690"
+}
