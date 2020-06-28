@@ -10,6 +10,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torchsso.optim as soptim
 import torch.nn.functional as F
 import random
 
@@ -66,7 +67,8 @@ def cfg():
                   'input_size': 88,
                   'hidden_size': 300,
                   'num_layers': 1,
-                  'output_size': 88
+                  'output_size': 88,
+                  'lin_readout': True
                  }
 
     # supported initializations
@@ -137,10 +139,12 @@ def log_accuracy(model: nn.Module,
                  loader: DataLoader,
                  log_name: str,
                  device,
+                 _log,
                  _run):
     """
     :param model: model which we are testing
     :param loader: DataLoader for either testing or validation data
+    :param log_name: name of the log where we store the accuracy
     :return: average accuracy for every batch in the loader
     """
 
@@ -150,6 +154,9 @@ def log_accuracy(model: nn.Module,
     def acc_fcn(output, target):
 
         prediction = (torch.sigmoid(output) > 0.5).type(torch.get_default_dtype())
+
+        _log.warning(str(prediction.shape))
+        _log.warning(str(target.shape))
 
         true_pos = torch.sum(prediction*target)
         false_pos = torch.sum(prediction*(1 - target))
@@ -162,7 +169,7 @@ def log_accuracy(model: nn.Module,
         output, hiddens = model(input_tensor)
         prediction = output[-1]
 
-        acc = acc_fcn(prediction.cpu(), target_tensor.cpu())
+        acc = acc_fcn(prediction.cpu(), target_tensor[:, -1].cpu())
         all_acc.append(acc.cpu().detach().item())
 
     _run.log_scalar(log_name, np.mean(all_acc))
@@ -234,6 +241,11 @@ def train_model(
                 optimizer = optim.Adam(model.parameters(), lr=training['lr'])
             elif training['optimizer'] == "RMSprop":
                 optimizer = optim.RMSprop(model.parameters(), lr=training['lr'])
+            elif training['optimizer'] == "SecondOrder":
+                # see https://github.com/cybertronai/pytorch-sso/blob/master/torchsso/optim/secondorder.py
+                shapes = {"Linear": "Diag"}
+                kwargs = {"damping": 1e-3, "ema_decay": 0.999}
+                optimizer = soptim.SecondOrderOptimizer(model, "Cov", shapes, kwargs)
             else:
                 raise ValueError("Optimizer {} not recognized.".format(training['optimizer']))
 
@@ -249,19 +261,37 @@ def train_model(
                     input_tensor = input_tensor.to(device)
                     target_tensor = target_tensor.to(device)
 
-                    optimizer.zero_grad()
-
                     #_log.warning(str([p for p in model.parameters()]))
-                    output_tensor, hidden_tensor = model(input_tensor)
-                    prediction = output_tensor[-1].to(device)
+                    output_tensors, hidden_tensors = model(input_tensor)
 
-                    loss = loss_fcn(prediction, target_tensor)
+                    _log.warning(str(output_tensors[-1].shape))
+                    _log.warning(str(target_tensor[:, -1].shape))
+                    loss = loss_fcn(output_tensors[-1], target_tensor[:, -1])
+                    optimizer.zero_grad()
                     loss.backward()
-                    optimizer.step()
+                    tot_loss = loss.cpu().detach().item()
+
+                    #tot_loss = 0
+
+                    # compute loss and update weights for each time step
+                    #for i in range(len(output_tensors)):
+#
+                    #    optimizer.zero_grad()
+#
+                    #    prediction = output_tensors[i]
+                    #    target = target_tensor[:, i]
+#
+                    #    loss = loss_fcn(prediction, target)
+                    #    loss.backward()
+                    #    optimizer.step()
+#
+                    #    tot_loss += loss.cpu().detach().item()
+#
+                    #tot_loss /= len(output_tensors)
 
                     # use sacred to log training loss and accuracy
-                    _run.log_scalar("trainLoss", loss.cpu().detach().item())
-                    log_accuracy(model, train_loader, "trainAccuracy", cuda_device, _run)
+                    _run.log_scalar("trainLoss", tot_loss)
+                    log_accuracy(model, train_loader, "trainAccuracy", cuda_device, _log, _run)
 
                     # save a copy of the model and make sacred remember it each epoch
                     if saving['every_epoch']:

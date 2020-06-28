@@ -15,28 +15,30 @@ import os
 # custom configuration
 config_updates = {
                   'training': {
-                              'dataset': "MuseData",
+                              'dataset': "JSB_Chorales",
                               'num_epochs': 150,
                               'batch_size': 128,
                               'lr': 0.001,
                               'decay': 0.96,
-                              'optimizer': "SGD"
+                              'optimizer': "SecondOrder"
                               },
                   'initializer': {
-                                 'init': 'identity',
+                                 'init': 'default',
                                  'scale': 1.0,
                                  'min_angle': 0.0,
                                  'max_angle': 2.0
                                  },
                    'model_dict': {
-                                  'architecture': 'LINEAR',
+                                  'architecture': 'REGRESSION_JIT',
                                   'gradient_clipping': 1,
                                   'jit': False,
                                   'input_size': 88,
                                   'hidden_size': 300,
                                   'num_layers': 1,
-                                  'output_size': 88
-                                 }
+                                  'output_size': 88,
+                                  'lin_readout': False
+                                 },
+                   'detect_anomaly': True
 
                 }
 

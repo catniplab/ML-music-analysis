@@ -80,3 +80,53 @@ class LINEAR_CUDA(nn.Module):
 
         return hiddens, hiddens
 
+
+# Simple affine transformation of the last time step, doesn't take the past into account
+class REGRESSION_CUDA(nn.Module):
+
+    def __init__(self, model_dict):
+
+        super(REGRESSION_CUDA, self).__init__()
+
+        self.mt19937 = np.random.MT19937()
+        self.hh_seed = np.random.get_state()
+
+        self.weights = nn.Linear(88, 88)
+
+    def forward(self, x):
+
+        device = self.weights.weight.data.get_device()
+        x = x.to(device)
+
+        N = x.shape[0]
+        T = x.shape[1]
+
+        outputs = []
+        for t in range(T):
+            outputs.append(self.weights(x[:, t]))
+
+        return outputs, outputs
+
+
+# Simple affine transformation of the last time step, doesn't take the past into account
+class REGRESSION_JIT(nn.Module):
+
+    def __init__(self, model_dict):
+
+        super(REGRESSION_JIT, self).__init__()
+
+        self.mt19937 = np.random.MT19937()
+        self.hh_seed = np.random.get_state()
+
+        self.weights = nn.Linear(88, 88)
+
+    def forward(self, x):
+
+        N = x.shape[0]
+        T = x.shape[1]
+
+        outputs = []
+        for t in range(T):
+            outputs.append(self.weights(x[:, t]))
+
+        return outputs, outputs

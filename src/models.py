@@ -18,7 +18,7 @@ from torch.distributions.distribution import Distribution
 
 from math import sin, cos
 
-from src.base_models import LINEAR_CUDA, LINEAR_JIT
+from src.base_models import LINEAR_CUDA, LINEAR_JIT, REGRESSION_CUDA, REGRESSION_JIT
 
 # TODO
 # make sure we are using the same conventions as pytorch RNNs in terms of storing hidden states
@@ -135,17 +135,25 @@ def _initialize(model: ReadOutModel, initializer: dict) -> ReadOutModel:
         shape = model.rnn.weight_hh_l0.weight.data.shape
         model.rnn.weight_hh_l0.weight.data = initializer['scale']*torch.randn(shape)
 
-    elif initializer['init'] != 'default':
+    else:
         raise ValueError("Initialization {} not recognized.".format(initializer['init']))
 
 
 def get_model(model_dict: dict, initializer: dict, cuda: bool) -> ReadOutModel:
 
-    # construct the model
-    model = ReadOutModel(model_dict, cuda)
+    # construct the
+    model = None
+    if model_dict['lin_readout']:
+        model = ReadOutModel(model_dict, cuda)
+    else:
+        if cuda:
+            model = REGRESSION_CUDA(model_dict)
+        else:
+            model = REGRESSION_JIT(model_dict)
 
     # initialize the model
-    _initialize(model, initializer)
+    if initializer['init'] != 'default':
+        _initialize(model, initializer)
 
     # if running on the cpu we may want to use just-in-time compilation
     if not cuda and model_dict['jit']:

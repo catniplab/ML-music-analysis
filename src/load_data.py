@@ -19,26 +19,27 @@ from typing import Tuple
 
 class DatasetFromArrayOfArrays(Dataset):
 
-    def __init__(self, ArrayOfArrays, seq_len):
-        data = ArrayOfArrays if ArrayOfArrays.ndim == 1 else ArrayOfArrays.flatten()
-        data = [torch.from_numpy(d) for d in data]
-        data = [torch.stack(d.split(seq_len)[0:len(d)//seq_len]) for d in data if (len(d)//seq_len)>=1]
+    def __init__(self, ArrayOfArrays):
 
-        self.data = torch.cat(data, dim=0)
+        max_len = 0
+        for array in ArrayOfArrays:
+            if len(array) > max_len:
+                max_len = len(array)
+
+        data_tensor = torch.zeros((len(ArrayOfArrays), max_len, 88), dtype=torch.float)
+
+        for i, array in enumerate(ArrayOfArrays):
+            la = len(array)
+            data_tensor[i, 0 : la, :] = torch.tensor(array, dtype=torch.float)
+
+        self.data = data_tensor
 
     def __getitem__(self, index):
 
         # get a sample from the data and match our desired datatype
-        index_tensor = self.data[index].type(torch.get_default_dtype())
+        index_tensor = self.data[index]
 
-        # everything except the last time step for the input
-        input_tensor = torch.zeros(index_tensor.shape)
-        input_tensor[0 : -1, :] = index_tensor[0 : -1, :]
-
-        # last time step for target
-        target_tensor = index_tensor[-1, :]
-
-        return input_tensor, target_tensor
+        return index_tensor, index_tensor
 
     def __len__(self):
         return len(self.data)
@@ -65,9 +66,9 @@ def get_data_loader(dataset: str, batch_size: int) -> Tuple:
         seq_len = mat_data['traindata'][0, 1].shape[0]
 
         # construct the datasets
-        train_data = DatasetFromArrayOfArrays(mat_data['traindata'][0], seq_len)
-        test_data = DatasetFromArrayOfArrays(mat_data['testdata'][0], seq_len)
-        val_data = DatasetFromArrayOfArrays(mat_data['validdata'][0], seq_len)
+        train_data = DatasetFromArrayOfArrays(mat_data['traindata'][0])
+        test_data = DatasetFromArrayOfArrays(mat_data['testdata'][0])
+        val_data = DatasetFromArrayOfArrays(mat_data['validdata'][0])
 
         # construct the data loaders
         train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
