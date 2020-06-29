@@ -161,7 +161,6 @@ def log_accuracy(model: nn.Module,
     # count total number of sequences
     num_seqs = 0
 
-    # see Bay et al 2009 for the definition of frame-level accuracy
     def acc_fcn(output, target):
 
         T = target.shape[1]
@@ -178,6 +177,7 @@ def log_accuracy(model: nn.Module,
         # where we store accuracy at each time step
         acc_over_time = []
 
+        # see Bay et al 2009 for the definition of frame-level accuracy
         for t in range(T):
 
             # get false positives and negatives for each sequence

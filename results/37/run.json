@@ -1,0 +1,90 @@
+{
+  "artifacts": [
+    "initial_state_dict.pt",
+    "final_state_dict.pt"
+  ],
+  "command": "train_model",
+  "experiment": {
+    "base_dir": "/home/kadile/Projects/ML-music-analysis/src",
+    "dependencies": [
+      "numpy==1.18.1",
+      "sacred==0.8.1",
+      "torch==1.4.0",
+      "torchsso==0.1.1",
+      "tqdm==4.46.1"
+    ],
+    "mainfile": "experiment.py",
+    "name": "543642",
+    "repositories": [
+      {
+        "commit": "c309cbf9d4e33896bfd4b747f09222a181961430",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "c309cbf9d4e33896bfd4b747f09222a181961430",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "c309cbf9d4e33896bfd4b747f09222a181961430",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      }
+    ],
+    "sources": [
+      [
+        "experiment.py",
+        "_sources/experiment_127a32d1fbeb16382c26ea8e3249cc01.py"
+      ],
+      [
+        "load_data.py",
+        "_sources/load_data_404245e8053ba4ed6bbca998880f3812.py"
+      ],
+      [
+        "models.py",
+        "_sources/models_e849aa16b7cba2793ff2efe32c5bf36f.py"
+      ]
+    ]
+  },
+  "heartbeat": "2020-06-29T04:42:39.073099",
+  "host": {
+    "ENV": {},
+    "cpu": "Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz",
+    "hostname": "Wintermute",
+    "os": [
+      "Linux",
+      "Linux-5.4.0-39-generic-x86_64-with-glibc2.10"
+    ],
+    "python_version": "3.8.3"
+  },
+  "meta": {
+    "command": "train_model",
+    "options": {
+      "--beat-interval": null,
+      "--capture": null,
+      "--comment": null,
+      "--debug": false,
+      "--enforce_clean": false,
+      "--file_storage": null,
+      "--force": false,
+      "--help": false,
+      "--loglevel": null,
+      "--mongo_db": null,
+      "--name": null,
+      "--pdb": false,
+      "--print-config": false,
+      "--priority": null,
+      "--queue": false,
+      "--s3": null,
+      "--sql": null,
+      "--tiny_db": null,
+      "--unobserved": false
+    }
+  },
+  "resources": [],
+  "result": null,
+  "start_time": "2020-06-29T04:37:17.478271",
+  "status": "COMPLETED",
+  "stop_time": "2020-06-29T04:42:39.071259"
+}

@@ -23,7 +23,7 @@ config_updates = {
                               'batch_size': 128,
                               'lr': 0.001,
                               'decay': 0.96,
-                              'optimizer': "SecondOrder"
+                              'optimizer': "SGD"
                               },
                   'initializer': {
                                  'init': 'default',
@@ -32,7 +32,7 @@ config_updates = {
                                  'max_angle': 2.0
                                  },
                    'model_dict': {
-                                  'architecture': 'REGRESSION',
+                                  'architecture': 'LINEAR',
                                   'gradient_clipping': 1,
                                   'jit': False,
                                   'input_size': 88,
