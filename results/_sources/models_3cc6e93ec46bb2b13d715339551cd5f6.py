@@ -18,7 +18,7 @@ from torch.distributions.distribution import Distribution
 
 from math import sin, cos
 
-from src.base_models import LINEAR_CUDA, LINEAR_JIT, REGRESSION
+from src.base_models import LINEAR_CUDA, LINEAR_JIT, REGRESSION_CUDA, REGRESSION_JIT
 
 # TODO
 # make sure we are using the same conventions as pytorch RNNs in terms of storing hidden states
@@ -150,10 +150,13 @@ def get_model(model_dict: dict, initializer: dict, cuda: bool) -> ReadOutModel:
 
     # construct the model
     model = None
-    if model_dict['architecture'] != "REGRESSION":
+    if model_dict['lin_readout']:
         model = ReadOutModel(model_dict, cuda)
     else:
-        model = REGRESSION()
+        if cuda:
+            model = REGRESSION_CUDA(model_dict)
+        else:
+            model = REGRESSION_JIT(model_dict)
 
     # initialize the model
     if initializer['init'] != 'default':

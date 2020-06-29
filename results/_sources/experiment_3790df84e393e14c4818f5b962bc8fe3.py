@@ -170,9 +170,8 @@ def log_accuracy(model: nn.Module,
         #_log.warning(str(prediction.shape))
         #_log.warning(str(target.shape))
 
-        # count total true positives for each sequence
-        true_pos = torch.sum(prediction*target, dim=2) # sum over channels (notes)
-        true_pos = torch.sum(true_pos, dim=1) # sum over time
+        # count total true positives
+        true_pos += torch.sum(prediction*target)
 
         # where we store accuracy at each time step
         acc_over_time = []
@@ -180,15 +179,10 @@ def log_accuracy(model: nn.Module,
         # see Bay et al 2009 for the definition of frame-level accuracy
         for t in range(T):
 
-            # get false positives and negatives for each sequence
-            false_pos = torch.sum(prediction[:, t]*(1 - target[:, t]), dim=1)
-            false_neg = torch.sum((1 - prediction[:, t])*target[:, t], dim=1)
+            false_pos = torch.sum(prediction[:, t]*(1 - target[:, t]))
+            false_neg = torch.sum((1 - prediction[:, t])*target[:, t])
 
-            # compute accuracy for each sequence
-            acc_each_sequence = true_pos/(true_pos + false_pos + false_neg)
-
-            # total across all sequences in the batch
-            acc_over_time.append(torch.sum(acc_each_sequence))
+            acc_over_time.append(true_pos/(true_pos + false_neg + false_neg))
 
         # return average over time
         return np.mean(acc_over_time)

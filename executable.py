@@ -13,7 +13,7 @@ from sacred.observers import FileStorageObserver, RunObserver
 import os
 
 # don't observe, just investigate where the program fails
-debug_mode = True
+debug_mode = False
 
 # custom configuration
 config_updates = {
@@ -32,14 +32,13 @@ config_updates = {
                                  'max_angle': 2.0
                                  },
                    'model_dict': {
-                                  'architecture': 'REGRESSION_JIT',
+                                  'architecture': 'REGRESSION',
                                   'gradient_clipping': 1,
                                   'jit': False,
                                   'input_size': 88,
                                   'hidden_size': 300,
                                   'num_layers': 1,
-                                  'output_size': 88,
-                                  'lin_readout': False
+                                  'output_size': 88
                                  },
                    'detect_anomaly': True
 

@@ -70,7 +70,8 @@ def cfg():
                   'input_size': 88,
                   'hidden_size': 300,
                   'num_layers': 1,
-                  'output_size': 88
+                  'output_size': 88,
+                  'lin_readout': True
                  }
 
     # supported initializations
@@ -134,7 +135,7 @@ def log_loss(loss_fcn: nn.Module,
         output_tensor = torch.cat(output).reshape(T, this_batch, 88).permute([1, 0, 2])
 
         # append average loss over time
-        loss = loss_fcn(output_tensor, target_tensor)
+        loss = loss_fcn(output_tensor, target_tensor)/T
         all_loss.append(loss.cpu().detach().item())
 
     # log the mean across every batch
@@ -155,11 +156,7 @@ def log_accuracy(model: nn.Module,
     :return: average accuracy for every batch in the loader
     """
 
-    # store weighted accuracy for each batch
     all_acc = []
-
-    # count total number of sequences
-    num_seqs = 0
 
     def acc_fcn(output, target):
 
@@ -170,9 +167,10 @@ def log_accuracy(model: nn.Module,
         #_log.warning(str(prediction.shape))
         #_log.warning(str(target.shape))
 
-        # count total true positives for each sequence
-        true_pos = torch.sum(prediction*target, dim=2) # sum over channels (notes)
-        true_pos = torch.sum(true_pos, dim=1) # sum over time
+        # count total true positives
+        true_pos = 0
+        for t in range(T):
+            true_pos += torch.sum(prediction[:, t]*target[:, t])
 
         # where we store accuracy at each time step
         acc_over_time = []
@@ -180,15 +178,10 @@ def log_accuracy(model: nn.Module,
         # see Bay et al 2009 for the definition of frame-level accuracy
         for t in range(T):
 
-            # get false positives and negatives for each sequence
-            false_pos = torch.sum(prediction[:, t]*(1 - target[:, t]), dim=1)
-            false_neg = torch.sum((1 - prediction[:, t])*target[:, t], dim=1)
+            false_pos = torch.sum(prediction[:, t]*(1 - target[:, t]))
+            false_neg = torch.sum((1 - prediction[:, t])*target[:, t])
 
-            # compute accuracy for each sequence
-            acc_each_sequence = true_pos/(true_pos + false_pos + false_neg)
-
-            # total across all sequences in the batch
-            acc_over_time.append(torch.sum(acc_each_sequence))
+            acc_over_time.append(true_pos/(true_pos + false_neg + false_neg))
 
         # return average over time
         return np.mean(acc_over_time)
@@ -197,17 +190,15 @@ def log_accuracy(model: nn.Module,
 
         this_batch = target_tensor.shape[0]
         T = target_tensor.shape[1]
-        num_seqs += this_batch
 
         output, hiddens = model(input_tensor)
         output_tensor = torch.cat(output).reshape(T, this_batch, 88).permute([1, 0, 2])
 
-        # append weighted accuracy to the accumulation list
         acc = acc_fcn(output_tensor.cpu(), target_tensor.cpu())
         all_acc.append(acc)
 
     # log the average accuracy across every batch
-    _run.log_scalar(log_name, np.sum(all_acc)/num_seqs)
+    _run.log_scalar(log_name, np.mean(all_acc))
 
 
 # main function
