@@ -77,7 +77,7 @@ class FileDeleter(RunObserver):
 if __name__ == "__main__":
 
    base_dir = os.getcwd()
-   ex.observers.append(FileDeleter(base_dir))
+   #ex.observers.append(FileDeleter(base_dir))
 
    if debug_mode:
 

@@ -14,20 +14,23 @@ from scipy.io import loadmat
 
 from typing import Tuple
 
-# TODO
-# Document DatasetFromArrayOfArrays
 
 class DatasetFromArrayOfArrays(Dataset):
 
     def __init__(self, ArrayOfArrays):
 
+        # find the maximum length of a sequence in the data set
         max_len = 0
         for array in ArrayOfArrays:
             if len(array) > max_len:
                 max_len = len(array)
 
-        data_tensor = torch.zeros((len(ArrayOfArrays), max_len, 88), dtype=torch.float)
+        self.seq_len = max_len
 
+        # the data will be padded with zeroes
+        data_tensor = torch.zeros((len(ArrayOfArrays), self.seq_len, 88), dtype=torch.float)
+
+        # fill the zero-tensor with data
         for i, array in enumerate(ArrayOfArrays):
             la = len(array)
             data_tensor[i, 0 : la, :] = torch.tensor(array, dtype=torch.float)
@@ -43,7 +46,6 @@ class DatasetFromArrayOfArrays(Dataset):
 
     def __len__(self):
         return len(self.data)
-
 
 def get_data_loader(dataset: str, batch_size: int) -> Tuple:
     """
@@ -61,9 +63,6 @@ def get_data_loader(dataset: str, batch_size: int) -> Tuple:
 
         # get the data from the matlab file
         mat_data = loadmat(path)
-
-        # figure out length of time sequences
-        seq_len = mat_data['traindata'][0, 1].shape[0]
 
         # construct the datasets
         train_data = DatasetFromArrayOfArrays(mat_data['traindata'][0])

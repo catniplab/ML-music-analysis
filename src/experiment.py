@@ -263,12 +263,21 @@ def train_model(
                     input_tensor = input_tensor.to(device)
                     target_tensor = target_tensor.to(device)
 
+                    # shape of current target
+                    this_batch = target_tensor.shape[0]
+                    T = target_tensor.shape[1]
+                    #_log.warning(T)
+
                     #_log.warning(str([p for p in model.parameters()]))
-                    output_tensors, hidden_tensors = model(input_tensor)
+                    output, hidden_tensors = model(input_tensor)
+                    #_log.warning(len(output))
+                    #_log.warning(output[0].shape)
+                    output_tensor = torch.cat(output).reshape(T, this_batch, 88).permute([1, 0, 2])
 
                     #_log.warning(str(output_tensors[-1].shape))
-                    #_log.warning(str(target_tensor[:, -1].shape))
-                    loss = loss_fcn(output_tensors[-1], target_tensor[:, -1])
+                    #_log.warning(str(target_tensor.shape))
+                    #loss = loss_fcn(output_tensors[-1], target_tensor[:, -1])
+                    loss = loss_fcn(output_tensor, target_tensor)
                     optimizer.zero_grad()
                     loss.backward()
                     tot_loss = loss.cpu().detach().item()

@@ -89,13 +89,16 @@ class ReadOutModel(nn.Module):
 
         super(ReadOutModel, self).__init__()
 
+        # construct linear readout
         self.hidden_size = model_dict['hidden_size']
         self.output_size = model_dict['output_size']
         self.output_weights = nn.Linear(self.hidden_size, self.output_size)
 
+        # construct input and hidden layer
         constructor = get_constructor(model_dict['architecture'], cuda)
         self.rnn = constructor(model_dict)
 
+        # gradient clipping if we want it
         clip = model_dict['gradient_clipping']
         if clip != None:
             for p in self.parameters():
@@ -117,10 +120,12 @@ def _initialize(model: ReadOutModel, initializer: dict) -> ReadOutModel:
     Initialize the model in-place.
     """
 
+    # 1s along diagonal and 0 elsewhere
     if initializer['init'] == 'identity':
         shape = model.rnn.weight_hh_l0.weight.data.shape
         model.rnn.weight_hh_l0.weight.data = initializer['scale']*make_identity(shape)
 
+    # diagonal is 2x2 blocks of rotation, reflection, or random parity matrices with a scale factor
     elif initializer['init'] == 'blockortho':
         shape = model.rnn.weight_hh_l0.weight.data.shape
         t_distrib = initializer['t_distrib']
@@ -128,9 +133,11 @@ def _initialize(model: ReadOutModel, initializer: dict) -> ReadOutModel:
         scale = initializer['scale']
         model.rnn.weight_hh_l0.weight.data = scale*make_block_ortho(shape, t_distrib, parity)
 
+    # simply orthonormalize the hidden weights in place
     elif initializer['init'] == 'ortho':
         nn.init.orthogonal_(model.rnn.weight_hh_l0.weight.data)
 
+    # mean zero variance 1 normal distribution for each hidden weight
     elif initializer['init'] == 'stdnormal':
         shape = model.rnn.weight_hh_l0.weight.data.shape
         model.rnn.weight_hh_l0.weight.data = initializer['scale']*torch.randn(shape)
@@ -141,7 +148,7 @@ def _initialize(model: ReadOutModel, initializer: dict) -> ReadOutModel:
 
 def get_model(model_dict: dict, initializer: dict, cuda: bool) -> ReadOutModel:
 
-    # construct the
+    # construct the model
     model = None
     if model_dict['lin_readout']:
         model = ReadOutModel(model_dict, cuda)
