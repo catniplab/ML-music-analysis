@@ -128,7 +128,7 @@ def log_loss(loss_fcn: nn.Module,
         output, hiddens = model(input_tensor)
         prediction = output[-1]
 
-        loss = loss_fcn(prediction.cpu(), target_tensor.cpu())
+        loss = loss_fcn(prediction.cpu(), target_tensor[:, -1].cpu())
         all_loss.append(loss.cpu().detach().item())
 
     _run.log_scalar(log_name, np.mean(all_loss))
@@ -155,8 +155,8 @@ def log_accuracy(model: nn.Module,
 
         prediction = (torch.sigmoid(output) > 0.5).type(torch.get_default_dtype())
 
-        _log.warning(str(prediction.shape))
-        _log.warning(str(target.shape))
+        #_log.warning(str(prediction.shape))
+        #_log.warning(str(target.shape))
 
         true_pos = torch.sum(prediction*target)
         false_pos = torch.sum(prediction*(1 - target))
@@ -251,7 +251,9 @@ def train_model(
 
             # learning rate decay
             decay = training['decay']
-            scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: decay**epoch)
+            scheduler = None
+            if training['optimizer'] != "SecondOrder":
+                scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: decay**epoch)
 
             # begin training loop
             for epoch in tqdm(range(training['num_epochs'])):
@@ -264,30 +266,12 @@ def train_model(
                     #_log.warning(str([p for p in model.parameters()]))
                     output_tensors, hidden_tensors = model(input_tensor)
 
-                    _log.warning(str(output_tensors[-1].shape))
-                    _log.warning(str(target_tensor[:, -1].shape))
+                    #_log.warning(str(output_tensors[-1].shape))
+                    #_log.warning(str(target_tensor[:, -1].shape))
                     loss = loss_fcn(output_tensors[-1], target_tensor[:, -1])
                     optimizer.zero_grad()
                     loss.backward()
                     tot_loss = loss.cpu().detach().item()
-
-                    #tot_loss = 0
-
-                    # compute loss and update weights for each time step
-                    #for i in range(len(output_tensors)):
-#
-                    #    optimizer.zero_grad()
-#
-                    #    prediction = output_tensors[i]
-                    #    target = target_tensor[:, i]
-#
-                    #    loss = loss_fcn(prediction, target)
-                    #    loss.backward()
-                    #    optimizer.step()
-#
-                    #    tot_loss += loss.cpu().detach().item()
-#
-                    #tot_loss /= len(output_tensors)
 
                     # use sacred to log training loss and accuracy
                     _run.log_scalar("trainLoss", tot_loss)
@@ -300,7 +284,8 @@ def train_model(
                         _run.add_artifact(save_dir + 'state_dict_' + str(epoch) + '.pt')
 
                 # learning rate decay
-                scheduler.step()
+                if training['optimizer'] != "SecondOrder":
+                    scheduler.step()
 
                 # use sacred to log testing and validation loss and accuracy
                 log_loss(loss_fcn, model, test_loader, 'testLoss', _run)
