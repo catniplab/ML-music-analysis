@@ -23,7 +23,7 @@ config_updates = {
                               'batch_size': 128,
                               'lr': 0.001,
                               'decay': 0.96,
-                              'optimizer': "SGD"
+                              'optimizer': "SecondOrder"
                               },
                   'initializer': {
                                  'init': 'default',
@@ -32,7 +32,7 @@ config_updates = {
                                  'max_angle': 2.0
                                  },
                    'model_dict': {
-                                  'architecture': 'LINEAR',
+                                  'architecture': 'REGRESSION',
                                   'gradient_clipping': 1,
                                   'jit': False,
                                   'input_size': 88,
@@ -40,7 +40,7 @@ config_updates = {
                                   'num_layers': 1,
                                   'output_size': 88
                                  },
-                   'detect_anomaly': True
+                   'detect_anomaly': False
 
                 }
 

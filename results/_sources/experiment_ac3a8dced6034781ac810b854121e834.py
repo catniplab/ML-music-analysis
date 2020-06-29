@@ -294,9 +294,9 @@ def train_model(
                 scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: decay**epoch)
 
             # begin training loop
-            for epoch in range(training['num_epochs']):
+            for epoch in tqdm(range(training['num_epochs'])):
 
-                for song in tqdm(train_songs):
+                for song in train_songs:
 
                     song = song.to(device)
 
