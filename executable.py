@@ -4,6 +4,8 @@ This script provides an example of how to call experiment.py
 
 from importlib import reload
 
+import torch
+
 import src.experiment
 reload(src.experiment)
 from src.experiment import ex  # importing experiment here is crucial (why?)
@@ -17,13 +19,18 @@ debug_mode = False
 
 # custom configuration
 config_updates = {
+                  'system': {
+                            'cuda': torch.cuda.is_available(),
+                            'gpu': 1,
+                            'base_dir': os.getcwd()
+                           },
                   'training': {
                               'dataset': "JSB_Chorales",
                               'num_epochs': 150,
                               'batch_size': 128,
                               'lr': 0.001,
                               'decay': 0.96,
-                              'optimizer': "SecondOrder"
+                              'optimizer': "SGD"
                               },
                   'initializer': {
                                  'init': 'default',

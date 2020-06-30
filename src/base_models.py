@@ -40,7 +40,9 @@ class LINEAR_JIT(nn.Module):
             hidden = self.weight_hh_l0(hidden) + self.weight_ih_l0(x[:, t - 1])
             hiddens.append(hidden)
 
-        return hiddens, hiddens
+        hidden_tensor = torch.cat(hiddens).reshape(1, T, 88)
+
+        return hidden_tensor, hidden_tensor
 
 
 # A linear dynamical system whose input is a linear transformation of the data.
@@ -78,7 +80,9 @@ class LINEAR_CUDA(nn.Module):
             hidden = self.weight_hh_l0(hidden) + self.weight_ih_l0(x[:, t - 1])
             hiddens.append(hidden)
 
-        return hiddens, hiddens
+        hidden_tensor = torch.cat(hiddens).reshape(1, T, 88)
+
+        return hidden_tensor, hidden_tensor
 
 
 # Simple affine transformation of the last time step, doesn't take the past into account
@@ -101,11 +105,6 @@ class REGRESSION(nn.Module):
             device = ix
         x = x.to(device)
 
-        N = x.shape[0]
-        T = x.shape[1]
-
-        outputs = []
-        for t in range(T):
-            outputs.append(self.weights(x[:, t]))
+        outputs = self.weights(x)
 
         return outputs, outputs
