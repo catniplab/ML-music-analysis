@@ -78,7 +78,7 @@ class Accuracy(nn.Module):
 
         # first take the average for each sequence, then sum over sequences
         result = torch.cat(acc_over_time).reshape(T, N)
-        result = torch.sum(result, dim=0)/lens
         #print(result)
+        result = torch.sum(result, dim=0)/lens
         result = torch.sum(result)
         return result

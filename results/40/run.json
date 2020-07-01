@@ -1,0 +1,99 @@
+{
+  "artifacts": [
+    "initial_state_dict.pt",
+    "final_state_dict.pt"
+  ],
+  "command": "train_model",
+  "experiment": {
+    "base_dir": "/home/kadile/Projects/ML-music-analysis/src",
+    "dependencies": [
+      "numpy==1.18.1",
+      "sacred==0.8.1",
+      "torch==1.5.0",
+      "torchsso==0.1.1",
+      "tqdm==4.42.1"
+    ],
+    "mainfile": "experiment.py",
+    "name": "208464",
+    "repositories": [
+      {
+        "commit": "0e896ee73570ae1130f25e0656cda140ee361658",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "0e896ee73570ae1130f25e0656cda140ee361658",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "0e896ee73570ae1130f25e0656cda140ee361658",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "0e896ee73570ae1130f25e0656cda140ee361658",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      }
+    ],
+    "sources": [
+      [
+        "experiment.py",
+        "_sources/experiment_ed21f84325c1c273f130fe76c564e36e.py"
+      ],
+      [
+        "load_data.py",
+        "_sources/load_data_4c22c6ca98106390574ffe9865a863d0.py"
+      ],
+      [
+        "metrics.py",
+        "_sources/metrics_d47ba658afe9b062036b2a6e88a7f788.py"
+      ],
+      [
+        "models.py",
+        "_sources/models_172883db6ef3489b3ac91d854ed878f2.py"
+      ]
+    ]
+  },
+  "heartbeat": "2020-07-01T08:55:13.648100",
+  "host": {
+    "ENV": {},
+    "cpu": "Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz",
+    "hostname": "Wintermute",
+    "os": [
+      "Linux",
+      "Linux-5.4.0-39-generic-x86_64-with-debian-bullseye-sid"
+    ],
+    "python_version": "3.7.6"
+  },
+  "meta": {
+    "command": "train_model",
+    "options": {
+      "--beat-interval": null,
+      "--capture": null,
+      "--comment": null,
+      "--debug": false,
+      "--enforce_clean": false,
+      "--file_storage": null,
+      "--force": false,
+      "--help": false,
+      "--loglevel": null,
+      "--mongo_db": null,
+      "--name": null,
+      "--pdb": false,
+      "--print-config": false,
+      "--priority": null,
+      "--queue": false,
+      "--s3": null,
+      "--sql": null,
+      "--tiny_db": null,
+      "--unobserved": false
+    }
+  },
+  "resources": [],
+  "result": null,
+  "start_time": "2020-07-01T08:54:19.427277",
+  "status": "COMPLETED",
+  "stop_time": "2020-07-01T08:55:13.644889"
+}
