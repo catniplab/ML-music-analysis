@@ -26,14 +26,13 @@ class MaskedBCE(nn.Module):
 
             # actual duration of the sequence
             T = torch.sum(mask[i]).detach().item()
-            Ti = int(T)
 
             # get the particular sequence
-            this_out = output[i, 0 : Ti]
-            this_targ = target[i, 0 : Ti]
+            this_out = output[i, 0 : T]
+            this_targ = target[i, 0 : T]
 
             # average BCE over time
-            loss = bce(this_out, this_targ)/T
+            loss = bce(this_out, this_targ)/float(T)
             loss = loss.reshape((1)) # pytorch shapes are annoying
             #print(loss)
             loss_each_seq.append(loss)
@@ -54,32 +53,27 @@ class Accuracy(nn.Module):
 
         prediction = (torch.sigmoid(output) > 0.5).type(torch.get_default_dtype())
 
-        # sum over notes
+        # sum over notes and time
         tru_pos = torch.sum(prediction*target, dim=2)
-        # Bay et al sum over time but this yields way higher results than Boulanger-Lewandowski
-        #tru_pos = torch.sum(tru_pos, dim=1)
+        tru_pos = torch.sum(tru_pos, dim=1)
+
+        # get false positives and negatives for each sequence
+        false_pos = torch.sum(prediction*(1 - target), dim=2)
+        false_neg = torch.sum((1 - prediction)*target, dim=2)
+
+        tot_acc = torch.zeros(N)
 
         # compute accuracy for all sequences at each time point
-        T = output.shape[1]
-        acc_over_time = []
+        for i in range(N):
 
-        # actual lengths of each sequence
-        lens = torch.sum(mask, dim=1)
+            T = torch.sum(mask[i]).detach().item()
 
-        for t in range(T):
+            acc = 0
 
-            # get false positives and negatives for each sequence
-            false_pos = torch.sum(prediction[:, t]*(1 - target[:, t]), dim=1)
-            false_neg = torch.sum((1 - prediction[:, t])*target[:, t], dim=1)
+            for t in range(T):
+                acc += tru_pos[i]/(tru_pos[i] + false_pos[i, t] + false_neg[i, t])
 
-            # true negatives are unremarkable for sparse binary sequences
-            this_acc = mask[:, t]*tru_pos[:, t]/(tru_pos[:, t] + false_pos + false_neg)
+            acc /= T
+            tot_acc[i] = acc
 
-            acc_over_time.append(this_acc)
-
-        # first take the average for each sequence, then sum over sequences
-        result = torch.cat(acc_over_time).reshape(T, N)
-        result = torch.sum(result, dim=0)/lens
-        #print(result)
-        result = torch.sum(result)
-        return result
+        return torch.sum(tot_acc)

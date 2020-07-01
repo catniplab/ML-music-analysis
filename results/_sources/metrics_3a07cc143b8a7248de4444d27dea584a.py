@@ -26,14 +26,13 @@ class MaskedBCE(nn.Module):
 
             # actual duration of the sequence
             T = torch.sum(mask[i]).detach().item()
-            Ti = int(T)
 
             # get the particular sequence
-            this_out = output[i, 0 : Ti]
-            this_targ = target[i, 0 : Ti]
+            this_out = output[i, 0 : T]
+            this_targ = target[i, 0 : T]
 
             # average BCE over time
-            loss = bce(this_out, this_targ)/T
+            loss = bce(this_out, this_targ)/float(T)
             loss = loss.reshape((1)) # pytorch shapes are annoying
             #print(loss)
             loss_each_seq.append(loss)
@@ -63,17 +62,14 @@ class Accuracy(nn.Module):
         T = output.shape[1]
         acc_over_time = []
 
-        # actual lengths of each sequence
-        lens = torch.sum(mask, dim=1)
-
         for t in range(T):
 
             # get false positives and negatives for each sequence
-            false_pos = torch.sum(prediction[:, t]*(1 - target[:, t]), dim=1)
-            false_neg = torch.sum((1 - prediction[:, t])*target[:, t], dim=1)
+            false_pos = torch.sum(prediction[:, t]*(1 - target[:, t]), dim=2)
+            false_neg = torch.sum((1 - prediction[:, t])*target[:, t], dim=2)
 
             # true negatives are unremarkable for sparse binary sequences
-            this_acc = mask[:, t]*tru_pos[:, t]/(tru_pos[:, t] + false_pos + false_neg)
+            this_acc = mask[:, t]*tru_pos[t]/(tru_pos[t] + false_pos + false_neg)
 
             acc_over_time.append(this_acc)
 

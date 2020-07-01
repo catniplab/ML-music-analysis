@@ -26,14 +26,13 @@ class MaskedBCE(nn.Module):
 
             # actual duration of the sequence
             T = torch.sum(mask[i]).detach().item()
-            Ti = int(T)
 
             # get the particular sequence
-            this_out = output[i, 0 : Ti]
-            this_targ = target[i, 0 : Ti]
+            this_out = output[i, 0 : T]
+            this_targ = target[i, 0 : T]
 
             # average BCE over time
-            loss = bce(this_out, this_targ)/T
+            loss = bce(this_out, this_targ)/float(T)
             loss = loss.reshape((1)) # pytorch shapes are annoying
             #print(loss)
             loss_each_seq.append(loss)
@@ -62,9 +61,6 @@ class Accuracy(nn.Module):
         # compute accuracy for all sequences at each time point
         T = output.shape[1]
         acc_over_time = []
-
-        # actual lengths of each sequence
-        lens = torch.sum(mask, dim=1)
 
         for t in range(T):
 
