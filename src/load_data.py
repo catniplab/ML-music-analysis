@@ -8,16 +8,60 @@ import torch
 import torch.tensor
 import torch.nn.functional as F
 
+from torch.utils.data import TensorDataset, Dataset, DataLoader
+
 from scipy.io import loadmat
 
 from typing import Tuple
 
 
-def get_songs(dataset: str) -> Tuple:
+
+class DatasetFromArrayOfArrays(Dataset):
+
+    def __init__(self, ArrayOfArrays):
+
+        # turn data into a list of arrays sorted by length
+        data = ArrayOfArrays if ArrayOfArrays.ndim == 1 else ArrayOfArrays.flatten()
+        data = [torch.from_numpy(d) for d in data]
+        data.sort(key=len)
+
+        self.data = data
+
+    def __getitem__(self, index):
+
+        ix_tensor = self.data[index].type(torch.get_default_dtype())
+
+        # all except last time step for input
+        # all except first time step for target
+        in_tensor, targ_tensor = input[:-1, :], input[1:, :]
+
+        return in_tensor, targ_tensor
+
+    def __len__(self):
+        return len(self.data)
+
+
+def collate_fun(batch):
+
+    # separate inputs and targets and record lengths of inputs
+    (inputs, output) = zip(*batch)
+    lengths = [len(i) for i in inputs]
+
+    # zero-pad all tensors (all songs are of different length!)
+    inputs = pad_sequence(inputs, batch_first=True, padding_value=0)
+    outputs = pad_sequence(output, batch_first=True, padding_value=0)
+
+    # keep a mask which tells us which parts of the tensor are actual data
+    mask = length_to_mask(torch.tensor(lengths, dtype=torch.int, requires_grad=False),  dtype=None)
+
+    return inputs, outputs, mask
+
+
+def get_data_loader(dataset: str, batch_size: int) -> Tuple:
     """
     :param dataset: The name of the dataset we want to use. Either JSB_Chorales, MuseData, Nottingham, or Piano_midi.
-    :param set: either test or valid.
-    :return: Array of arrays for training, testing, and validation.
+    :param batch_size: how many sequences to train on at once.
+    :return: DataLoaders for training, testing, and validation.
     """
 
     path = "data/" + dataset + ".mat"
@@ -27,35 +71,25 @@ def get_songs(dataset: str) -> Tuple:
 
     if dataset in ["JSB_Chorales", "MuseData", "Nottingham", "Piano_midi"]:
 
-        # get the data from the matlab file
-        mat_data = loadmat(path)
+        # read the matlab file
+        data = loadmat(path)
 
-        # construct the datasets
-        train_data = mat_data['traindata'][0]
-        test_data = mat_data['testdata'][0]
-        val_data = mat_data['validdata'][0]
+        # construct the data sets
+        train_data = DatasetFromArrayOfArrays(data['traindata'][0])
+        test_data = DatasetFromArrayOfArrays(data['testdata'][0])
+        val_data = DatasetFromArrayOfArrays(data['validdata'][0])
 
-        # convert each array into a tensor and store it in a list
-        train_tensors = []
-        test_tensors = []
-        val_tensors = []
+        # construct the samplers
+        sampler_train = PseudoBucketSampler(train_data, batch_size)
+        sampler_test = PseudoBucketSampler(test_data, batch_size)
+        sampler_val = PseudoBucketSampler(val_data, batch_size)
 
-        for arr in train_data:
-            T = arr.shape[0]
-            tensor = torch.tensor(arr, dtype=torch.float).reshape(1, T, 88)
-            train_tensors.append(tensor)
+        # construct the loaders
+        train_loader = DataLoader(train_data, batch_size=batch_size, sampler=sampler_train, collate_fn=collate_fun)
+        test_loader = DataLoader(test_data, batch_size=batch_size, sampler=sampler_test, collate_fn=collate_fun)
+        val_loader = DataLoader(val_data, batch_size=batch_size, sampler=sampler_val, collate_fn=collate_fun)
 
-        for arr in test_data:
-            T = arr.shape[0]
-            tensor = torch.tensor(arr, dtype=torch.float).reshape(1, T, 88)
-            test_tensors.append(tensor)
-
-        for arr in val_data:
-            T = arr.shape[0]
-            tensor = torch.tensor(arr, dtype=torch.float).reshape(1, T, 88)
-            val_tensors.append(tensor)
-
-        return train_tensors, test_tensors, val_tensors
+        return train_loader, test_loader, val_loader
 
     else:
         raise ValueError("Dataset {} not found.".format(dataset))

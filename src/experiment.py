@@ -2,8 +2,9 @@
 This script creates an instance of a sacred experiment and defines default configurations.
 """
 
-from src.load_data import get_songs
+from src.load_data import get_loader
 from src.models import get_model
+from src.metrics import MaskedBCE, Accuracy
 
 import os
 import numpy as np
@@ -115,102 +116,69 @@ class NullContext(object):
 @ex.capture
 def log_loss(loss_fcn: nn.Module,
              model: nn.Module,
-             songs: List,
+             loader: DataLoader,
              log_name: str,
              _run):
     """
     :param loss_fcn: pytorch module whose forward function computes a loss
     :param model: model which we are testing
-    :param songs: list of song tensors which we evaluate average loss on
+    :param loader: list of song tensors which we evaluate average loss on
     :return: log average loss for every song in the list
     """
 
     all_loss = []
+    num_sequences = 0
 
-    for song in songs:
+    for input_tensor, target_tensor, mask in loader:
 
-        T = song.shape[1]
+        N = input_tensor.shape[0]
+        num_seqs += N
 
         output, hiddens = model(song)
         prediction = output[:, 0 : -1]
-        target = song[:, 1 : T]
 
         # append average loss over time
-        loss = loss_fcn(prediction, target)/T
-        all_loss.append(loss.cpu().detach().item())
+        loss = loss_fcn(prediction, target_tensor, mask)
+        all_loss.append(N*loss.cpu().detach().item())
 
     # log the mean across every batch
-    _run.log_scalar(log_name, np.mean(all_loss))
+    _run.log_scalar(log_name, np.sum(all_loss)/num_seqs)
 
 
 @ex.capture
 def log_accuracy(model: nn.Module,
-                 songs: List,
+                 loader: DataLoader,
                  log_name: str,
                  device,
                  _log,
                  _run):
     """
     :param model: model which we are testing
-    :param songs: list of songs on which we will evaluate frame-level accuracy
+    :param loader: list of loader on which we will evaluate frame-level accuracy
     :param log_name: name of the log where we store the accuracy
     :return: average accuracy for every song in the list
     """
 
-    # store weighted accuracy for each batch
-    all_acc = []
+    # accuracy module returns sum of accuracy for each sequence
+    acc_fcn = Accuracy()
 
-    # count total number of sequences
+    # total number of sequences in the loader
     num_seqs = 0
 
-    # see Bay et al 2009 for the definition of frame-level accuracy
-    def acc_fcn(output, target):
+    for input_tensor, target_tensor, mask in loader:
 
-        T = target.shape[1]
+        num_seqs += input_tensor.shape[0]
 
-        prediction = (torch.sigmoid(output) > 0.5).type(torch.get_default_dtype())
-
-        #_log.warning(str(prediction.shape))
-        #_log.warning(str(target.shape))
-
-        # count total true positives for each sequence
-        true_pos = torch.sum(prediction*target, dim=2) # sum over channels (notes)
-        true_pos = torch.sum(true_pos, dim=1) # sum over time
-
-        # where we store accuracy at each time step
-        acc_over_time = []
-
-        for t in range(T):
-
-            # get false positives and negatives for each sequence
-            false_pos = torch.sum(prediction[:, t]*(1 - target[:, t]), dim=1)
-            false_neg = torch.sum((1 - prediction[:, t])*target[:, t], dim=1)
-
-            # compute accuracy for each sequence
-            acc_each_sequence = true_pos/(true_pos + false_pos + false_neg)
-
-            # total across all sequences in the batch
-            acc_over_time.append(torch.sum(acc_each_sequence))
-
-        # return average over time
-        return np.mean(acc_over_time)
-
-    for song in songs:
-
-        T = song.shape[1]
-
-        output, hiddens = model(song)
+        output, hiddens = model(input_tensor)
         prediction = output[:, 0 : -1]
-        target = song[:, 1 : T]
-        #_log.warning(prediction.shape)
-        #_log.warning(target.shape)
 
         # append accuracy to the accumulation list
-        acc = acc_fcn(prediction.cpu(), target)
+        acc = acc_fcn(prediction.cpu(), target_tensor, mask)
         all_acc.append(acc)
 
-    # log the average accuracy across every batch
-    _run.log_scalar(log_name, np.mean(all_acc))
+    # log the average accuracy across every sequence
+    avg = np.sum(all_acc)/num_seqs
+    _run.log_scalar(log_name, np.sum(all_acc))
 
 
 # main function
@@ -240,7 +208,7 @@ def train_model(
 
     # get the song lists
     dataset = training['dataset']
-    train_songs, test_songs, val_songs = get_songs(dataset)
+    train_loader, test_loader, val_loader = get_loader(dataset)
 
     # standard training loop
     if not hpsearch['do_hpsearch']:
@@ -294,7 +262,7 @@ def train_model(
             # begin training loop
             for epoch in range(training['num_epochs']):
 
-                for song in tqdm(train_songs):
+                for song in tqdm(train_loader):
 
                     song = song.to(device)
 
@@ -320,7 +288,7 @@ def train_model(
 
                     # use sacred to log training loss and accuracy
                     _run.log_scalar("trainLoss", tot_loss)
-                    log_accuracy(model, train_songs, "trainAccuracy", cuda_device, _log, _run)
+                    log_accuracy(model, train_loader, "trainAccuracy", cuda_device, _log, _run)
 
                     # save a copy of the model and make sacred remember it each epoch
                     if saving['every_epoch']:
@@ -333,10 +301,10 @@ def train_model(
                     scheduler.step()
 
                 # use sacred to log testing and validation loss and accuracy
-                log_loss(loss_fcn, model, test_songs, 'testLoss', _run)
-                log_loss(loss_fcn, model, val_songs, 'validLoss', _run)
-                log_accuracy(model, test_songs, 'testAccuracy', _run)
-                log_accuracy(model, val_songs, 'validAccuracy', _run)
+                log_loss(loss_fcn, model, test_loader, 'testLoss', _run)
+                log_loss(loss_fcn, model, val_loader, 'validLoss', _run)
+                log_accuracy(model, test_loader, 'testAccuracy', _run)
+                log_accuracy(model, val_loader, 'validAccuracy', _run)
 
             # save a copy of the trained model and make sacred remember it
             if saving['final_model']:
