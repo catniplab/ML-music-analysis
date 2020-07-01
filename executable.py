@@ -14,7 +14,7 @@ from sacred.observers import FileStorageObserver, RunObserver
 
 import os
 
-# don't observe, just investigate where the program fails
+# don't record information in the file system, just investigate where the program fails
 debug_mode = False
 
 # custom configuration

@@ -33,7 +33,7 @@ class DatasetFromArrayOfArrays(Dataset):
 
         # all except last time step for input
         # all except first time step for target
-        in_tensor, targ_tensor = ix_tensor[0 : -1], ix_tensor[1 : ]
+        in_tensor, targ_tensor = input[:-1, :], input[1:, :]
 
         return in_tensor, targ_tensor
 
@@ -72,7 +72,7 @@ def collate_fun(batch):
     outputs = pad_sequence(output, batch_first=True, padding_value=0)
 
     # keep a mask which tells us which parts of the tensor are actual data
-    mask = length_to_mask(torch.tensor(lengths, requires_grad=False), dtype=torch.float)
+    mask = length_to_mask(torch.tensor(lengths, dtype=torch.int, requires_grad=False),  dtype=None)
 
     return inputs, outputs, mask
 
@@ -100,14 +100,14 @@ def get_loader(dataset: str, batch_size: int) -> Tuple:
         val_data = DatasetFromArrayOfArrays(data['validdata'][0])
 
         # construct the samplers
-        #sampler_train = PseudoBucketSampler(train_data, batch_size)
-        #sampler_test = PseudoBucketSampler(test_data, batch_size)
-        #sampler_val = PseudoBucketSampler(val_data, batch_size)
+        sampler_train = PseudoBucketSampler(train_data, batch_size)
+        sampler_test = PseudoBucketSampler(test_data, batch_size)
+        sampler_val = PseudoBucketSampler(val_data, batch_size)
 
         # construct the loaders
-        train_loader = DataLoader(train_data, batch_size=batch_size, collate_fn=collate_fun)
-        test_loader = DataLoader(test_data, batch_size=batch_size, collate_fn=collate_fun)
-        val_loader = DataLoader(val_data, batch_size=batch_size, collate_fn=collate_fun)
+        train_loader = DataLoader(train_data, batch_size=batch_size, sampler=sampler_train, collate_fn=collate_fun)
+        test_loader = DataLoader(test_data, batch_size=batch_size, sampler=sampler_test, collate_fn=collate_fun)
+        val_loader = DataLoader(val_data, batch_size=batch_size, sampler=sampler_val, collate_fn=collate_fun)
 
         return train_loader, test_loader, val_loader
 

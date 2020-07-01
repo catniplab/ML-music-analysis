@@ -80,7 +80,7 @@ class LINEAR_CUDA(nn.Module):
             hidden = self.weight_hh_l0(hidden) + self.weight_ih_l0(x[:, t - 1])
             hiddens.append(hidden)
 
-        hidden_tensor = torch.cat(hiddens).reshape(1, T, 88)
+        hidden_tensor = torch.cat(hiddens).reshape(N, T, 88)
 
         return hidden_tensor, hidden_tensor
 

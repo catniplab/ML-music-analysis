@@ -21,7 +21,6 @@ class MaskedBCE(nn.Module):
         # compute for each sequence
         loss_each_seq = []
 
-        # average over time is different for each sequence
         for i in range(len(output)):
 
             # actual duration of the sequence
@@ -35,7 +34,7 @@ class MaskedBCE(nn.Module):
             # average BCE over time
             loss = bce(this_out, this_targ)/T
             loss = loss.reshape((1)) # pytorch shapes are annoying
-            #print(loss)
+            print(loss)
             loss_each_seq.append(loss)
 
         return torch.sum(torch.cat(loss_each_seq))
@@ -61,7 +60,7 @@ class Accuracy(nn.Module):
         # lengths of each sequence
         lens = torch.sum(mask, dim=1)
 
-        # compute accuracy for all sequences at each time point
+        # compute for all sequences at each time point
         T = output.shape[1]
         acc_over_time = []
 
@@ -79,9 +78,9 @@ class Accuracy(nn.Module):
 
             acc_over_time.append(this_acc)
 
-        # first take the average for each sequence, then sum over sequences
+        # first sum over time, take the average for each sequence, then sum over sequences
         result = torch.cat(acc_over_time).reshape(T, N)
-        #print(result)
-        result = torch.sum(result, dim=0)/lens
+        result = torch.sum(result, dim=0)
+        result /= lens
         result = torch.sum(result)
         return result

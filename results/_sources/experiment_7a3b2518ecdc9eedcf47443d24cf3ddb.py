@@ -122,25 +122,26 @@ def log_loss(loss_fcn: nn.Module,
     """
     :param loss_fcn: pytorch module whose forward function computes a loss
     :param model: model which we are testing
-    :param loader: data loader for which we will be testing the loss
+    :param loader: list of song tensors which we evaluate average loss on
     :return: log average loss for every song in the list
     """
 
     # record loss for all sequences and count the total number of sequences
     all_loss = []
-    num_seqs = 0
+    num_sequences = 0
 
     for input_tensor, target_tensor, mask in loader:
 
         num_seqs += input_tensor.shape[0]
 
-        output, hiddens = model(input_tensor)
+        output, hiddens = model(song)
+        prediction = output[:, 0 : -1]
 
-        loss = loss_fcn(output, target_tensor, mask)
-        all_loss.append(loss.cpu().detach().item())
+        loss = loss_fcn(prediction, target_tensor, mask)
+        all_loss.append(N*loss.cpu().detach().item())
 
     # log the average loss across every sequence
-    avg = np.sum(all_loss)/num_seqs
+    avg = np.sum(all_acc)/num_seqs
     _run.log_scalar(log_name, avg)
 
 
@@ -158,11 +159,10 @@ def log_accuracy(model: nn.Module,
     :return: average accuracy for every song in the list
     """
 
-    # see metrics.py
+    # accuracy module returns sum of accuracy for each sequence
     acc_fcn = Accuracy()
 
-    # record accuracy for all sequences and count the total number of sequences
-    all_acc = []
+    # total number of sequences in the loader
     num_seqs = 0
 
     for input_tensor, target_tensor, mask in loader:
@@ -170,8 +170,9 @@ def log_accuracy(model: nn.Module,
         num_seqs += input_tensor.shape[0]
 
         output, hiddens = model(input_tensor)
+        prediction = output[:, 0 : -1]
 
-        acc = acc_fcn(output, target_tensor, mask)
+        acc = acc_fcn(prediction.cpu(), target_tensor, mask)
         all_acc.append(acc)
 
     # log the average accuracy across every sequence
@@ -204,10 +205,9 @@ def train_model(
     # if we are debugging we may want to detect autograd anomalies
     torch.autograd.set_detect_anomaly(detect_anomaly)
 
-    # get the data loaders
+    # get the song lists
     dataset = training['dataset']
-    batch_size = training['batch_size']
-    train_loader, test_loader, val_loader = get_loader(dataset, batch_size)
+    train_loader, test_loader, val_loader = get_loader(dataset)
 
     # standard training loop
     if not hpsearch['do_hpsearch']:
@@ -268,9 +268,10 @@ def train_model(
                     # number of songs in this batch
                     N = input_tensor.shape[0]
 
-                    output, hidden_tensors = model(input_tensor)
+                    output, hidden_tensors = model(song)
+                    prediction = output[:, 0 : -1]
 
-                    loss = loss_fcn(output, target_tensor, mask)/N
+                    loss = loss_fcn(prediction, target_tensor, mask)/N
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()

@@ -11,7 +11,7 @@ import torch.nn.functional as F
 class MaskedBCE(nn.Module):
 
     def __init__(self):
-        super(MaskedBCE, self).__init__()
+        super().__init__(MaskedBCE, self)
 
     def forward(self, output, target, mask):
 
@@ -21,21 +21,17 @@ class MaskedBCE(nn.Module):
         # compute for each sequence
         loss_each_seq = []
 
-        # average over time is different for each sequence
         for i in range(len(output)):
 
             # actual duration of the sequence
             T = torch.sum(mask[i])
-            Ti = int(T.detach().item())
 
             # get the particular sequence
-            this_out = output[i, 0 : Ti]
-            this_targ = target[i, 0 : Ti]
+            this_out = output[i]
+            this_targ = target[i]
 
             # average BCE over time
             loss = bce(this_out, this_targ)/T
-            loss = loss.reshape((1)) # pytorch shapes are annoying
-            #print(loss)
             loss_each_seq.append(loss)
 
         return torch.sum(torch.cat(loss_each_seq))
@@ -46,13 +42,11 @@ class MaskedBCE(nn.Module):
 class Accuracy(nn.Module):
 
     def __init__(self):
-        super(Accuracy, self).__init__()
+        super().__init__(Accuracy, self)
 
     def forward(self, output, target, mask):
 
-        N = output.shape[0]
-
-        prediction = (torch.sigmoid(output) > 0.5).type(torch.get_default_dtype())
+        prediction = (torch.sigmoid(output) > 0.5).type(torch.get_default_type())
 
         # sum over notes and time
         tru_pos = torch.sum(prediction*target, dim=2)
@@ -61,7 +55,7 @@ class Accuracy(nn.Module):
         # lengths of each sequence
         lens = torch.sum(mask, dim=1)
 
-        # compute accuracy for all sequences at each time point
+        # compute for all sequences at each time point
         T = output.shape[1]
         acc_over_time = []
 
@@ -79,9 +73,8 @@ class Accuracy(nn.Module):
 
             acc_over_time.append(this_acc)
 
-        # first take the average for each sequence, then sum over sequences
-        result = torch.cat(acc_over_time).reshape(T, N)
-        #print(result)
-        result = torch.sum(result, dim=0)/lens
+        # first sum over time, take the average for each sequence, then sum over sequences
+        result = torch.sum(torch.cat(acc_over_time), dim=0)
+        result /= lens
         result = torch.sum(result)
         return result
