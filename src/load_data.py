@@ -9,11 +9,11 @@ import torch.tensor
 import torch.nn.functional as F
 
 from torch.utils.data import TensorDataset, Dataset, DataLoader
+from torch.nn.utils.rnn import pad_sequence
 
 from scipy.io import loadmat
 
 from typing import Tuple
-
 
 
 class DatasetFromArrayOfArrays(Dataset):
@@ -39,6 +39,26 @@ class DatasetFromArrayOfArrays(Dataset):
 
     def __len__(self):
         return len(self.data)
+
+
+def length_to_mask(length, max_len=None, dtype=None):
+    """
+    :param length: list of sequence lengths
+    :max_len: maximum length in the list
+    :dtype: desired data type for the mask
+    :return: 2D tensor indexed by [sequence, time] indicating whether or not there is actual data at that index
+    """
+
+    assert len(length.shape) == 1, 'Length shape should be 1 dimensional.'
+
+    max_len = max_len or length.max().item()
+
+    mask = torch.arange(max_len, device=length.device, dtype=length.dtype).expand(len(length), max_len) < length.unsqueeze(1)
+
+    if dtype is not None:
+        mask = torch.as_tensor(mask, dtype=dtype, device=length.device)
+
+    return mask
 
 
 def collate_fun(batch):

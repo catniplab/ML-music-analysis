@@ -9,6 +9,6 @@ MATLAB files for the music datasets can be found in `data` with the license from
 
 In `src`, `load_data` allows for the construction of a data loader for a specific dataset. `base_models` is where we define our custom pytorch models. `models` implements various things on top of our base models: linear readout, custom initialization, gradient clipping. `experiment.py` defines the training loop and default configs.
 
-Currently I am optimizing on a song-by-song basis. In general, all tensors representing music should be indexed via `[sample, time, note]`. The first dimension of the shape of all tensors is currently 1, however.
+All tensors representing music should be indexed via `[sample, time, note]`. Iteration over a DataLoader involves a mask for each batch which is used for accuracte computation of loss and accuracy.
 
 Run an experiment with `python executable.py`, configurations for the experiment can be found in the script and different configuration options are roughly documented in `src/experiment.py`. `query_results.py` can be run to find out which directories in `results` contain results for experiments with specified configurations. `plotting.py` contains a bunch of helper functions for plotting training curves and information about hidden weights.

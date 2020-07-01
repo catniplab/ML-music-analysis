@@ -126,23 +126,23 @@ def log_loss(loss_fcn: nn.Module,
     :return: log average loss for every song in the list
     """
 
+    # record loss for all sequences and count the total number of sequences
     all_loss = []
     num_sequences = 0
 
     for input_tensor, target_tensor, mask in loader:
 
-        N = input_tensor.shape[0]
-        num_seqs += N
+        num_seqs += input_tensor.shape[0]
 
         output, hiddens = model(song)
         prediction = output[:, 0 : -1]
 
-        # append average loss over time
         loss = loss_fcn(prediction, target_tensor, mask)
         all_loss.append(N*loss.cpu().detach().item())
 
-    # log the mean across every batch
-    _run.log_scalar(log_name, np.sum(all_loss)/num_seqs)
+    # log the average loss across every sequence
+    avg = np.sum(all_acc)/num_seqs
+    _run.log_scalar(log_name, avg)
 
 
 @ex.capture
@@ -172,7 +172,6 @@ def log_accuracy(model: nn.Module,
         output, hiddens = model(input_tensor)
         prediction = output[:, 0 : -1]
 
-        # append accuracy to the accumulation list
         acc = acc_fcn(prediction.cpu(), target_tensor, mask)
         all_acc.append(acc)
 
@@ -234,8 +233,8 @@ def train_model(
 
         with cuda_device:
 
-            # always use this loss function for multi-variate binary prediction
-            loss_fcn = nn.BCEWithLogitsLoss(reduction='sum')
+            # see metrics.py
+            loss_fcn = MaskedBCE()
 
             # construct the optimizer
             optimizer = None
@@ -260,34 +259,25 @@ def train_model(
                 scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: decay**epoch)
 
             # begin training loop
-            for epoch in range(training['num_epochs']):
+            for epoch in tqdm(range(training['num_epochs'])):
 
-                for song in tqdm(train_loader):
+                for input_tensor, target_tensor, mask in train_loader:
 
-                    song = song.to(device)
+                    input_tensor = input_tensor.to(device)
 
-                    # length of current song
-                    T = song.shape[1]
-                    #_log.warning(T)
+                    # number of songs in this batch
+                    N = input_tensor.shape[0]
 
-                    #_log.warning(str([p for p in model.parameters()]))
                     output, hidden_tensors = model(song)
-                    #_log.warning(len(output))
-                    #_log.warning(output[0].shape)
                     prediction = output[:, 0 : -1]
-                    target = song[:, 1 : T]
 
-                    #_log.warning(str(prediction.shape))
-                    #_log.warning(str(target.shape))
-                    #loss = loss_fcn(output_tensors[-1], target_tensor[:, -1])
-                    loss = loss_fcn(prediction, target)/T
+                    loss = loss_fcn(prediction, target_tensor, mask)/N
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
-                    tot_loss = loss.cpu().detach().item()
 
                     # use sacred to log training loss and accuracy
-                    _run.log_scalar("trainLoss", tot_loss)
+                    _run.log_scalar("trainLoss", loss.cpu().detach().item())
                     log_accuracy(model, train_loader, "trainAccuracy", cuda_device, _log, _run)
 
                     # save a copy of the model and make sacred remember it each epoch
