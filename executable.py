@@ -39,7 +39,7 @@ config_updates = {
                                  'max_angle': 2.0
                                  },
                    'model_dict': {
-                                  'architecture': 'REGRESSION',
+                                  'architecture': 'REGRESSION_8_STEP',
                                   'gradient_clipping': 1,
                                   'jit': False,
                                   'input_size': 88,

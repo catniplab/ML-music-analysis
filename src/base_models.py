@@ -108,3 +108,49 @@ class REGRESSION(nn.Module):
         outputs = self.weights(x)
 
         return outputs, outputs
+
+
+# linear regression on the last 8 steps of the time sequences
+class REGRESSION_8_STEP(nn.Module):
+
+    def __init__(self):
+
+        super(REGRESSION_8_STEP, self).__init__()
+
+        self.mt19937 = np.random.MT19937()
+        self.hh_seed = np.random.get_state()
+
+        self.weights = nn.Linear(8*88, 88)
+
+    def forward(self, x):
+
+        device = 'cpu'
+        ix = self.weights.weight.data.get_device()
+        if ix > -1:
+            device = ix
+        x = x.to(device)
+
+        N = x.shape[0]
+        T = x.shape[1]
+
+        outputs = []
+
+        for t in range(T):
+
+            # get the last 8 time steps if they exist
+            lower = t - 8
+            if lower < 0:
+                lower = 0
+            sliced = x[:, lower : t]
+
+            # mash everything together with zeros if necessary
+            flattened = torch.flatten(sliced, start_dim=1)
+            flen = flattened.shape[1]
+            if flen < 8*88:
+                flattened = torch.cat([torch.zeros(N, 8*88 - flen), flattened], dim=1)
+
+            outputs.append(self.weights(flattened))
+
+        outputs = torch.cat(outputs).reshape(N, T, 88)
+
+        return outputs, outputs
