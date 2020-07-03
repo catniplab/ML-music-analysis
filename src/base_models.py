@@ -105,7 +105,15 @@ class REGRESSION(nn.Module):
             device = ix
         x = x.to(device)
 
-        outputs = self.weights(x)
+        N = x.shape[0]
+        T = x.shape[1]
+
+        outputs = []
+
+        for t in range(T):
+            outputs.append(self.weights(x[:, t]))
+
+        outputs = torch.cat(outputs).reshape(T, N, 88).permute([1, 0, 2])
 
         return outputs, outputs
 
@@ -151,6 +159,6 @@ class REGRESSION_8_STEP(nn.Module):
 
             outputs.append(self.weights(flattened))
 
-        outputs = torch.cat(outputs).reshape(N, T, 88)
+        outputs = torch.cat(outputs).reshape(T, N, 88).permute([1, 0, 2])
 
         return outputs, outputs

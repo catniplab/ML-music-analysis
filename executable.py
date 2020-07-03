@@ -29,8 +29,8 @@ config_updates = {
                               'num_epochs': 150,
                               'batch_size': 128,
                               'lr': 0.001,
-                              'decay': 0.96,
-                              'optimizer': "SGD"
+                              'decay': 0.99,
+                              'optimizer': "SecondOrder"
                               },
                   'initializer': {
                                  'init': 'default',
