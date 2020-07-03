@@ -40,7 +40,8 @@ class LINEAR_JIT(nn.Module):
             hidden = self.weight_hh_l0(hidden) + self.weight_ih_l0(x[:, t - 1])
             hiddens.append(hidden)
 
-        hidden_tensor = torch.cat(hiddens).reshape(1, T, 88)
+        # it is very important that the outputs are concatenated in this way!
+        hidden_tensor = torch.cat(hiddens).reshape(T, N, self.hidden_size).permute([1, 0, 2])
 
         return hidden_tensor, hidden_tensor
 
@@ -80,7 +81,8 @@ class LINEAR_CUDA(nn.Module):
             hidden = self.weight_hh_l0(hidden) + self.weight_ih_l0(x[:, t - 1])
             hiddens.append(hidden)
 
-        hidden_tensor = torch.cat(hiddens).reshape(N, T, 88)
+        # it is very important that the outputs are concatenated in this way!
+        hidden_tensor = torch.cat(hiddens).reshape(T, N, self.hidden_size).permute([1, 0, 2])
 
         return hidden_tensor, hidden_tensor
 
@@ -113,6 +115,7 @@ class REGRESSION(nn.Module):
         for t in range(T):
             outputs.append(self.weights(x[:, t]))
 
+        # it is very important that the outputs are concatenated in this way!
         outputs = torch.cat(outputs).reshape(T, N, 88).permute([1, 0, 2])
 
         return outputs, outputs
@@ -159,6 +162,7 @@ class REGRESSION_8_STEP(nn.Module):
 
             outputs.append(self.weights(flattened))
 
+        # it is very important that the outputs are concatenated in this way!
         outputs = torch.cat(outputs).reshape(T, N, 88).permute([1, 0, 2])
 
         return outputs, outputs
