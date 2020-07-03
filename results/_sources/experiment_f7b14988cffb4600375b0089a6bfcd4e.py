@@ -53,17 +53,13 @@ def cfg():
                 'batch_size': 128,
                 'lr': 0.001,
                 'decay': 1.0,
-                'optimizer': "SGD",
-                'ema_decay': 0.99,
-                'damping': 0.001
+                'optimizer': "SGD"
                 }
 
     hpsearch = {
                 'do_hpsearch': False,
                 'learning_rates': 10**np.linspace(-2, -4, 5),
-                'decays': 0.98 - np.linspace(0, 0.1, num=5),
-                'ema_decays': 0.98 - np.linspace(0, 0.1, num=5),
-                'num_epochs': 50,
+                'epochs': 50
                 }
 
     # supported architectures
@@ -225,33 +221,6 @@ def train_iter(device: device,
         _run.add_artifact(save_dir + 'state_dict_' + str(epoch) + '.pt')
 
 
-# a single optimization step
-# meant for hp search where we aren't saving anything
-@ex.capture
-def hps_train_iter(device: device,
-                   cuda_device: torch.cuda.device,
-                   input_tensor: Tensor,
-                   target: Tensor,
-                   mask: Tensor,
-                   model: nn.Module,
-                   loss_fcn: nn.Module,
-                   optimizer: optim.Optimizer,
-                   _log,
-                   _run):
-
-    input_tensor = input_tensor.to(device)
-
-    # number of songs in this batch
-    N = input_tensor.shape[0]
-
-    output, hidden_tensors = model(input_tensor)
-
-    loss = loss_fcn(output, target, mask)/N
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-
-
 # main function
 @ex.automain
 def train_loop(system,
@@ -268,6 +237,11 @@ def train_loop(system,
     # give all random number generators the same seed
     _seed_all(_seed)
 
+    # save artifacts to a temporary directory that gets erased when the experiment is over
+    save_dir = system['base_dir'] + '/tmp_' + str(_seed)
+    os.system('mkdir ' + save_dir)
+    save_dir += '/'
+
     # if we are debugging we may want to detect autograd anomalies
     torch.autograd.set_detect_anomaly(detect_anomaly)
 
@@ -278,11 +252,6 @@ def train_loop(system,
 
     # standard training loop
     if not hpsearch['do_hpsearch']:
-
-        # save artifacts to a temporary directory that gets erased when the experiment is over
-        save_dir = system['base_dir'] + '/tmp_' + str(_seed)
-        os.system('mkdir ' + save_dir)
-        save_dir += '/'
 
         # construct and initialize the model
         cuda = system['cuda']
@@ -372,163 +341,4 @@ def train_loop(system,
 
     # only goal here is to find the best hyper parameters
     else:
-
-        if training['optimizer'] == "SecondOrder":
-
-            min_loss = float('inf')
-
-            best_decay = 1.0
-            best_damping = 0.1
-
-            for decay in hpsearch['ema_decays']:
-
-                for damping in hpsearch['dampings']:
-
-                    # construct and initialize the model
-                    cuda = system['cuda']
-                    model = get_model(model_dict, initializer, cuda)
-
-                    # if we are on cuda we construct the device and run everything on it
-                    cuda_device = NullContext()
-                    device = torch.device('cpu')
-                    if cuda:
-                        dev_name = 'cuda:' + str(system['gpu'])
-                        cuda_device = torch.cuda.device(dev_name)
-                        device = torch.device(dev_name)
-                        model = model.to(device)
-
-                    with cuda_device:
-
-                        # see metrics.py
-                        loss_fcn = MaskedBCE()
-
-                        # construct the optimizer
-                        # see https://github.com/cybertronai/pytorch-sso/blob/master/torchsso/optim/secondorder.py
-                        shapes = {"Linear": "Diag"}
-                        kwargs = {"damping": damping, "ema_decay": decay}
-                        optimizer = soptim.SecondOrderOptimizer(model, "Cov", shapes, kwargs)
-
-                        # begin training loop
-                        for epoch in tqdm(range(hpsearch['num_epochs'])):
-
-                            for input_tensor, target, mask in train_loader:
-                                hps_train_iter(device,
-                                               cuda_device,
-                                               input_tensor,
-                                               target,
-                                               mask,
-                                               model,
-                                               loss_fcn,
-                                               optimizer,
-                                               _log,
-                                               _run)
-
-                        # after training, compute average test loss
-                        num_seqs = 0
-                        test_loss = 0
-
-                        for input_tensor, target, mask in test_loader:
-
-                            num_seqs += input_tensor.shape[0]
-
-                            output, hiddens = model(input_tensor)
-                            loss = loss_fcn(output, target, mask)
-                            test_loss += loss.cpu().detach().item()
-
-                        test_loss /= num_seqs
-
-                        # compare against other hyperparameters
-                        if test_loss < min_loss:
-                            min_loss = test_loss
-                            best_decay = decay
-                            best_damping = damping
-
-            # use sacred to record the best hyperparameters
-            _run.log_scalar("ema_decay", best_decay)
-            _run.log_scalar("damping", best_damping)
-
-
-        else:
-
-            min_loss = float('inf')
-
-            best_decay = 1.0
-            best_lr = 0.1
-
-            for decay in hpsearch['decays']:
-
-                for lr in hpsearch['learning_rates']:
-
-                    # construct and initialize the model
-                    cuda = system['cuda']
-                    model = get_model(model_dict, initializer, cuda)
-
-                    # if we are on cuda we construct the device and run everything on it
-                    cuda_device = NullContext()
-                    device = torch.device('cpu')
-                    if cuda:
-                        dev_name = 'cuda:' + str(system['gpu'])
-                        cuda_device = torch.cuda.device(dev_name)
-                        device = torch.device(dev_name)
-                        model = model.to(device)
-
-                    with cuda_device:
-
-                        # see metrics.py
-                        loss_fcn = MaskedBCE()
-
-                        # construct the optimizer
-                        optimizer = None
-                        if training['optimizer'] == "SGD":
-                            optimizer = optim.SGD(model.parameters(), lr=lr)
-                        elif training['optimizer'] == "Adam":
-                            optimizer = optim.Adam(model.parameters(), lr=lr)
-                        elif training['optimizer'] == "RMSprop":
-                            optimizer = optim.RMSprop(model.parameters(), lr=lr)
-                        else:
-                            raise ValueError("Optimizer {} not recognized.".format(training['optimizer']))
-
-                        # learning rate decay
-                        scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: decay**epoch)
-
-                        # begin training loop
-                        for epoch in tqdm(range(hpsearch['num_epochs'])):
-
-                            for input_tensor, target, mask in train_loader:
-                                hps_train_iter(device,
-                                               cuda_device,
-                                               input_tensor,
-                                               target,
-                                               mask,
-                                               model,
-                                               loss_fcn,
-                                               optimizer,
-                                               _log,
-                                               _run)
-
-                            # learning rate decay
-                            scheduler.step()
-
-                        # after training, compute average test loss
-                        num_seqs = 0
-                        test_loss = 0
-
-                        for input_tensor, target, mask in test_loader:
-
-                            num_seqs += input_tensor.shape[0]
-
-                            output, hiddens = model(input_tensor)
-                            loss = loss_fcn(output, target, mask)
-                            test_loss += loss.cpu().detach().item()
-
-                        test_loss /= num_seqs
-
-                        # compare against other hyperparameters
-                        if test_loss < min_loss:
-                            min_loss = test_loss
-                            best_decay = decay
-                            best_lr = lr
-
-            # use sacred to record the best hyperparameters
-            _run.log_scalar("decay", best_decay)
-            _run.log_scalar("learning_rate", best_lr)
+        raise NotImplementedError

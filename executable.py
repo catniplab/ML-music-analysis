@@ -5,6 +5,7 @@ This script provides an example of how to call experiment.py
 from importlib import reload
 
 import torch
+import numpy as np
 
 import src.experiment
 reload(src.experiment)
@@ -28,9 +29,11 @@ config_updates = {
                               'dataset': "JSB_Chorales",
                               'num_epochs': 150,
                               'batch_size': 128,
-                              'lr': 0.001,
-                              'decay': 0.99,
-                              'optimizer': "Adam"
+                              'lr': 0.01,
+                              'decay': 0.98,
+                              'optimizer': "SecondOrder",
+                              'damping': 0.01,
+                              'ema_decay': 0.99
                               },
                   'initializer': {
                                  'init': 'default',
@@ -39,7 +42,7 @@ config_updates = {
                                  'max_angle': 2.0
                                  },
                    'model_dict': {
-                                  'architecture': 'LINEAR',
+                                  'architecture': 'REGRESSION_8_STEP',
                                   'gradient_clipping': 1,
                                   'jit': False,
                                   'input_size': 88,
@@ -47,6 +50,14 @@ config_updates = {
                                   'num_layers': 1,
                                   'output_size': 88
                                  },
+                   'hpsearch': {
+                               'do_hpsearch': False,
+                               'decays': 0.98 - np.linspace(0, 0.1, num=5),
+                               'learning_rates': 10**np.linspace(-2, -4, num=5),
+                               'ema_decays': 0.98 - np.linspace(0, 0.1, num=5),
+                               'dampings': 10**np.linspace(-2, -4, num=5),
+                               'num_epochs': 50
+                               },
                    'detect_anomaly': False
 
                 }

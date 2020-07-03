@@ -53,17 +53,13 @@ def cfg():
                 'batch_size': 128,
                 'lr': 0.001,
                 'decay': 1.0,
-                'optimizer': "SGD",
-                'ema_decay': 0.99,
-                'damping': 0.001
+                'optimizer': "SGD"
                 }
 
     hpsearch = {
                 'do_hpsearch': False,
                 'learning_rates': 10**np.linspace(-2, -4, 5),
-                'decays': 0.98 - np.linspace(0, 0.1, num=5),
-                'ema_decays': 0.98 - np.linspace(0, 0.1, num=5),
-                'num_epochs': 50,
+                'epochs': 50
                 }
 
     # supported architectures
@@ -420,6 +416,11 @@ def train_loop(system,
                                                model,
                                                loss_fcn,
                                                optimizer,
+                                               saving,
+                                               save_dir,
+                                               train_loader,
+                                               test_loader,
+                                               val_loader,
                                                _log,
                                                _run)
 
@@ -439,7 +440,6 @@ def train_loop(system,
 
                         # compare against other hyperparameters
                         if test_loss < min_loss:
-                            min_loss = test_loss
                             best_decay = decay
                             best_damping = damping
 
@@ -525,7 +525,6 @@ def train_loop(system,
 
                         # compare against other hyperparameters
                         if test_loss < min_loss:
-                            min_loss = test_loss
                             best_decay = decay
                             best_lr = lr
 

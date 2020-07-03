@@ -53,17 +53,13 @@ def cfg():
                 'batch_size': 128,
                 'lr': 0.001,
                 'decay': 1.0,
-                'optimizer': "SGD",
-                'ema_decay': 0.99,
-                'damping': 0.001
+                'optimizer': "SGD"
                 }
 
     hpsearch = {
                 'do_hpsearch': False,
                 'learning_rates': 10**np.linspace(-2, -4, 5),
-                'decays': 0.98 - np.linspace(0, 0.1, num=5),
-                'ema_decays': 0.98 - np.linspace(0, 0.1, num=5),
-                'num_epochs': 50,
+                'epochs': 50
                 }
 
     # supported architectures
@@ -236,6 +232,11 @@ def hps_train_iter(device: device,
                    model: nn.Module,
                    loss_fcn: nn.Module,
                    optimizer: optim.Optimizer,
+                   saving: dict,
+                   save_dir: str,
+                   train_loader: DataLoader,
+                   test_loader: DataLoader,
+                   val_loader: DataLoader,
                    _log,
                    _run):
 
@@ -268,6 +269,11 @@ def train_loop(system,
     # give all random number generators the same seed
     _seed_all(_seed)
 
+    # save artifacts to a temporary directory that gets erased when the experiment is over
+    save_dir = system['base_dir'] + '/tmp_' + str(_seed)
+    os.system('mkdir ' + save_dir)
+    save_dir += '/'
+
     # if we are debugging we may want to detect autograd anomalies
     torch.autograd.set_detect_anomaly(detect_anomaly)
 
@@ -278,11 +284,6 @@ def train_loop(system,
 
     # standard training loop
     if not hpsearch['do_hpsearch']:
-
-        # save artifacts to a temporary directory that gets erased when the experiment is over
-        save_dir = system['base_dir'] + '/tmp_' + str(_seed)
-        os.system('mkdir ' + save_dir)
-        save_dir += '/'
 
         # construct and initialize the model
         cuda = system['cuda']
@@ -420,6 +421,11 @@ def train_loop(system,
                                                model,
                                                loss_fcn,
                                                optimizer,
+                                               saving,
+                                               save_dir,
+                                               train_loader,
+                                               test_loader,
+                                               val_loader,
                                                _log,
                                                _run)
 
@@ -439,7 +445,6 @@ def train_loop(system,
 
                         # compare against other hyperparameters
                         if test_loss < min_loss:
-                            min_loss = test_loss
                             best_decay = decay
                             best_damping = damping
 
@@ -462,6 +467,12 @@ def train_loop(system,
                     # construct and initialize the model
                     cuda = system['cuda']
                     model = get_model(model_dict, initializer, cuda)
+
+                    # save a copy of the initial model and make sacred remember it
+                    if saving['init_model']:
+                        init_sd = deepcopy(model.state_dict())
+                        torch.save(init_sd, save_dir + 'initial_state_dict.pt')
+                        _run.add_artifact(save_dir + 'initial_state_dict.pt')
 
                     # if we are on cuda we construct the device and run everything on it
                     cuda_device = NullContext()
@@ -492,19 +503,24 @@ def train_loop(system,
                         scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: decay**epoch)
 
                         # begin training loop
-                        for epoch in tqdm(range(hpsearch['num_epochs'])):
+                        for epoch in tqdm(range(training['num_epochs'])):
 
                             for input_tensor, target, mask in train_loader:
-                                hps_train_iter(device,
-                                               cuda_device,
-                                               input_tensor,
-                                               target,
-                                               mask,
-                                               model,
-                                               loss_fcn,
-                                               optimizer,
-                                               _log,
-                                               _run)
+                                train_iter(device,
+                                           cuda_device,
+                                           input_tensor,
+                                           target,
+                                           mask,
+                                           model,
+                                           loss_fcn,
+                                           optimizer,
+                                           saving,
+                                           save_dir,
+                                           train_loader,
+                                           test_loader,
+                                           val_loader,
+                                           _log,
+                                           _run)
 
                             # learning rate decay
                             scheduler.step()
@@ -525,7 +541,6 @@ def train_loop(system,
 
                         # compare against other hyperparameters
                         if test_loss < min_loss:
-                            min_loss = test_loss
                             best_decay = decay
                             best_lr = lr
 
