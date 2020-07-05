@@ -12,3 +12,5 @@ In `src`, `load_data` allows for the construction of a data loader for a specifi
 All tensors representing music should be indexed via `[sample, time, note]`. Iteration over a DataLoader involves a mask for each batch which is used for accuracte computation of loss and accuracy.
 
 Run an experiment with `python executable.py`, configurations for the experiment can be found in the script and different configuration options are roughly documented in `src/experiment.py`. `query_results.py` can be run to find out which directories in `results` contain results for experiments with specified configurations. `plotting.py` contains a bunch of helper functions for plotting training curves and information about hidden weights.
+
+The `query_results` script needs to be rewritten to account for the new configuration system.

@@ -46,7 +46,7 @@ def cfg():
     # Nottingham (medium)
     # Piano_midi (long)
     # MuseData (extra long)
-    dataset = "JSB_Chorales"
+    dataset = "JSB_Chorales",
 
     # training
     num_epochs = 150
@@ -62,7 +62,6 @@ def cfg():
     do_hpsearch = False
     learning_rates = 10**np.linspace(-2, -4, 5)
     decays = 0.98 - np.linspace(0, 0.1, num=5)
-    dampings = 10**np.linspace(-2, -4, 5)
     ema_decays = 0.98 - np.linspace(0, 0.1, num=5)
     hps_epochs = 50
 
@@ -288,7 +287,6 @@ def train_loop(cuda,
                _run):
 
     model_dict = {'architecture': architecture,
-                  'gradient_clipping': gradient_clipping,
                   'jit': jit,
                   'input_size': input_size,
                   'hidden_size': hidden_size,
@@ -528,14 +526,14 @@ def train_loop(cuda,
 
                         # construct the optimizer
                         optimizer = None
-                        if optmzr == "SGD":
+                        if training['optimizer'] == "SGD":
                             optimizer = optim.SGD(model.parameters(), lr=lr)
-                        elif optmzr == "Adam":
+                        elif training['optimizer'] == "Adam":
                             optimizer = optim.Adam(model.parameters(), lr=lr)
-                        elif optmzr == "RMSprop":
+                        elif training['optimizer'] == "RMSprop":
                             optimizer = optim.RMSprop(model.parameters(), lr=lr)
                         else:
-                            raise ValueError("Optimizer {} not recognized.".format(optmzr))
+                            raise ValueError("Optimizer {} not recognized.".format(training['optimizer']))
 
                         # learning rate decay
                         scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: decay**epoch)

@@ -46,7 +46,7 @@ def cfg():
     # Nottingham (medium)
     # Piano_midi (long)
     # MuseData (extra long)
-    dataset = "JSB_Chorales"
+    dataset = "JSB_Chorales",
 
     # training
     num_epochs = 150
@@ -288,7 +288,6 @@ def train_loop(cuda,
                _run):
 
     model_dict = {'architecture': architecture,
-                  'gradient_clipping': gradient_clipping,
                   'jit': jit,
                   'input_size': input_size,
                   'hidden_size': hidden_size,
