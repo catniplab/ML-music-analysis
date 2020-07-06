@@ -72,6 +72,9 @@ class Accuracy(nn.Module):
             false_pos = torch.sum(prediction[:, t]*(1 - target[:, t]), dim=1)
             false_neg = torch.sum((1 - prediction[:, t])*target[:, t], dim=1)
 
+            # quick trick to try to avoid NaNs
+            false_pos += F.relu(1 - tru_pos[:, t])
+
             # true negatives are unremarkable for sparse binary sequences
             this_acc = mask[:, t]*tru_pos[:, t]/(tru_pos[:, t] + false_pos + false_neg)
 
