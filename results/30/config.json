@@ -1,9 +1,9 @@
 {
-  "architecture": "LINEAR",
+  "architecture": "REGRESSION_8_STEP",
   "base_dir": "/home/kadile/Projects/ML-music-analysis",
   "batch_size": 128,
   "cuda": false,
-  "damping": 0.001,
+  "damping": 0.01,
   "dampings": {
     "dtype": "float64",
     "py/object": "numpy.ndarray",
@@ -16,7 +16,7 @@
     ]
   },
   "dataset": "JSB_Chorales",
-  "decay": 0.93,
+  "decay": 0.98,
   "decays": {
     "dtype": "float64",
     "py/object": "numpy.ndarray",
@@ -30,7 +30,7 @@
   },
   "detect_anomaly": false,
   "do_hpsearch": false,
-  "ema_decay": 0.99,
+  "ema_decay": 0.88,
   "ema_decays": {
     "dtype": "float64",
     "py/object": "numpy.ndarray",
@@ -46,7 +46,7 @@
   "gradient_clipping": 1,
   "hidden_size": 300,
   "hps_epochs": 50,
-  "init": "identity",
+  "init": "default",
   "input_size": 88,
   "jit": false,
   "learning_rates": {
@@ -60,17 +60,17 @@
       0.0001
     ]
   },
-  "lr": 0.001,
+  "lr": 0.00316,
   "num_epochs": 150,
   "num_layers": 1,
-  "optmzr": "SGD",
+  "optmzr": "SecondOrder",
   "output_size": 88,
   "parity": "rotate",
   "save_every_epoch": false,
   "save_final_model": false,
   "save_init_model": false,
   "scale": 1.0,
-  "seed": 506664150,
+  "seed": 443450110,
   "t_distrib": {
     "_batch_shape": {
       "py/newargs": {
@@ -109,7 +109,7 @@
                 {
                   "py/tuple": [
                     {
-                      "py/b64": "gAKKCmz8nEb5IGqoUBkugAJN6QMugAJ9cQAoWBAAAABwcm90b2NvbF92ZXJzaW9ucQFN6QNYDQAAAGxpdHRsZV9lbmRpYW5xAohYCgAAAHR5cGVfc2l6ZXNxA31xBChYBQAAAHNob3J0cQVLAlgDAAAAaW50cQZLBFgEAAAAbG9uZ3EHSwR1dS6AAihYBwAAAHN0b3JhZ2VxAGN0b3JjaApGbG9hdFN0b3JhZ2UKcQFYDgAAADk0NzE1NzY0NDMxODg4cQJYAwAAAGNwdXEDSwFOdHEEUS6AAl1xAFgOAAAAOTQ3MTU3NjQ0MzE4ODhxAWEuAQAAAAAAAAAAAEA/"
+                      "py/b64": "gAKKCmz8nEb5IGqoUBkugAJN6QMugAJ9cQAoWBAAAABwcm90b2NvbF92ZXJzaW9ucQFN6QNYDQAAAGxpdHRsZV9lbmRpYW5xAohYCgAAAHR5cGVfc2l6ZXNxA31xBChYBQAAAHNob3J0cQVLAlgDAAAAaW50cQZLBFgEAAAAbG9uZ3EHSwR1dS6AAihYBwAAAHN0b3JhZ2VxAGN0b3JjaApGbG9hdFN0b3JhZ2UKcQFYDgAAADk0MTU1MDAyNjkzNTA0cQJYAwAAAGNwdXEDSwFOdHEEUS6AAl1xAFgOAAAAOTQxNTUwMDI2OTM1MDRxAWEuAQAAAAAAAAAAAEA/"
                     }
                   ]
                 }
@@ -157,7 +157,7 @@
                 {
                   "py/tuple": [
                     {
-                      "py/b64": "gAKKCmz8nEb5IGqoUBkugAJN6QMugAJ9cQAoWBAAAABwcm90b2NvbF92ZXJzaW9ucQFN6QNYDQAAAGxpdHRsZV9lbmRpYW5xAohYCgAAAHR5cGVfc2l6ZXNxA31xBChYBQAAAHNob3J0cQVLAlgDAAAAaW50cQZLBFgEAAAAbG9uZ3EHSwR1dS6AAihYBwAAAHN0b3JhZ2VxAGN0b3JjaApGbG9hdFN0b3JhZ2UKcQFYDgAAADk0NzE1NzY1MjUwNDY0cQJYAwAAAGNwdXEDSwFOdHEEUS6AAl1xAFgOAAAAOTQ3MTU3NjUyNTA0NjRxAWEuAQAAAAAAAAAAAAAA"
+                      "py/b64": "gAKKCmz8nEb5IGqoUBkugAJN6QMugAJ9cQAoWBAAAABwcm90b2NvbF92ZXJzaW9ucQFN6QNYDQAAAGxpdHRsZV9lbmRpYW5xAohYCgAAAHR5cGVfc2l6ZXNxA31xBChYBQAAAHNob3J0cQVLAlgDAAAAaW50cQZLBFgEAAAAbG9uZ3EHSwR1dS6AAihYBwAAAHN0b3JhZ2VxAGN0b3JjaApGbG9hdFN0b3JhZ2UKcQFYDgAAADk0MTU1MDAzMTM3NTUycQJYAwAAAGNwdXEDSwFOdHEEUS6AAl1xAFgOAAAAOTQxNTUwMDMxMzc1NTJxAWEuAQAAAAAAAAAAAAAA"
                     }
                   ]
                 }

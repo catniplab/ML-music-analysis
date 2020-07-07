@@ -1,32 +1,35 @@
 {
-  "artifacts": [
-    "initial_state_dict.pt",
-    "final_state_dict.pt"
-  ],
-  "command": "train_model",
+  "artifacts": [],
+  "command": "train_loop",
   "experiment": {
     "base_dir": "/home/kadile/Projects/ML-music-analysis/src",
     "dependencies": [
       "numpy==1.18.1",
       "sacred==0.8.1",
       "torch==1.5.0",
+      "torchsso==0.1.1",
       "tqdm==4.42.1"
     ],
     "mainfile": "experiment.py",
-    "name": "577034",
+    "name": "753585",
     "repositories": [
       {
-        "commit": "07a28df4f74d133669ecfda37b7f952654f0d37c",
+        "commit": "69ace4a6af354c44f8ed3fbd145398fcce82bf4a",
         "dirty": true,
         "url": "https://github.com/catniplab/ML-music-analysis.git"
       },
       {
-        "commit": "07a28df4f74d133669ecfda37b7f952654f0d37c",
+        "commit": "69ace4a6af354c44f8ed3fbd145398fcce82bf4a",
         "dirty": true,
         "url": "https://github.com/catniplab/ML-music-analysis.git"
       },
       {
-        "commit": "07a28df4f74d133669ecfda37b7f952654f0d37c",
+        "commit": "69ace4a6af354c44f8ed3fbd145398fcce82bf4a",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "69ace4a6af354c44f8ed3fbd145398fcce82bf4a",
         "dirty": true,
         "url": "https://github.com/catniplab/ML-music-analysis.git"
       }
@@ -34,31 +37,35 @@
     "sources": [
       [
         "experiment.py",
-        "_sources/experiment_23ec4c9dc16c0c8fd9f518d54040b1fc.py"
+        "_sources/experiment_b5cfc3dabfc48d6bb377d1c6e77631ec.py"
       ],
       [
         "load_data.py",
-        "_sources/load_data_5ef224119f0a529310f2e94b7571446f.py"
+        "_sources/load_data_8b9de65295c02b2bf73d6e1877ef0100.py"
+      ],
+      [
+        "metrics.py",
+        "_sources/metrics_670e1071368eb57dca0a24a031c5ad6c.py"
       ],
       [
         "models.py",
-        "_sources/models_5bd11ce2e4a16e91844b70a840e009e7.py"
+        "_sources/models_15d972b89c90554a78f5826a33421502.py"
       ]
     ]
   },
-  "heartbeat": "2020-06-25T06:20:42.356353",
+  "heartbeat": "2020-07-07T02:01:21.899043",
   "host": {
     "ENV": {},
     "cpu": "Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz",
     "hostname": "Wintermute",
     "os": [
       "Linux",
-      "Linux-5.4.0-37-generic-x86_64-with-debian-bullseye-sid"
+      "Linux-5.4.0-40-generic-x86_64-with-debian-bullseye-sid"
     ],
     "python_version": "3.7.6"
   },
   "meta": {
-    "command": "train_model",
+    "command": "train_loop",
     "options": {
       "--beat-interval": null,
       "--capture": null,
@@ -83,7 +90,7 @@
   },
   "resources": [],
   "result": null,
-  "start_time": "2020-06-25T06:20:11.101447",
+  "start_time": "2020-07-07T01:59:22.204230",
   "status": "COMPLETED",
-  "stop_time": "2020-06-25T06:20:42.353724"
+  "stop_time": "2020-07-07T02:01:21.896022"
 }

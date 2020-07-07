@@ -398,6 +398,10 @@ def train_loop(cuda,
                 torch.save(fin_sd, save_dir + 'final_state_dict.pt')
                 _run.add_artifact(save_dir + 'final_state_dict.pt')
 
+            # wait a second then remove the temporary directory used for storing artifacts
+            sleep(1)
+            os.system('rm -r ' + save_dir)
+
     # only goal here is to find the best hyper parameters
     else:
 
@@ -582,7 +586,3 @@ def train_loop(cuda,
             # use sacred to record the best hyperparameters
             _run.log_scalar("decay", best_decay)
             _run.log_scalar("learning_rate", best_lr)
-
-    # wait a second then remove the temporary directory used for storing artifacts
-    sleep(1)
-    os.system('rm -r ' + save_dir)

@@ -1,31 +1,35 @@
 {
-  "artifacts": [
-    "initial_state_dict.pt"
-  ],
-  "command": "train_model",
+  "artifacts": [],
+  "command": "train_loop",
   "experiment": {
-    "base_dir": "/home/eben/Programs/ML-music-analysis/src",
+    "base_dir": "/home/kadile/Projects/ML-music-analysis/src",
     "dependencies": [
       "numpy==1.18.1",
       "sacred==0.8.1",
-      "torch==1.4.0",
-      "tqdm==4.46.1"
+      "torch==1.5.0",
+      "torchsso==0.1.1",
+      "tqdm==4.42.1"
     ],
     "mainfile": "experiment.py",
-    "name": "929269",
+    "name": "863397",
     "repositories": [
       {
-        "commit": "cc5b6955f1ceaa02af49b9094ef4b3c8a7516e23",
+        "commit": "69ace4a6af354c44f8ed3fbd145398fcce82bf4a",
         "dirty": true,
         "url": "https://github.com/catniplab/ML-music-analysis.git"
       },
       {
-        "commit": "cc5b6955f1ceaa02af49b9094ef4b3c8a7516e23",
+        "commit": "69ace4a6af354c44f8ed3fbd145398fcce82bf4a",
         "dirty": true,
         "url": "https://github.com/catniplab/ML-music-analysis.git"
       },
       {
-        "commit": "cc5b6955f1ceaa02af49b9094ef4b3c8a7516e23",
+        "commit": "69ace4a6af354c44f8ed3fbd145398fcce82bf4a",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "69ace4a6af354c44f8ed3fbd145398fcce82bf4a",
         "dirty": true,
         "url": "https://github.com/catniplab/ML-music-analysis.git"
       }
@@ -33,68 +37,35 @@
     "sources": [
       [
         "experiment.py",
-        "_sources/experiment_784ccccd9b051173f4967b52062e19c9.py"
+        "_sources/experiment_b5cfc3dabfc48d6bb377d1c6e77631ec.py"
       ],
       [
         "load_data.py",
-        "_sources/load_data_5ef224119f0a529310f2e94b7571446f.py"
+        "_sources/load_data_8b9de65295c02b2bf73d6e1877ef0100.py"
+      ],
+      [
+        "metrics.py",
+        "_sources/metrics_670e1071368eb57dca0a24a031c5ad6c.py"
       ],
       [
         "models.py",
-        "_sources/models_56af0bd1c58146f861faa5af1d25f44b.py"
+        "_sources/models_15d972b89c90554a78f5826a33421502.py"
       ]
     ]
   },
-  "fail_trace": [
-    "Traceback (most recent call last):\n",
-    "  File \"/home/eben/anaconda3/envs/music/lib/python3.8/site-packages/sacred/config/captured_function.py\", line 42, in captured_function\n    result = wrapped(*args, **kwargs)\n",
-    "  File \"/home/eben/Programs/ML-music-analysis/src/experiment.py\", line 276, in train_model\n    log_loss(loss_fcn, model, test_loader, 'testLoss', _run)\n",
-    "  File \"/home/eben/anaconda3/envs/music/lib/python3.8/site-packages/sacred/config/captured_function.py\", line 42, in captured_function\n    result = wrapped(*args, **kwargs)\n",
-    "  File \"/home/eben/Programs/ML-music-analysis/src/experiment.py\", line 129, in log_loss\n    loss = loss_fcn(prediction, target_tensor)\n",
-    "  File \"/home/eben/Programs/ML-music-analysis/src/experiment.py\", line 227, in <lambda>\n    loss_fcn = lambda out, targ: 88*nn.BCEWithLogitsLoss()(out, targ)\n",
-    "  File \"/home/eben/anaconda3/envs/music/lib/python3.8/site-packages/torch/nn/modules/module.py\", line 532, in __call__\n    result = self.forward(*input, **kwargs)\n",
-    "  File \"/home/eben/anaconda3/envs/music/lib/python3.8/site-packages/torch/nn/modules/loss.py\", line 598, in forward\n    return F.binary_cross_entropy_with_logits(input, target,\n",
-    "  File \"/home/eben/anaconda3/envs/music/lib/python3.8/site-packages/torch/nn/functional.py\", line 2126, in binary_cross_entropy_with_logits\n    return torch.binary_cross_entropy_with_logits(input, target, weight, pos_weight, reduction_enum)\n",
-    "RuntimeError: expected device cpu but got device cuda:0\n"
-  ],
-  "heartbeat": "2020-06-25T07:03:36.483177",
+  "heartbeat": "2020-07-07T02:27:23.647744",
   "host": {
     "ENV": {},
-    "cpu": "Intel(R) Xeon(R) Gold 6248 CPU @ 2.50GHz",
-    "gpus": {
-      "driver_version": "440.33.01",
-      "gpus": [
-        {
-          "model": "GeForce RTX 2080 Ti",
-          "persistence_mode": false,
-          "total_memory": 11019
-        },
-        {
-          "model": "GeForce RTX 2080 Ti",
-          "persistence_mode": false,
-          "total_memory": 11019
-        },
-        {
-          "model": "GeForce RTX 2080 Ti",
-          "persistence_mode": false,
-          "total_memory": 11019
-        },
-        {
-          "model": "GeForce RTX 2080 Ti",
-          "persistence_mode": false,
-          "total_memory": 11019
-        }
-      ]
-    },
-    "hostname": "erdos",
+    "cpu": "Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz",
+    "hostname": "Wintermute",
     "os": [
       "Linux",
-      "Linux-4.18.0-80.11.2.el8_0.x86_64-x86_64-with-glibc2.10"
+      "Linux-5.4.0-40-generic-x86_64-with-debian-bullseye-sid"
     ],
-    "python_version": "3.8.3"
+    "python_version": "3.7.6"
   },
   "meta": {
-    "command": "train_model",
+    "command": "train_loop",
     "options": {
       "--beat-interval": null,
       "--capture": null,
@@ -119,7 +90,7 @@
   },
   "resources": [],
   "result": null,
-  "start_time": "2020-06-25T07:03:34.661943",
-  "status": "FAILED",
-  "stop_time": "2020-06-25T07:03:36.488640"
+  "start_time": "2020-07-07T02:26:04.850251",
+  "status": "COMPLETED",
+  "stop_time": "2020-07-07T02:27:23.644914"
 }

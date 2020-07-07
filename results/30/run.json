@@ -11,7 +11,7 @@
       "tqdm==4.42.1"
     ],
     "mainfile": "experiment.py",
-    "name": "674869",
+    "name": "327237",
     "repositories": [
       {
         "commit": "69ace4a6af354c44f8ed3fbd145398fcce82bf4a",
@@ -53,7 +53,7 @@
       ]
     ]
   },
-  "heartbeat": "2020-07-07T02:39:25.654468",
+  "heartbeat": "2020-07-07T02:41:12.663353",
   "host": {
     "ENV": {},
     "cpu": "Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz",
@@ -90,7 +90,7 @@
   },
   "resources": [],
   "result": null,
-  "start_time": "2020-07-07T02:37:53.480529",
+  "start_time": "2020-07-07T02:39:39.022147",
   "status": "COMPLETED",
-  "stop_time": "2020-07-07T02:39:25.627608"
+  "stop_time": "2020-07-07T02:41:12.636441"
 }

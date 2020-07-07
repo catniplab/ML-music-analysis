@@ -20,6 +20,21 @@ debug_mode = False
 
 # custom configuration
 config_updates = {
+                  'architecture': "REGRESSION_8_STEP",
+                  'optmzr': "SecondOrder",
+                  'init': "default",
+                  'parity': "rotate",
+
+                  'decay': 0.98,
+                  'lr': 0.00316,
+
+                  'ema_decay': 0.88,
+                  'damping': 0.01,
+
+                  'do_hpsearch': False,
+
+                  'save_init_model': False,
+                  'save_final_model': False
                  }
 
 """

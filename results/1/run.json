@@ -1,32 +1,86 @@
 {
   "artifacts": [
-    "initial_state_dict.pt",
-    "final_state_dict.pt"
+    "initial_state_dict_0_0.pt",
+    "final_state_dict_0_0.pt",
+    "initial_state_dict_0_1.pt",
+    "final_state_dict_0_1.pt",
+    "initial_state_dict_0_2.pt",
+    "final_state_dict_0_2.pt",
+    "initial_state_dict_0_3.pt",
+    "final_state_dict_0_3.pt",
+    "initial_state_dict_0_4.pt",
+    "final_state_dict_0_4.pt",
+    "initial_state_dict_1_0.pt",
+    "final_state_dict_1_0.pt",
+    "initial_state_dict_1_1.pt",
+    "final_state_dict_1_1.pt",
+    "initial_state_dict_1_2.pt",
+    "final_state_dict_1_2.pt",
+    "initial_state_dict_1_3.pt",
+    "final_state_dict_1_3.pt",
+    "initial_state_dict_1_4.pt",
+    "final_state_dict_1_4.pt",
+    "initial_state_dict_2_0.pt",
+    "final_state_dict_2_0.pt",
+    "initial_state_dict_2_1.pt",
+    "final_state_dict_2_1.pt",
+    "initial_state_dict_2_2.pt",
+    "final_state_dict_2_2.pt",
+    "initial_state_dict_2_3.pt",
+    "final_state_dict_2_3.pt",
+    "initial_state_dict_2_4.pt",
+    "final_state_dict_2_4.pt",
+    "initial_state_dict_3_0.pt",
+    "final_state_dict_3_0.pt",
+    "initial_state_dict_3_1.pt",
+    "final_state_dict_3_1.pt",
+    "initial_state_dict_3_2.pt",
+    "final_state_dict_3_2.pt",
+    "initial_state_dict_3_3.pt",
+    "final_state_dict_3_3.pt",
+    "initial_state_dict_3_4.pt",
+    "final_state_dict_3_4.pt",
+    "initial_state_dict_4_0.pt",
+    "final_state_dict_4_0.pt",
+    "initial_state_dict_4_1.pt",
+    "final_state_dict_4_1.pt",
+    "initial_state_dict_4_2.pt",
+    "final_state_dict_4_2.pt",
+    "initial_state_dict_4_3.pt",
+    "final_state_dict_4_3.pt",
+    "initial_state_dict_4_4.pt",
+    "final_state_dict_4_4.pt"
   ],
-  "command": "train_model",
+  "command": "train_loop",
   "experiment": {
     "base_dir": "/home/kadile/Projects/ML-music-analysis/src",
     "dependencies": [
       "numpy==1.18.1",
       "sacred==0.8.1",
       "torch==1.5.0",
+      "torchsso==0.1.1",
       "tqdm==4.42.1"
     ],
     "mainfile": "experiment.py",
-    "name": "402864",
+    "name": "66448",
     "repositories": [
       {
-        "commit": "c1cad723eff72ff83fc0c804939fbea17a02227a",
+        "commit": "69ace4a6af354c44f8ed3fbd145398fcce82bf4a",
         "dirty": true,
         "url": "https://github.com/catniplab/ML-music-analysis.git"
       },
       {
-        "commit": "c1cad723eff72ff83fc0c804939fbea17a02227a",
+        "commit": "69ace4a6af354c44f8ed3fbd145398fcce82bf4a",
         "dirty": true,
         "url": "https://github.com/catniplab/ML-music-analysis.git"
       },
       {
-        "commit": "c1cad723eff72ff83fc0c804939fbea17a02227a",
+        "commit": "69ace4a6af354c44f8ed3fbd145398fcce82bf4a",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "69ace4a6af354c44f8ed3fbd145398fcce82bf4a",
         "dirty": true,
         "url": "https://github.com/catniplab/ML-music-analysis.git"
       }
@@ -34,31 +88,35 @@
     "sources": [
       [
         "experiment.py",
-        "_sources/experiment_99679c1c4cfe6ba100a0fe5e358e3c06.py"
+        "_sources/experiment_10cb6b4d0f48b01ecb558c517b911833.py"
       ],
       [
         "load_data.py",
-        "_sources/load_data_5ef224119f0a529310f2e94b7571446f.py"
+        "_sources/load_data_8b9de65295c02b2bf73d6e1877ef0100.py"
+      ],
+      [
+        "metrics.py",
+        "_sources/metrics_670e1071368eb57dca0a24a031c5ad6c.py"
       ],
       [
         "models.py",
-        "_sources/models_70352a56e1242b4573616eb7ccb82dc6.py"
+        "_sources/models_8fd849b18a08023f5ef2315886f39438.py"
       ]
     ]
   },
-  "heartbeat": "2020-06-23T05:20:29.369106",
+  "heartbeat": "2020-07-07T00:42:35.068721",
   "host": {
     "ENV": {},
     "cpu": "Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz",
     "hostname": "Wintermute",
     "os": [
       "Linux",
-      "Linux-5.4.0-37-generic-x86_64-with-debian-bullseye-sid"
+      "Linux-5.4.0-40-generic-x86_64-with-debian-bullseye-sid"
     ],
     "python_version": "3.7.6"
   },
   "meta": {
-    "command": "train_model",
+    "command": "train_loop",
     "options": {
       "--beat-interval": null,
       "--capture": null,
@@ -83,7 +141,7 @@
   },
   "resources": [],
   "result": null,
-  "start_time": "2020-06-23T05:19:49.505666",
+  "start_time": "2020-07-07T00:34:42.751956",
   "status": "COMPLETED",
-  "stop_time": "2020-06-23T05:20:29.367292"
+  "stop_time": "2020-07-07T00:42:35.066633"
 }

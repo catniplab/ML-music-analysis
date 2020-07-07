@@ -159,7 +159,7 @@ def get_model(model_dict: dict, initializer: dict, cuda: bool):
         model = ReadOutModel(model_dict, cuda)
     else:
         if model_dict['architecture'] == "REGRESSION":
-            model = REGRESSION(0)
+            model = REGRESSION()
         elif model_dict['architecture'] == "REGRESSION_8_STEP":
             model = REGRESSION_8_STEP()
 

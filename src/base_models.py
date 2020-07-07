@@ -90,7 +90,7 @@ class LINEAR_CUDA(nn.Module):
 # Simple affine transformation of the last time step, doesn't take the past into account
 class REGRESSION(nn.Module):
 
-    def __init__(self):
+    def __init__(self, lag):
 
         super(REGRESSION, self).__init__()
 
@@ -98,6 +98,9 @@ class REGRESSION(nn.Module):
         self.hh_seed = np.random.get_state()
 
         self.weights = nn.Linear(88, 88)
+
+        # how many steps ago should we base the prediction off of
+        self.lag = lag
 
     def forward(self, x):
 
@@ -112,8 +115,13 @@ class REGRESSION(nn.Module):
 
         outputs = []
 
-        for t in range(T):
-            outputs.append(self.weights(x[:, t]))
+        # empty prediction for lag
+        for t in range(self.lag):
+            outputs.append(torch.zeros((N, T, 88)))
+
+        # start prediction after lag has passed
+        for t in range(self.lag, T):
+            outputs.append(self.weights(x[:, t - self.lag]))
 
         # it is very important that the outputs are concatenated in this way!
         outputs = torch.cat(outputs).reshape(T, N, 88).permute([1, 0, 2])
