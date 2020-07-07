@@ -25,10 +25,12 @@ config_updates = {
                   'init': "default",
                   'parity': "rotate",
 
+                  'lag': 8,
+
                   'decay': 0.98,
                   'lr': 0.00316,
 
-                  'ema_decay': 0.88,
+                  'ema_decay': 0.905,
                   'damping': 0.01,
 
                   'do_hpsearch': False,
