@@ -20,14 +20,14 @@ debug_mode = False
 
 # custom configuration
 config_updates = {
-                  'architecture': "REGRESSION_8_STEP",
+                  'architecture': "REGRESSION",
                   'optmzr': "SecondOrder",
                   'init': "default",
                   'parity': "rotate",
 
                   'lag': 8,
 
-                  'decay': 0.98,
+                  'decay': 0.955,
                   'lr': 0.00316,
 
                   'ema_decay': 0.905,

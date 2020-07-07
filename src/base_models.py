@@ -117,7 +117,7 @@ class REGRESSION(nn.Module):
 
         # empty prediction for lag
         for t in range(self.lag):
-            outputs.append(torch.zeros((N, T, 88)))
+            outputs.append(torch.zeros((N, 88)))
 
         # start prediction after lag has passed
         for t in range(self.lag, T):
