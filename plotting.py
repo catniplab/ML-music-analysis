@@ -80,3 +80,65 @@ def plot_eigs(dir: str, name: str, lim: float):
     ax.scatter(np.real(vals), np.imag(vals))
     ax.set_aspect('equal')
     fig.show()
+
+
+def get_metrics(dirs: str, metric: str):
+    """
+    :param dirs: list of directories for which we will look for the final metric
+    :param metric: name of the metric we are going to plot
+    :return: list of metrics after training
+    """
+
+    result = []
+
+    for name in dirs:
+
+        handle = open('results/' + name + '/metrics.json')
+        my_dict = json.loads(handle.read())
+        handle.close()
+
+        result.append(my_dict[metric]['values'][-1])
+
+    return result
+
+
+def make_bar(labels, accuracy, loss):
+    """
+    :param labels: name of the models with number of parameters
+    :param accuracy: accuracy achieved by each model at the end of training
+    :param loss: loss achieved by each model at the end of training
+    """
+
+    x = np.arange(len(labels))
+    width = 0.35
+
+    fig, ax = plt.subplots()
+    rects1 = ax.bar(x - width/2, accuracy, width, label='Accuracy')
+    rects2 = ax.bar(x + width/2, loss, width, label='Loss')
+
+    ax.tick_params(axis='x', which='major', labelsize=6)
+    ax.tick_params(axis='x', which='minor', labelsize=4)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+
+    for rect in rects1:
+        height = rect.get_height()
+        ax.annotate(str(height)[0 : 5],
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+
+    for rect in rects2:
+        height = rect.get_height()
+        ax.annotate(str(height)[0 : 5],
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+
+    fig.tight_layout()
+
+    plt.show()

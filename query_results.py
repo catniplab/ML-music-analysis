@@ -3,13 +3,10 @@ import json
 
 # find the directories with these configurations
 config_dict = {
-              'training': {
-                          'dataset': "JSB_Chorales",
-                          'num_epochs': 150,
-                          'batch_size': 128,
-                          'lr': 0.001,
-                          'optimizer': "SGD"
-                          }
+               'architecture': "REGRESSION_8_STEP",
+               'lag': 8,
+               'init': "default",
+               'do_hpsearch': False
               }
 
 # success argument checks if there are NaNs in the loss records
@@ -32,24 +29,13 @@ def find_results(configs, success=False):
             agree = True
 
             for key, value in configs.items():
-                if key in file_configs.keys():
 
-                    val = file_configs[key]
-                    if type(value) == dict and type(val) == dict:
-                        for k, v in value.items():
-                            if k in val.keys():
-                                if val[k] == v:
-                                    continue
-                                else:
-                                    agree = False
-                                    break
-
-                    elif file_configs[key] == value:
-                        continue
-                    else:
+                try:
+                    if file_configs[key] != value:
                         agree = False
                         break
-                else:
+
+                except:
                     agree = False
                     break
 
