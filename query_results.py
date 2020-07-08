@@ -1,11 +1,18 @@
 import os
 import json
 
+useful_configs = [ {'architecture': "LINEAR", 'init': "default", 'do_hpsearch': False},
+                   {'architecture': "LINEAR", 'init': "identity", 'do_hpsearch': False},
+                   {'architecture': "LINEAR", 'init': "blockortho", 'do_hpsearch': False},{'architecture': "REGRESSION", 'init': "default", 'do_hpsearch': False, 'lag': 0},
+                   {'architecture': "REGRESSION", 'init': "default", 'do_hpsearch': False, 'lag': 8},
+                   {'architecture': "REGRESSION_8_STEP", 'init': "default", 'do_hpsearch': False}
+                 ]
+
 # find the directories with these configurations
 config_dict = {
                'architecture': "REGRESSION_8_STEP",
-               'lag': 8,
-               'init': "default",
+               #'lag': 8,
+               #'init': "blockortho",
                'do_hpsearch': False
               }
 

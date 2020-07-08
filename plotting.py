@@ -4,6 +4,8 @@ import scipy.io as io
 import torch
 import json
 
+import query_results as qr
+
 import subprocess
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
@@ -102,27 +104,55 @@ def get_metrics(dirs: str, metric: str):
     return result
 
 
-def make_bar(labels, accuracy, loss):
-    """
-    :param labels: name of the models with number of parameters
-    :param accuracy: accuracy achieved by each model at the end of training
-    :param loss: loss achieved by each model at the end of training
-    """
+def get_all_metrics(list_of_configs):
 
-    x = np.arange(len(labels))
+    train_loss = []
+    test_loss = []
+    valid_loss = []
+
+    train_acc = []
+    test_acc = []
+    valid_acc = []
+
+    for config_dict in list_of_configs:
+
+        dirs = qr.find_results(config_dict)
+
+        trainLoss = np.mean(get_metrics(dirs, "trainLoss"))
+        testLoss = np.mean(get_metrics(dirs, "testLoss"))
+        validLoss = np.mean(get_metrics(dirs, "validLoss"))
+
+        train_loss.append(trainLoss)
+        test_loss.append(testLoss)
+        valid_loss.append(validLoss)
+
+        trainAcc = np.mean(get_metrics(dirs, "trainAccuracy"))
+        testAcc = np.mean(get_metrics(dirs, "testAccuracy"))
+        validAcc = np.mean(get_metrics(dirs, "validAccuracy"))
+
+        train_acc.append(trainAcc)
+        test_acc.append(testAcc)
+        valid_acc.append(validAcc)
+
+    return train_loss, test_loss, valid_loss, train_acc, test_acc, valid_acc
+
+
+def make_bar(labels, train, test, validate):
+
+    x = 2.0*np.arange(len(labels))
     width = 0.35
 
     fig, ax = plt.subplots()
-    rects1 = ax.bar(x - width/2, accuracy, width, label='Accuracy')
-    rects2 = ax.bar(x + width/2, loss, width, label='Loss')
+    rects1 = ax.bar(x - width, train, width, label='Train')
+    rects2 = ax.bar(x, test, width, label='Test')
+    rects3 = ax.bar(x + width, validate, width, label='Validation')
 
     ax.tick_params(axis='x', which='major', labelsize=6)
-    ax.tick_params(axis='x', which='minor', labelsize=4)
-
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     ax.legend()
 
+    """
     for rect in rects1:
         height = rect.get_height()
         ax.annotate(str(height)[0 : 5],
@@ -139,6 +169,13 @@ def make_bar(labels, accuracy, loss):
                     textcoords="offset points",
                     ha='center', va='bottom')
 
-    fig.tight_layout()
+    for rect in rects3:
+        height = rect.get_height()
+        ax.annotate(str(height)[0 : 5],
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+    """
 
     plt.show()
