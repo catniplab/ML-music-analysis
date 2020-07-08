@@ -1,0 +1,147 @@
+{
+  "artifacts": [
+    "initial_state_dict_0_0.pt",
+    "final_state_dict_0_0.pt",
+    "initial_state_dict_0_1.pt",
+    "final_state_dict_0_1.pt",
+    "initial_state_dict_0_2.pt",
+    "final_state_dict_0_2.pt",
+    "initial_state_dict_0_3.pt",
+    "final_state_dict_0_3.pt",
+    "initial_state_dict_0_4.pt",
+    "final_state_dict_0_4.pt",
+    "initial_state_dict_1_0.pt",
+    "final_state_dict_1_0.pt",
+    "initial_state_dict_1_1.pt",
+    "final_state_dict_1_1.pt",
+    "initial_state_dict_1_2.pt",
+    "final_state_dict_1_2.pt",
+    "initial_state_dict_1_3.pt",
+    "final_state_dict_1_3.pt",
+    "initial_state_dict_1_4.pt",
+    "final_state_dict_1_4.pt",
+    "initial_state_dict_2_0.pt",
+    "final_state_dict_2_0.pt",
+    "initial_state_dict_2_1.pt",
+    "final_state_dict_2_1.pt",
+    "initial_state_dict_2_2.pt",
+    "final_state_dict_2_2.pt",
+    "initial_state_dict_2_3.pt",
+    "final_state_dict_2_3.pt",
+    "initial_state_dict_2_4.pt",
+    "final_state_dict_2_4.pt",
+    "initial_state_dict_3_0.pt",
+    "final_state_dict_3_0.pt",
+    "initial_state_dict_3_1.pt",
+    "final_state_dict_3_1.pt",
+    "initial_state_dict_3_2.pt",
+    "final_state_dict_3_2.pt",
+    "initial_state_dict_3_3.pt",
+    "final_state_dict_3_3.pt",
+    "initial_state_dict_3_4.pt",
+    "final_state_dict_3_4.pt",
+    "initial_state_dict_4_0.pt",
+    "final_state_dict_4_0.pt",
+    "initial_state_dict_4_1.pt",
+    "final_state_dict_4_1.pt",
+    "initial_state_dict_4_2.pt",
+    "final_state_dict_4_2.pt",
+    "initial_state_dict_4_3.pt",
+    "final_state_dict_4_3.pt",
+    "initial_state_dict_4_4.pt",
+    "final_state_dict_4_4.pt"
+  ],
+  "command": "train_loop",
+  "experiment": {
+    "base_dir": "/home/kadile/Projects/ML-music-analysis/src",
+    "dependencies": [
+      "numpy==1.18.1",
+      "sacred==0.8.1",
+      "torch==1.5.0",
+      "torchsso==0.1.1",
+      "tqdm==4.42.1"
+    ],
+    "mainfile": "experiment.py",
+    "name": "264680",
+    "repositories": [
+      {
+        "commit": "93e3ae1da847308ceb5623899c03bd371c75816d",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "93e3ae1da847308ceb5623899c03bd371c75816d",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "93e3ae1da847308ceb5623899c03bd371c75816d",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "93e3ae1da847308ceb5623899c03bd371c75816d",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      }
+    ],
+    "sources": [
+      [
+        "experiment.py",
+        "_sources/experiment_e8f1a934a5404b32de6aa7a56551dcdb.py"
+      ],
+      [
+        "load_data.py",
+        "_sources/load_data_a8ea8e4edf2bf5161930feeddc1efbae.py"
+      ],
+      [
+        "metrics.py",
+        "_sources/metrics_670e1071368eb57dca0a24a031c5ad6c.py"
+      ],
+      [
+        "models.py",
+        "_sources/models_836f422d2c19c22b1fe188abc5ed09e7.py"
+      ]
+    ]
+  },
+  "heartbeat": "2020-07-08T23:28:26.693005",
+  "host": {
+    "ENV": {},
+    "cpu": "Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz",
+    "hostname": "Wintermute",
+    "os": [
+      "Linux",
+      "Linux-5.4.0-40-generic-x86_64-with-debian-bullseye-sid"
+    ],
+    "python_version": "3.7.6"
+  },
+  "meta": {
+    "command": "train_loop",
+    "options": {
+      "--beat-interval": null,
+      "--capture": null,
+      "--comment": null,
+      "--debug": false,
+      "--enforce_clean": false,
+      "--file_storage": null,
+      "--force": false,
+      "--help": false,
+      "--loglevel": null,
+      "--mongo_db": null,
+      "--name": null,
+      "--pdb": false,
+      "--print-config": false,
+      "--priority": null,
+      "--queue": false,
+      "--s3": null,
+      "--sql": null,
+      "--tiny_db": null,
+      "--unobserved": false
+    }
+  },
+  "resources": [],
+  "result": null,
+  "start_time": "2020-07-08T23:01:47.680742",
+  "status": "COMPLETED",
+  "stop_time": "2020-07-08T23:28:26.689448"
+}

@@ -20,18 +20,22 @@ debug_mode = False
 
 # custom configuration
 config_updates = {
-                  'architecture': "LINEAR",
-                  'optmzr': "RMSprop",
+                  'architecture': "REGRESSION_WIDE",
+                  'optmzr': "SecondOrder",
                   'init': "default",
                   'parity': "rotate",
 
-                  'lag': 0,
+                  'num_epochs': 300,
+                  'hps_epochs': 100,
 
-                  'decay': 0.98,
-                  'lr': 0.00316,
+                  'lag': 0,
+                  'window': 7,
+
+                  'decay': 0.93,
+                  'lr': 0.01,
 
                   'ema_decay': 0.905,
-                  'damping': 0.00316,
+                  'damping': 0.01,
 
                   'do_hpsearch': False,
 

@@ -41,18 +41,19 @@ def plot_scalar(dir: str, name: str):
     plt.show()
 
 
-def plot_hidden_weights(dir: str, name: str, vmin: float, vmax: float):
+def plot_hidden_weights(dir: str, dict_name: str, param_name:str, vmin: float, vmax: float):
     """
     :param dir: directory of the file storage system whose results we are looking at
-    :param name: name of the .pt file whose .weight_hh_l0.weight we will visualize
+    :param dict_name: name of the .pt file whose .weight_hh_l0.weight we will visualize
+    :param param_name: name of the key in the dictionary we are interested in.
     :param vmin: expected minimum weight
     :param vmax: expected maximum weight
     """
 
     path = 'results/' + dir + '/'
 
-    sd = torch.load(path + name, map_location='cpu')
-    hidden_weights = sd['rnn.weight_hh_l0.weight'].detach().numpy()
+    sd = torch.load(path + dict_name, map_location='cpu')
+    hidden_weights = sd[param_name].detach().numpy()
 
     #plt.title(name + ' weights ' + dir)
     fig, ax = plt.subplots()
