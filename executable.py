@@ -20,14 +20,14 @@ debug_mode = False
 
 # custom configuration
 config_updates = {
-                  'architecture': "REGRESSION",
-                  'optmzr': "SecondOrder",
+                  'architecture': "LINEAR",
+                  'optmzr': "RMSprop",
                   'init': "default",
                   'parity': "rotate",
 
                   'lag': 0,
 
-                  'decay': 0.955,
+                  'decay': 0.98,
                   'lr': 0.00316,
 
                   'ema_decay': 0.905,
@@ -35,8 +35,8 @@ config_updates = {
 
                   'do_hpsearch': False,
 
-                  'save_init_model': False,
-                  'save_final_model': False
+                  'save_init_model': True,
+                  'save_final_model': True
                  }
 
 """

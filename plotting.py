@@ -137,7 +137,7 @@ def get_all_metrics(list_of_configs):
     return train_loss, test_loss, valid_loss, train_acc, test_acc, valid_acc
 
 
-def make_bar(labels, train, test, validate):
+def make_bar(labels, title, train, test, validate):
 
     x = 2.0*np.arange(len(labels))
     width = 0.35
@@ -177,5 +177,7 @@ def make_bar(labels, train, test, validate):
                     textcoords="offset points",
                     ha='center', va='bottom')
     """
+
+    plt.title(title)
 
     plt.show()
