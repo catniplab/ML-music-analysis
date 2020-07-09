@@ -22,12 +22,13 @@ debug_mode = False
 config_updates = {
                   'architecture': "LINEAR",
                   'optmzr': "SGD",
-                  'init': "identity",
+                  'init': "regression",
                   'parity': "rotate",
 
                   #'num_epochs': 300,
                   #'hps_epochs': 100,
-                  'hidden_size': 88,
+                  'hidden_size': 300,
+                  'scale': 0.01,
 
                   'lag': 0,
                   'window': 7,

@@ -149,12 +149,13 @@ def _initialize(model: ReadOutModel, initializer: dict) -> ReadOutModel:
         model.rnn.weight_ih_l0.weight.data = make_identity(in_shape)
 
         hid_shape = model.rnn.weight_hh_l0.weight.data.shape
+        size = model.rnn.weight_hh_l0.weight.data.size()
         identity = make_identity(hid_shape)
-        reg_weights = torch.load(initializer['path'])['weights.weight']
+        reg_weights = torch.load(initializer['path'])['weights.weight']/size
         for i in range(reg_weights.shape[0]):
             for j in range(reg_weights.shape[1]):
                 identity[i, j] = reg_weights[i, j]
-        model.rnn.weight_hh_l0.weight.data = initializer['scale']*identity
+        model.rnn.weight_hh_l0.weight.data = identity
 
         out_shape = model.output_weights.weight.data.shape
         model.output_weights.weight.data = make_identity(out_shape)

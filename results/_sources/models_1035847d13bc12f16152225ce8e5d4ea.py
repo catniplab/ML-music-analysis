@@ -145,8 +145,8 @@ def _initialize(model: ReadOutModel, initializer: dict) -> ReadOutModel:
     # construct the initial hidden weights based on the weights of a regression model
     elif initializer['init'] == 'regression':
 
-        in_shape = model.rnn.weight_ih_l0.weight.data.shape
-        model.rnn.weight_ih_l0.weight.data = make_identity(in_shape)
+        #in_shape = model.rnn.weight_ih_l0.weight.data.shape
+        #model.rnn.weight_ih_l0.weight.data = make_identity(in_shape)
 
         hid_shape = model.rnn.weight_hh_l0.weight.data.shape
         identity = make_identity(hid_shape)
@@ -154,10 +154,10 @@ def _initialize(model: ReadOutModel, initializer: dict) -> ReadOutModel:
         for i in range(reg_weights.shape[0]):
             for j in range(reg_weights.shape[1]):
                 identity[i, j] = reg_weights[i, j]
-        model.rnn.weight_hh_l0.weight.data = initializer['scale']*identity
+        model.rnn.weight_hh_l0.weight.data = identity
 
-        out_shape = model.output_weights.weight.data.shape
-        model.output_weights.weight.data = make_identity(out_shape)
+        #out_shape = model.output_weights.weight.data.shape
+        #model.output_weights.weight.data = make_identity(out_shape)
 
     else:
         raise ValueError("Initialization {} not recognized.".format(initializer['init']))
