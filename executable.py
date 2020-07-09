@@ -21,20 +21,20 @@ debug_mode = False
 # custom configuration
 config_updates = {
                   'architecture': "LINEAR",
-                  'optmzr': "SGD",
-                  'init': "regression",
+                  'optmzr': "Adam",
+                  'init': "blockortho",
                   'parity': "rotate",
 
                   #'num_epochs': 300,
                   #'hps_epochs': 100,
                   'hidden_size': 300,
-                  'scale': 0.01,
+                  'scale': 1.0001,
 
                   'lag': 0,
                   'window': 7,
 
-                  'decay': 0.93,
-                  'lr': 0.001,
+                  'decay': 0.98,
+                  'lr': 0.00316,
 
                   'ema_decay': 0.999,
                   'damping': 0.001,

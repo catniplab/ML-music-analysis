@@ -32,7 +32,7 @@ class LINEAR_JIT(nn.Module):
         T = x.shape[1]
 
         hiddens = []
-        initial = torch.randn((N, self.hidden_size), dtype=torch.float)
+        initial = torch.ones((N, self.hidden_size), dtype=torch.float)
         hidden = initial + self.weight_ih_l0(x[:, 0])
         hiddens.append(hidden)
 
@@ -73,7 +73,7 @@ class LINEAR_CUDA(nn.Module):
         T = x.shape[1]
 
         hiddens = []
-        initial = torch.randn((N, self.hidden_size), dtype=torch.float, device=device)
+        initial = torch.ones((N, self.hidden_size), dtype=torch.float, device=device)
         hidden = initial + self.weight_ih_l0(x[:, 0])
         hiddens.append(hidden)
 

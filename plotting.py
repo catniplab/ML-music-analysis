@@ -3,10 +3,9 @@ import numpy.linalg as la
 import scipy.io as io
 import torch
 import json
-
 import query_results as qr
-
 import subprocess
+
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
@@ -153,32 +152,60 @@ def make_bar(labels, title, train, test, validate):
     ax.set_xticklabels(labels)
     ax.legend()
 
-    """
-    for rect in rects1:
-        height = rect.get_height()
-        ax.annotate(str(height)[0 : 5],
-                    xy=(rect.get_x() + rect.get_width() / 2, height),
-                    xytext=(0, 3),  # 3 points vertical offset
-                    textcoords="offset points",
-                    ha='center', va='bottom')
-
-    for rect in rects2:
-        height = rect.get_height()
-        ax.annotate(str(height)[0 : 5],
-                    xy=(rect.get_x() + rect.get_width() / 2, height),
-                    xytext=(0, 3),  # 3 points vertical offset
-                    textcoords="offset points",
-                    ha='center', va='bottom')
-
-    for rect in rects3:
-        height = rect.get_height()
-        ax.annotate(str(height)[0 : 5],
-                    xy=(rect.get_x() + rect.get_width() / 2, height),
-                    xytext=(0, 3),  # 3 points vertical offset
-                    textcoords="offset points",
-                    ha='center', va='bottom')
-    """
-
     plt.title(title)
+
+    plt.show()
+
+
+def duration_histogram(name: str, set: str):
+
+    songs = io.loadmat('data/' + name)[set][0]
+
+    record = np.zeros(32)
+
+    for song in songs:
+
+        for note in range(88):
+
+            on = False
+            count = 0
+
+            for t in range(song.shape[0]):
+
+                if song[t, note] == 1:
+                    count += 1
+                    on = True
+
+                elif song[t, note] == 0:
+                    if on:
+                        record[count - 1] += 1
+                        count = 0
+                    on = False
+
+                else:
+                    raise ValueError("Piano roll should be binary.")
+
+    durations = []
+    labels = []
+    for i, r in enumerate(record):
+        if r > 0:
+            durations.append(r)
+            labels.append(str(i + 1))
+
+    durations = durations[4:]
+    labels = labels[4:]
+
+    x = np.arange(len(labels))
+    width = 0.35
+
+    fig, ax = plt.subplots()
+    rects1 = ax.bar(x, durations, width)
+
+    ax.tick_params(axis='x', which='major', labelsize=6)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    #ax.legend()
+
+    plt.title("Note duration distribution: " + name + " " + set)
 
     plt.show()
