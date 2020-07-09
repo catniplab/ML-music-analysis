@@ -34,8 +34,8 @@ config_updates = {
                   'decay': 0.93,
                   'lr': 0.01,
 
-                  'ema_decay': 0.905,
-                  'damping': 0.01,
+                  'ema_decay': 0.999,
+                  'damping': 0.001,
 
                   'do_hpsearch': False,
 
