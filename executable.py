@@ -20,19 +20,20 @@ debug_mode = False
 
 # custom configuration
 config_updates = {
-                  'architecture': "REGRESSION_WIDE",
-                  'optmzr': "SecondOrder",
-                  'init': "default",
+                  'architecture': "LINEAR",
+                  'optmzr': "SGD",
+                  'init': "identity",
                   'parity': "rotate",
 
-                  'num_epochs': 300,
-                  'hps_epochs': 100,
+                  #'num_epochs': 300,
+                  #'hps_epochs': 100,
+                  'hidden_size': 88,
 
                   'lag': 0,
                   'window': 7,
 
                   'decay': 0.93,
-                  'lr': 0.01,
+                  'lr': 0.001,
 
                   'ema_decay': 0.999,
                   'damping': 0.001,
@@ -43,39 +44,10 @@ config_updates = {
                   'save_final_model': True
                  }
 
-"""
-# remove temporary directories when the experiment is over
-class FileDeleter(RunObserver):
-
-    def queued_event(self, ex_info, command, queue_time, config, meta_info, _id):
-      pass
-
-    def started_event(self, ex_info, command, host_info, start_time, config, meta_info, _id):
-      pass
-
-    def heartbeat_event(self, info, captured_out, beat_time, result):
-      pass
-
-    def completed_event(self, stop_time, result):
-      print(result)
-
-    def interrupted_event(self, interrupt_time, status):
-      print(status)
-
-    def failed_event(self, fail_time, fail_trace):
-      print(self)
-
-    def resource_event(self, filename):
-      pass
-
-    def artifact_event(self, name, filename):
-      pass
-"""
 
 if __name__ == "__main__":
 
    base_dir = os.getcwd()
-   #ex.observers.append(FileDeleter(base_dir))
 
    if debug_mode:
 
