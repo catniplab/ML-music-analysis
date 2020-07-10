@@ -4,7 +4,9 @@ This script provides an example of how to call experiment.py
 
 from importlib import reload
 
+import math
 import torch
+import torch.distributions as distribs
 import numpy as np
 
 import src.experiment
@@ -18,12 +20,32 @@ import os
 # don't record information in the file system, just investigate where the program fails
 debug_mode = False
 
+
+class MyDistrib(distribs.distribution.Distribution):
+
+   def __init__(self, angle: float, variance: float):
+
+      super(MyDistrib, self).__init__()
+
+      self.bern = distribs.bernoulli.Bernoulli(torch.tensor([0.5]))
+      self.normal = distribs.normal.Normal(torch.zeros((1)), torch.tensor([variance]))
+
+      self.angle = angle
+
+   def sample(self):
+
+      result = self.angle*(2.0*self.bern.sample() - 1.0)
+      result += self.normal.sample()
+      return result
+
+
 # custom configuration
 config_updates = {
                   'architecture': "GRU",
                   'optmzr': "Adam",
                   'init': "blockortho",
                   'parity': "rotate",
+                  't_distrib': MyDistrib(0.25*math.pi, 0.01),
 
                   #'num_epochs': 300,
                   #'hps_epochs': 100,
@@ -40,6 +62,7 @@ config_updates = {
                   'damping': 0.001,
 
                   'do_hpsearch': False,
+                  'decays': 0.99 - np.linspace(0.01, 0.05, num=5),
 
                   'save_init_model': True,
                   'save_final_model': True
