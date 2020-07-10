@@ -71,8 +71,7 @@ def cfg():
     # LINEAR (LDS)
     # REGRESSION (regress next note based on last note)
     # REGRESSION_8_STEP (regress next note based on last 8 notes)
-    architecture = 'LDS'
-    readout = 'linear'
+    architecture = 'LINEAR'
     gradient_clipping = 1
     jit = False # not fully implemented
     # for regression
@@ -94,7 +93,7 @@ def cfg():
     scale = 1.0
     parity = None # see models.py
     t_distrib = torch.distributions.Uniform(0, 0.75)
-    path = 'results/77/final_state_dict.pt'
+    path = 'results/51/final_state_dict.pt'
 
     # when to save state dictionaries
     save_init_model = True
@@ -277,7 +276,6 @@ def train_loop(cuda,
                dampings,
                hps_epochs,
                architecture,
-               readout,
                gradient_clipping,
                jit,
                lag,
@@ -300,7 +298,6 @@ def train_loop(cuda,
                _run):
 
     model_dict = {'architecture': architecture,
-                  'readout': readout,
                   'gradient_clipping': gradient_clipping,
                   'jit': jit,
                   'lag': lag,

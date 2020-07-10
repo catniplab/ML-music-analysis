@@ -191,25 +191,6 @@ def _initialize(model: ReadOutModel, architecture: str, initializer: dict) -> Re
         out_shape = model.output_weights.weight.data.shape
         model.output_weights.data = make_identity(out_shape)
 
-    # construct the initial hidden weights based on the weights of a gru
-    elif initializer['init'] == 'gru':
-
-        #in_shape = model.rnn.weight_ih_l0.weight.data.shape
-        #model.rnn.weight_ih_l0.data = make_identity(in_shape)
-
-        hid_shape = model.rnn.weight_hh_l0.weight.data.shape
-        identity = make_identity(hid_shape)
-        gru_weights = torch.load(initializer['path'])['rnn.weight_hh_l0']
-        gru_shape = gru_weights.shape
-
-        for i in range(gru_shape[0] - hid_shape[0], gru_shape[0]):
-            for j in range(hid_shape[1]):
-                identity[i - 2*hid_shape[0], j] = gru_weights[i, j]
-        model.rnn.weight_hh_l0.weight.data = initializer['scale']*identity
-
-        #out_shape = model.output_weights.weight.data.shape
-        #model.output_weights.data = make_identity(out_shape)
-
     else:
         raise ValueError("Initialization {} not recognized.".format(initializer['init']))
 

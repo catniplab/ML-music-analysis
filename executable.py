@@ -41,28 +41,31 @@ class MyDistrib(distribs.distribution.Distribution):
 
 # custom configuration
 config_updates = {
-                  'architecture': "GRU",
+                  'architecture': "LDS",
                   'optmzr': "Adam",
-                  'init': "blockortho",
+                  'init': "gru",
                   'parity': "rotate",
                   't_distrib': MyDistrib(0.25*math.pi, 0.01),
+                  'path': "results/77/final_state_dict.pt",
 
-                  #'num_epochs': 300,
+                  'num_epochs': 300,
                   #'hps_epochs': 100,
                   'hidden_size': 300,
-                  'scale': 1.0001,
+                  'scale': 0.2,
 
                   'lag': 0,
                   'window': 7,
 
-                  'decay': 0.98,
-                  'lr': 0.01,
+                  'decay': 1.0,
+                  'lr': 0.001,
 
                   'ema_decay': 0.999,
                   'damping': 0.001,
+                  #'regularization': 0.0001,
 
                   'do_hpsearch': False,
-                  'decays': 0.99 - np.linspace(0.01, 0.05, num=5),
+                  #'decays': [1.0],
+                  #'learning_rates': 10**np.linspace(-1, -3, num=5),
 
                   'save_init_model': True,
                   'save_final_model': True

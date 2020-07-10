@@ -14,10 +14,10 @@ class MaskedBCE(nn.Module):
 
         super(MaskedBCE, self).__init__()
 
-        # coefficient for regularization
+        # coefficient for L1 regularization
         self.regular = regularization
 
-        # which norm to use for regularization
+        # which metric to use for regularization
         self.p = p
 
     def forward(self, output, target, mask, model):

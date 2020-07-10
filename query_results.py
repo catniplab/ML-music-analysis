@@ -10,7 +10,7 @@ useful_configs = [ {'architecture': "LINEAR", 'init': "default", 'do_hpsearch': 
 
 # find the directories with these configurations
 config_dict = {
-               'architecture': "REGRESSION_8_STEP",
+               'architecture': "REGRESSION",
                #'lag': 8,
                #'init': "blockortho",
                'do_hpsearch': False
@@ -48,18 +48,23 @@ def find_results(configs, success=False):
 
             if success:
 
-                metric_file = open('results/' + dir + '/metrics.json')
-                metric_contents = metric_file.read()
-                metric_file.close()
+                try:
 
-                metrics = json.loads(metric_contents)
-                trainLoss = metrics['trainLoss']['values']
-                testLoss = metrics['testLoss']['values']
-                validLoss = metrics['validLoss']['values']
+                    metric_file = open('results/' + dir + '/metrics.json')
+                    metric_contents = metric_file.read()
+                    metric_file.close()
 
-                nan = float("NaN")
+                    metrics = json.loads(metric_contents)
+                    trainLoss = metrics['trainLoss']['values']
+                    testLoss = metrics['testLoss']['values']
+                    validLoss = metrics['validLoss']['values']
 
-                if nan in trainLoss or nan in testLoss or nan in validLoss:
+                    nan = float("NaN")
+
+                    if nan in trainLoss or nan in testLoss or nan in validLoss:
+                        agree = False
+
+                except:
                     agree = False
 
             if agree:

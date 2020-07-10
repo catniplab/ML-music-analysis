@@ -94,7 +94,7 @@ def cfg():
     scale = 1.0
     parity = None # see models.py
     t_distrib = torch.distributions.Uniform(0, 0.75)
-    path = 'results/77/final_state_dict.pt'
+    path = 'results/79/final_state_dict.pt'
 
     # when to save state dictionaries
     save_init_model = True

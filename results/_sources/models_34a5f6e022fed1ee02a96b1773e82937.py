@@ -194,8 +194,8 @@ def _initialize(model: ReadOutModel, architecture: str, initializer: dict) -> Re
     # construct the initial hidden weights based on the weights of a gru
     elif initializer['init'] == 'gru':
 
-        #in_shape = model.rnn.weight_ih_l0.weight.data.shape
-        #model.rnn.weight_ih_l0.data = make_identity(in_shape)
+        in_shape = model.rnn.weight_ih_l0.weight.data.shape
+        model.rnn.weight_ih_l0.data = make_identity(in_shape)
 
         hid_shape = model.rnn.weight_hh_l0.weight.data.shape
         identity = make_identity(hid_shape)
@@ -207,8 +207,8 @@ def _initialize(model: ReadOutModel, architecture: str, initializer: dict) -> Re
                 identity[i - 2*hid_shape[0], j] = gru_weights[i, j]
         model.rnn.weight_hh_l0.weight.data = initializer['scale']*identity
 
-        #out_shape = model.output_weights.weight.data.shape
-        #model.output_weights.data = make_identity(out_shape)
+        out_shape = model.output_weights.weight.data.shape
+        model.output_weights.data = make_identity(out_shape)
 
     else:
         raise ValueError("Initialization {} not recognized.".format(initializer['init']))
