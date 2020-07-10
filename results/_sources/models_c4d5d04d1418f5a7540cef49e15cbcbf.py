@@ -178,14 +178,14 @@ def _initialize(model: ReadOutModel, architecture: str, initializer: dict) -> Re
     elif initializer['init'] == 'regression':
 
         sq = torch.Size([88, 88])
-        model.rnn.weight_ih_l0.weight.data[0 : 88, 0 : 88] = make_identity(sq)
+        model.rnn.weight_ih_l0.data[0 : 88, 0 : 88] = make_identity(sq)
 
         reg_weights = torch.load(initializer['path'])['weights.weight']
         for i in range(reg_weights.shape[0]):
             for j in range(reg_weights.shape[1]):
                 model.rnn.weight_hh_l0.weight.data[i, j] = initializer['scale']*reg_weights[i, j]
 
-        model.output_weights.weight.data[0 : 88, 0 : 88] = make_identity(sq)
+        model.output_weights.data[0 : 88, 0 : 88] = make_identity(sq)
 
     # construct the initial hidden weights based on the weights of a gru
     elif initializer['init'] == 'gru':
