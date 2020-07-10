@@ -38,52 +38,35 @@ def make_identity(shape: torch.Size) -> torch.Tensor:
     return result
 
 
-def make_block_ortho(shape: torch.Size,
-                     architecture: str,
-                     t_distrib: Distribution,
-                     parity=None) -> torch.Tensor:
+def make_block_ortho(shape: torch.Size, t_distrib: Distribution, parity=None) -> torch.Tensor:
     """
     :param shape: shape of the block orthogonal matrix that we desire
     :param t_distrib: pytorch distribution from which we will sample the angles
     :param parity: None will return a mixed parity block orthogonal matrix, 'reflect' will return a decoupled system of 2D reflections, and anything else will return decoupled system of rotations.
     """
 
-    if architecture in ["LINEAR", "simple"]:
+    if shape[0] != shape[1] or shape[0]%2 == 1:
+        raise ValueError("Tried to get block orthogonal matrix of shape {}".format(str(shape)))
 
-        if shape[0] != shape[1] or shape[0]%2 == 1:
-            raise ValueError("Tried to get block orthogonal matrix of shape {}".format(str(shape)))
+    n = shape[0]//2
+    result = torch.zeros(shape)
 
-        n = shape[0]//2
-        result = torch.zeros(shape)
+    bern = Bernoulli(torch.tensor([0.5]))
 
-        bern = Bernoulli(torch.tensor([0.5]))
+    for i in range(n):
 
-        for i in range(n):
+        t = t_distrib.sample()
+        mat = torch.tensor([[cos(t), sin(t)], [-sin(t), cos(t)]])
 
-            t = t_distrib.sample()
-            mat = torch.tensor([[cos(t), sin(t)], [-sin(t), cos(t)]])
+        if parity == None:
+            mat[0] *= 2*bern.sample() - 1
+        elif parity == 'reflect':
+            mat[0] *= -1
 
-            if parity == None:
-                mat[0] *= 2*bern.sample() - 1
-            elif parity == 'reflect':
-                mat[0] *= -1
+        result[2*i : 2*(i + 1), 2*i : 2*(i + 1)] = mat
 
-            result[2*i : 2*(i + 1), 2*i : 2*(i + 1)] = mat
+    return result
 
-        return result
-
-    elif architecture == "GRU":
-
-        hid_size = shape[1]
-        tot_size = shape[0]
-        result = torch.zeros(shape)
-
-        result[tot_size - hid_size : tot_size, 0 : hid_size] = make_block_ortho(torch.Size([hid_size, hid_size]), "simple", t_distrib, parity=parity)
-
-        return result
-
-    else:
-        raise TypeError("Unaccounted case in make_block_ortho")
 
 def get_constructor(architecture: str, cuda: bool):
     """
@@ -141,7 +124,7 @@ class ReadOutModel(nn.Module):
         return output, hn
 
 
-def _initialize(model: ReadOutModel, architecture: str, initializer: dict) -> ReadOutModel:
+def _initialize(model: ReadOutModel, initializer: dict) -> ReadOutModel:
     """
     :param model: ReadOutModel
     :param initializer: a dictionary specifying all information about the desired initialization
@@ -150,17 +133,16 @@ def _initialize(model: ReadOutModel, architecture: str, initializer: dict) -> Re
 
     # 1s along diagonal and 0 elsewhere
     if initializer['init'] == 'identity':
-        shape = model.rnn.weight_hh_l0.data.shape
-        model.rnn.weight_hh_l0.data = initializer['scale']*make_identity(shape)
+        shape = model.rnn.weight_hh_l0.weight.data.shape
+        model.rnn.weight_hh_l0.weight.data = initializer['scale']*make_identity(shape)
 
     # diagonal is 2x2 blocks of rotation, reflection, or random parity matrices with a scale factor
     elif initializer['init'] == 'blockortho':
-        shape = model.rnn.weight_hh_l0.data.shape
+        shape = model.rnn.weight_hh_l0.weight.data.shape
         t_distrib = initializer['t_distrib']
         parity = initializer['parity']
         scale = initializer['scale']
-        bortho = make_block_ortho(shape, architecture, t_distrib, parity)
-        model.rnn.weight_hh_l0.data = scale*bortho
+        model.rnn.weight_hh_l0.weight.data = scale*make_block_ortho(shape, t_distrib, parity)
 
     # simply orthonormalize the hidden weights in place
     elif initializer['init'] == 'ortho':
@@ -168,25 +150,25 @@ def _initialize(model: ReadOutModel, architecture: str, initializer: dict) -> Re
 
     # mean 0 variance 1 normal distribution for each hidden weight
     elif initializer['init'] == 'stdnormal':
-        shape = model.rnn.weight_hh_l0.data.shape
-        model.rnn.weight_hh_l0.data = initializer['scale']*torch.randn(shape)
+        shape = model.rnn.weight_hh_l0.weight.data.shape
+        model.rnn.weight_hh_l0.weight.data = initializer['scale']*torch.randn(shape)
 
     # construct the initial hidden weights based on the weights of a regression model
     elif initializer['init'] == 'regression':
 
-        in_shape = model.rnn.weight_ih_l0.data.shape
-        model.rnn.weight_ih_l0.data = make_identity(in_shape)
+        in_shape = model.rnn.weight_ih_l0.weight.data.shape
+        model.rnn.weight_ih_l0.weight.data = make_identity(in_shape)
 
-        hid_shape = model.rnn.weight_hh_l0.data.shape
+        hid_shape = model.rnn.weight_hh_l0.weight.data.shape
         identity = make_identity(hid_shape)
         reg_weights = torch.load(initializer['path'])['weights.weight']
         for i in range(reg_weights.shape[0]):
             for j in range(reg_weights.shape[1]):
                 identity[i, j] = reg_weights[i, j]
-        model.rnn.weight_hh_l0.data = initializer['scale']*identity
+        model.rnn.weight_hh_l0.weight.data = initializer['scale']*identity
 
         out_shape = model.output_weights.weight.data.shape
-        model.output_weights.data = make_identity(out_shape)
+        model.output_weights.weight.data = make_identity(out_shape)
 
     else:
         raise ValueError("Initialization {} not recognized.".format(initializer['init']))
@@ -211,7 +193,7 @@ def get_model(model_dict: dict, initializer: dict, cuda: bool):
 
     # initialize the model
     if initializer['init'] != 'default':
-        _initialize(model, model_dict['architecture'], initializer)
+        _initialize(model, initializer)
 
     # if running on the cpu we may want to use just-in-time compilation
     if not cuda and model_dict['jit']:

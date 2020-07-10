@@ -20,7 +20,7 @@ debug_mode = False
 
 # custom configuration
 config_updates = {
-                  'architecture': "LINEAR",
+                  'architecture': "GRU",
                   'optmzr': "Adam",
                   'init': "blockortho",
                   'parity': "rotate",
@@ -34,7 +34,7 @@ config_updates = {
                   'window': 7,
 
                   'decay': 0.98,
-                  'lr': 0.00316,
+                  'lr': 0.01,
 
                   'ema_decay': 0.999,
                   'damping': 0.001,
