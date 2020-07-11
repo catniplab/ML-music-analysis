@@ -45,11 +45,11 @@ config_updates = {
                   #'readout': None,
                   'optmzr': "Adam",
                   'init': "regression",
-                  'parity': "rotate",
+                  'parity': "reflect",
                   't_distrib': MyDistrib(0.25*math.pi, 0.01),
                   'path': "results/93/final_state_dict.pt",
 
-                  'num_epochs': 300,
+                  #'num_epochs': 300,
                   #'hps_epochs': 100,
                   'hidden_size': 300,
                   'scale': 0.01,

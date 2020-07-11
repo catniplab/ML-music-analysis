@@ -182,13 +182,6 @@ def _initialize(model: ReadOutModel, architecture: str, initializer: dict) -> Re
 
         hid_size = model.rnn.weight_hh_l0.weight.data.shape
         model.rnn.weight_hh_l0.weight.data = torch.zeros(hid_size)
-        slen = hid_size[0] - 88
-        sub_size = torch.Size([slen, slen])
-        scale = initializer['scale']
-        t_distrib = initializer['t_distrib']
-        parity = initializer['parity']
-        model.rnn.weight_hh_l0.weight.data[88:, 88:] = scale*make_block_ortho(sub_size, t_distrib, parity=parity)
-
 
         model.output_weights.weight.data = torch.zeros(model.output_weights.weight.data.shape)
         model.output_weights.weight.data[0 : 88, 0 : 88] = torch.load(initializer['path'])['weights.weight']

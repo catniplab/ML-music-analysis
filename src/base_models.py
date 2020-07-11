@@ -37,7 +37,7 @@ class LDS(nn.Module):
         T = x.shape[1]
 
         hiddens = []
-        initial = torch.ones((N, self.hidden_size), dtype=torch.float, device=device)
+        initial = torch.zeros((N, self.hidden_size), dtype=torch.float, device=device)
         hidden = initial + self.weight_ih_l0(x[:, 0])
         hiddens.append(hidden)
 
