@@ -42,13 +42,14 @@ class MyDistrib(distribs.distribution.Distribution):
 # custom configuration
 config_updates = {
                   'architecture': "LDS",
+                  #'readout': None,
                   'optmzr': "Adam",
                   'init': "regression",
                   'parity': "rotate",
                   't_distrib': MyDistrib(0.25*math.pi, 0.01),
-                  'path': "results/79/final_state_dict.pt",
+                  'path': "results/93/final_state_dict.pt",
 
-                  #'num_epochs': 300,
+                  'num_epochs': 300,
                   #'hps_epochs': 100,
                   'hidden_size': 300,
                   'scale': 0.01,
@@ -61,7 +62,7 @@ config_updates = {
 
                   'ema_decay': 0.999,
                   'damping': 0.001,
-                  #'regularization': 0.0001,
+                  #'regularization': 0.01,
 
                   'do_hpsearch': False,
                   #'decays': [1.0],
