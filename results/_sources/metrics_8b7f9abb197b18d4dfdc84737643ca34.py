@@ -2,7 +2,6 @@
 Here we define pytorch modules for efficiently computing accuracy and loss.
 """
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

@@ -349,7 +349,7 @@ def train_loop(cuda,
                 val_loss = compute_loss(loss_fcn, model, val_loader)
                 _run.log_scalar("validLoss", val_loss)
                 test_acc = compute_acc(model, test_loader)
-                _run.log_scalar("testAccuracy", test_acc)
+                _run.log_scalar("testAccuracy", testAcc)
                 val_acc = compute_acc(model, val_loader)
                 _run.log_scalar("validAccuracy", val_acc)
 

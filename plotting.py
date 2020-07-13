@@ -40,7 +40,7 @@ def plot_scalar(dir: str, name: str):
     plt.show()
 
 
-def plot_hidden_weights(dir: str, dict_name: str, param_name:str, vmin: float, vmax: float):
+def plot_hidden_weights(dir: str, dict_name: str, param_name: str, vmin: float, vmax: float):
     """
     :param dir: directory of the file storage system whose results we are looking at
     :param dict_name: name of the .pt file whose .weight_hh_l0.weight we will visualize
@@ -137,7 +137,7 @@ def get_all_metrics(list_of_configs):
     return train_loss, test_loss, valid_loss, train_acc, test_acc, valid_acc
 
 
-def make_bar(labels, title, train, test, validate):
+def make_bars(labels, title, train, test, validate):
 
     x = 2.0*np.arange(len(labels))
     width = 0.35
@@ -146,6 +146,24 @@ def make_bar(labels, title, train, test, validate):
     rects1 = ax.bar(x - width, train, width, label='Train')
     rects2 = ax.bar(x, test, width, label='Test')
     rects3 = ax.bar(x + width, validate, width, label='Validation')
+
+    ax.tick_params(axis='x', which='major', labelsize=6)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+
+    plt.title(title)
+
+    plt.show()
+
+
+def make_bar(labels, title, data):
+
+    x = np.arange(len(labels))
+    width = 0.35
+
+    fig, ax = plt.subplots()
+    rects1 = ax.bar(x, data, width)
 
     ax.tick_params(axis='x', which='major', labelsize=6)
     ax.set_xticks(x)

@@ -10,7 +10,12 @@ useful_configs = [ {'architecture': "LINEAR", 'init': "default", 'do_hpsearch': 
 
 # find the directories with these configurations
 config_dict = {
-               'architecture': "REGRESSION",
+               'architecture': "REGRESSION_WIDE",
+               #'lag': 7,
+               'window': 7,
+               #'init': "regression",
+               #'parity': "rotate",
+               #'scale': 1.0001,
                #'lag': 8,
                #'init': "blockortho",
                'do_hpsearch': False
