@@ -222,7 +222,9 @@ def _initialize(model: ReadOutModel, architecture: str, initializer: dict) -> Re
         lds_sd = torch.load(initializer['path'])
 
         model.rnn.weight_ih_l0.data = lds_sd['rnn.weight_ih_l0.weight']
-        model.rnn.weight_hh_l0.data = lds_sd['rnn.weight_hh_l0.weight']
+        hidden_weights = lds_sd['rnn.weight_hh_l0.weight'].detach().numpy()
+        absdet = abs(la.det(hidden_weights))
+        model.rnn.weight_hh_l0.data = lds_sd['rnn.weight_hh_l0.weight']/absdet
         model.output_weights.weight.data = lds_sd['output_weights.weight']
 
     else:

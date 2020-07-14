@@ -47,24 +47,26 @@ config_updates = {
                   'init': "default",
                   'parity': "rotate",
                   't_distrib': MyDistrib(0.25*math.pi, 0.01),
-                  'path': "results/116/final_state_dict.pt",
+                  'path': "results/117/final_state_dict.pt",
 
-                  #'num_epochs': 300,
+                  'num_epochs': 300,
                   #'hps_epochs': 100,
                   'hidden_size': 300,
-                  'scale': 0.01,
+                  #'scale': 0.01,
 
                   #'lag': 7,
                   'window': 7,
 
                   'decay': 1.0,
-                  'lr': 0.001,
+                  'lr': 0.00316,
 
                   'ema_decay': 0.999,
                   'damping': 0.001,
-                  'regularization': 0.01,
+                  'regularization': 0.0001,
 
                   'do_hpsearch': False,
+                  #'ema_decays': [0.999],
+                  #'dampings': [0.001],
                   #'decays': [1.0],
                   #'learning_rates': 10**np.linspace(-1, -3, num=5),
 

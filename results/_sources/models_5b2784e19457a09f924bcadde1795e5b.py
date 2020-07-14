@@ -8,7 +8,6 @@ Gradient Clipping
 """
 
 import numpy as np
-import numpy.linalg as la
 
 import torch
 import torch.nn as nn
