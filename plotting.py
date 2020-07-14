@@ -137,7 +137,9 @@ def get_all_metrics(list_of_configs):
     return train_loss, test_loss, valid_loss, train_acc, test_acc, valid_acc
 
 
-def make_bars(labels, title, train, test, validate):
+def make_bars(labels, title, metrics):
+
+    train, test, validate = metrics[0], metrics[1], metrics[2]
 
     x = 2.0*np.arange(len(labels))
     width = 0.35
