@@ -153,6 +153,7 @@ def make_bars(labels, title, metrics):
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     ax.legend()
+    ax.grid()
 
     plt.title(title)
 
@@ -171,6 +172,7 @@ def make_bar(labels, title, data):
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     ax.legend()
+    ax.grid()
 
     plt.title(title)
 
