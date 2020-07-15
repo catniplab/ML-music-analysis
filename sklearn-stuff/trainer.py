@@ -8,37 +8,28 @@ train_arrays = data_dict['traindata'][0]
 
 # notes 27 through 75 are the ones which are actually played
 
+def train_models():
 
-size = 0
-for array in train_arrays:
-    size += len(array) - 1
+    model_list = []
 
-X = np.zeros((size, 49))
-ix = 0
-for array in train_arrays:
-    for x in array[0 : -1]:
-        X[ix] = x[27 : 76]
-        ix += 1
+    for channel in range(49):
 
-Y = np.zeros((size, 49))
-ix = 0
-for array in train_arrays:
-    for y in array[1:]:
-        Y[ix] = y[27 : 76]
-        ix += 1
+        model = lm.LogisticRegression()
 
-#for i in range(49):
-#    if not 1.0 in X[:, i]:
-#        print(i)
+        for array in train_arrays:
 
-model_list = []
+            x = array[0 : -1, 27 : 76]
+            y = array[1:, 27 + channel]
 
-for i in range(49):
-    this_model = lm.LogisticRegression()
-    this_model.fit(X, Y[:, i])
-    model_list.append(this_model)
+            if 1.0 in y:
+                model.fit(x, y)
 
-def compute_accuracy(set: str):
+        model_list.append(model)
+
+    return model_list
+
+
+def compute_accuracy(set: str, model_list):
 
     arrays = data_dict[set][0]
 
@@ -67,7 +58,7 @@ def compute_accuracy(set: str):
                 fn += y[channel]*(1 - pred)
 
             if tp == 0 and fp == 0 and fn == 0:
-                tot_over_time += 1
+                tot_over_time += 0
             else:
                 tot_over_time += tp/(tp + fp + fn)
 
@@ -76,5 +67,5 @@ def compute_accuracy(set: str):
     return tot_over_seqs/len(arrays)
 
 
-def compute_loss():
+def compute_loss(set: str, model_list):
     raise NotImplementedError

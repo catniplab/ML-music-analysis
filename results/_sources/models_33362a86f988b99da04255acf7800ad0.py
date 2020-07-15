@@ -211,7 +211,7 @@ def _initialize(model: ReadOutModel, architecture: str, initializer: dict) -> Re
         model.rnn.weight_hh_l0.data[2*in_shape[0]//3 : in_shape[0]] = rnn_sd['rnn.weight_hh_l0']
 
         out_shape = model.output_weights.weight.data.shape
-        model.output_weights.weight.data = rnn_sd['output_weights.weight']
+        model.output_weights.weight.data = torch.zeros(out_shape)
 
     # initialize an RNN based on the weights of an LDS
     elif initializer['init'] == 'lds':
