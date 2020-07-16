@@ -9,7 +9,8 @@ from src.load_data import get_loader
 from src.models import get_model
 
 # a list of configs whose results we want to plot
-useful_configs = [ {'architecture': "TANH", 'init': "lds", 'do_hpsearch': False},
+useful_configs = [ {'architecture': "GRU", 'init': "rnn", 'do_hpsearch': False},
+                   {'architecture': "TANH", 'init': "lds", 'do_hpsearch': False},
                    {'architecture': "LDS", 'init': "regression", 'do_hpsearch': False},
                    {'architecture': "REGRESSION", 'init': "default", 'do_hpsearch': False, 'lag': 0},
                    {'architecture': "REGRESSION", 'init': "default", 'do_hpsearch': False, 'lag': 7},
@@ -17,13 +18,13 @@ useful_configs = [ {'architecture': "TANH", 'init': "lds", 'do_hpsearch': False}
                  ]
 
 # labels corresponding
-labels = ['RNN', 'LDS', 'Regression', 'Regression:\nlag 7', 'Regression:\nwidth 7', 'Baseline']
+labels = ['GRU', 'RNN', 'LDS', 'Regression', 'Regression:\nlag 7', 'Regression:\nwidth 7', 'Baseline']
 
 # find the directories with these configurations
 config_dict = {
-               'architecture': "REGRESSION_WIDE",
-               #'lag': 7,
-               'window': 7,
+               'architecture': "REGRESSION",
+               'lag': 0,
+               #'window': 7,
                #'init': "regression",
                #'parity': "rotate",
                #'scale': 1.0001,
