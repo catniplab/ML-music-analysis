@@ -41,18 +41,18 @@ class MyDistrib(distribs.distribution.Distribution):
 
 # custom configuration
 config_updates = {
-                  'architecture': "LDS",
+                  'architecture': "TANH",
                   'readout': "linear",
                   'optmzr': "Adam",
-                  'init': "zero",
+                  'init': "normal",
                   'parity': "rotate",
                   't_distrib': MyDistrib(0.25*math.pi, 0.01),
-                  'path': "results/116/final_state_dict.pt",
+                  'path': "results/141/final_state_dict.pt",
 
                   #'num_epochs': 300,
                   #'hps_epochs': 100,
                   'hidden_size': 300,
-                  #'scale': 0.01,
+                  'scale': 0.01,
 
                   #'lag': 7,
                   'window': 7,
@@ -62,16 +62,16 @@ config_updates = {
 
                   'ema_decay': 0.999,
                   'damping': 0.001,
-                  'regularization': 0.001,
+                  #'regularization': 0.001,
 
-                  'do_hpsearch': True,
+                  'do_hpsearch': False,
                   #'ema_decays': [0.999],
                   #'dampings': [0.001],
                   'decays': [1.0],
                   #'learning_rates': 10**np.linspace(-1, -3, num=5),
 
-                  'save_init_model': False,
-                  'save_final_model': False
+                  'save_init_model': True,
+                  'save_final_model': True
                  }
 
 

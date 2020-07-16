@@ -9,25 +9,34 @@ from src.load_data import get_loader
 from src.models import get_model
 
 # a list of configs whose results we want to plot
-useful_configs = [ {'architecture': "GRU", 'init': "rnn", 'do_hpsearch': False},
-                   {'architecture': "TANH", 'init': "lds", 'do_hpsearch': False},
-                   {'architecture': "LDS", 'init': "regression", 'do_hpsearch': False},
+useful_configs = [ {'architecture': "TANH", 'init': "zero", 'do_hpsearch': False},
+                   {'architecture': "LDS", 'init': "zero", 'do_hpsearch': False},
+                   {'architecture': "TANH", 'init': "identity", 'scale': 0.01, 'do_hpsearch': False},
+                   {'architecture': "LDS", 'init': "identity", 'scale': 0.01, 'do_hpsearch': False},
+                   {'architecture': "TANH", 'init': "identity", 'scale': 1, 'do_hpsearch': False},
+                   {'architecture': "LDS", 'init': "identity", 'scale': 1, 'do_hpsearch': False},
+                   {'architecture': "TANH", 'init': "blockortho", 'scale': 0.01, 'do_hpsearch': False},
+                   {'architecture': "LDS", 'init': "blockortho", 'scale': 0.01, 'do_hpsearch': False},
+                   {'architecture': "TANH", 'init': "blockortho", 'scale': 1, 'do_hpsearch': False},
+                   {'architecture': "LDS", 'init': "blockortho", 'scale': 1, 'do_hpsearch': False},
+                   {'architecture': "TANH", 'init': "normal", 'scale': 0.01, 'do_hpsearch': False},
+                   {'architecture': "LDS", 'init': "normal", 'scale': 0.01, 'do_hpsearch': False},
                    {'architecture': "REGRESSION", 'init': "default", 'do_hpsearch': False, 'lag': 0},
                    {'architecture': "REGRESSION", 'init': "default", 'do_hpsearch': False, 'lag': 7},
                    {'architecture': "REGRESSION_WIDE", 'init': "default", 'window': 7,'do_hpsearch': False}
                  ]
 
 # labels corresponding
-labels = ['GRU', 'RNN', 'LDS', 'Regression', 'Regression:\nlag 7', 'Regression:\nwidth 7', 'Baseline']
+labels = ['RNN:\nzeros', 'LDS:\nzeros', 'RNN:\ndiag', 'LDS:\ndiag', 'RNN:\nidentity', 'LDS:\nidentity', 'RNN:\n sbrot', 'LDS:\n sbrot', 'RNN:\nbrot', 'LDS:\nbrot', 'RNN:\nnormal', 'LDS:\nnormal', 'Reg', 'Reg:\nlag 7', 'Reg:\nwidth 7']
 
 # find the directories with these configurations
 config_dict = {
-               'architecture': "REGRESSION",
-               'lag': 0,
+               'architecture': "LDS",
+               #'lag': 0,
                #'window': 7,
-               #'init': "regression",
+               'init': "blockortho",
                #'parity': "rotate",
-               #'scale': 1.0001,
+               'scale': 1,
                #'lag': 8,
                #'init': "blockortho",
                'do_hpsearch': False
@@ -162,13 +171,13 @@ def find_recent_metrics(config_dicts):
         val_losses.append(compute_loss(loss_fcn, model, val_loader))
 
     # append the baselines
-    train_losses.append(61)
-    test_losses.append(61)
-    val_losses.append(61)
+    #train_losses.append(61)
+    #test_losses.append(61)
+    #val_losses.append(61)
 
-    train_accs.append(.0442)
-    test_accs.append(.0442)
-    val_accs.append(.0442)
+    #train_accs.append(.0442)
+    #test_accs.append(.0442)
+    #val_accs.append(.0442)
 
     return ((train_losses, test_losses, val_losses), (train_accs, test_accs, val_accs))
 
