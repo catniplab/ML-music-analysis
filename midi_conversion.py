@@ -101,7 +101,7 @@ def to_midi(min_note, piano_roll_song, filename):
     #track.append(mido.Message('program_change', program=12, time=0))
 
     track.append(mido.MetaMessage('key_signature', key='C', time=0))
-    track.append(mido.MetaMessage('time_signature', numerator=6, denominator=8, clocks_per_click=24, notated_32nd_notes_per_beat=8, time=0))
+    track.append(mido.MetaMessage('time_signature', numerator=4, denominator=4, clocks_per_click=24, notated_32nd_notes_per_beat=8, time=0))
 
     # keep track of which notes are being played at the given time
     on_notes = []
@@ -179,7 +179,7 @@ def to_midi(min_note, piano_roll_song, filename):
             if len(old_messages) > 0:
 
                 # make the last old message lag the appropriate time
-                old_messages[-1].time = 128*since_change
+                old_messages[-1].time = 200*since_change
 
                 # append the old messages
                 for msg in old_messages:
