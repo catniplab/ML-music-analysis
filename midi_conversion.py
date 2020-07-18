@@ -8,6 +8,17 @@ import torch
 import mido
 import os
 
+# convenient dictionary to pass to the model construction function in src.models
+model_dict = {
+              'architecture': "TANH",
+              'readout': "linear",
+              'input_size': 88,
+              'hidden_size': 300,
+              'num_layers': 1,
+              'output_size': 88,
+              'gradient_clipping': 1,
+              'jit': False
+             }
 
 def get_min_max_note(directory: str):
     """
