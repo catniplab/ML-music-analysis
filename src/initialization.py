@@ -106,6 +106,24 @@ def _initialize_lds(model: nn.Module, initializer: dict) -> nn.Module:
     elif initializer['init'] == 'normal':
         model.rnn.weight_hh_l0.weight.data[88:, 88:] = scale*torch.randn(sub_size)
 
+    elif initializer['init'] == "critical":
+
+        reg_sd = torch.load(initializer['path'])
+
+        sq = torch.Size([88, 88])
+        model.rnn.weight_ih_l0.data[0 : 88, 0 : 88] = initializer['scale']*make_identity(sq)
+
+        hid_shape = model.rnn.weight_hh_l0.data.shape
+        model.rnn.weight_hh_l0.data = torch.zeros(hid_shape)
+        for i in range(88, hid_shape[0]):
+            model.rnn.weight_hh_l0.data[i, i] = 1.0/(i - 87)
+            if i < hid_shape[0] - 1:
+                model.rnn.weight_hh_l0.data[i, i + 1] = 1
+
+        out_shape = model.output_weights.weight.data.shape
+        model.output_weights.weight.data = torch.zeros(out_shape)
+        model.output_weights.weight.data[0 : 88, 0 : 88] = reg_sd['weights.weight']
+
     elif initializer['init'] != 'default':
         raise ValueError("Initialization {} not recognized.".format(initializer['init']))
 
@@ -117,11 +135,34 @@ def _initialize_tanh(model: nn.Module, initializer: dict) -> nn.Module:
     Initialize the model in place based on the weights of a trained linear dynamical system. Since the architecture is so similar to LDS, there are no tweaks applied.
     """
 
-    lds_sd = torch.load(initializer['path'])
+    if initializer['init'] == "lds":
 
-    model.rnn.weight_ih_l0.data = lds_sd['rnn.weight_ih_l0.weight']
-    model.rnn.weight_hh_l0.data = lds_sd['rnn.weight_hh_l0.weight']
-    model.output_weights.weight.data = lds_sd['output_weights.weight']
+        lds_sd = torch.load(initializer['path'])
+
+        model.rnn.weight_ih_l0.data = lds_sd['rnn.weight_ih_l0.weight']
+        model.rnn.weight_hh_l0.data = lds_sd['rnn.weight_hh_l0.weight']
+        model.output_weights.weight.data = lds_sd['output_weights.weight']
+
+    elif initializer['init'] == "critical":
+
+        reg_sd = torch.load(initializer['path'])
+
+        sq = torch.Size([88, 88])
+        model.rnn.weight_ih_l0.data[0 : 88, 0 : 88] = initializer['scale']*make_identity(sq)
+
+        hid_shape = model.rnn.weight_hh_l0.data.shape
+        model.rnn.weight_hh_l0.data = torch.zeros(hid_shape)
+        for i in range(88, hid_shape[0]):
+            model.rnn.weight_hh_l0.data[i, i] = 1.0/(i - 87)
+            if i < hid_shape[0] - 1:
+                model.rnn.weight_hh_l0.data[i, i + 1] = 1
+
+        out_shape = model.output_weights.weight.data.shape
+        model.output_weights.weight.data = torch.zeros(out_shape)
+        model.output_weights.weight.data[0 : 88, 0 : 88] = reg_sd['weights.weight']
+
+    elif initializer['init'] != 'default':
+        raise ValueError("Initialization {} not recognized.".format(initializer['init']))
 
 
 def _initialize(model: nn.Module, initializer: dict, architecture: str) -> nn.Module:

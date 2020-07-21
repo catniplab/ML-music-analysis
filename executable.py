@@ -43,21 +43,21 @@ class MyDistrib(distribs.distribution.Distribution):
 config_updates = {
                   'architecture': "TANH",
                   'readout': "linear",
-                  'optmzr': "Adam",
-                  'init': "normal",
+                  'optmzr': "SGD",
+                  'init': "critical",
                   'parity': "rotate",
                   't_distrib': MyDistrib(0.25*math.pi, 0.01),
-                  'path': "results/141/final_state_dict.pt",
+                  'path': "results/116/final_state_dict.pt",
 
                   #'num_epochs': 300,
                   #'hps_epochs': 100,
                   'hidden_size': 300,
-                  'scale': 0.01,
+                  'scale': 4,
 
                   #'lag': 7,
-                  'window': 7,
+                  #'window': 7,
 
-                  'decay': 1.0,
+                  'decay': 0.98,
                   'lr': 0.00316,
 
                   'ema_decay': 0.999,

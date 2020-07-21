@@ -1,7 +1,0 @@
-For JSB_Chorales:
-
-Baseline: 61.0 nats, 4.42%
-Regression: 10.3 nats, 28.7%
-Regression lag 7: 10.4 nats, 18.6%
-Regression window 7: 29.0, 22.0%
-LDS: 9.72 nats, 12.3%

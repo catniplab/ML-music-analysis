@@ -31,12 +31,12 @@ labels = ['RNN:\nzeros', 'LDS:\nzeros', 'RNN:\ndiag', 'LDS:\ndiag', 'RNN:\nident
 
 # find the directories with these configurations
 config_dict = {
-               'architecture': "TANH",
-               #'lag': 0,
+               'architecture': "REGRESSION",
+               'lag': 0,
                #'window': 7,
-               'init': "blockortho",
+               #'init': "blockortho",
                #'parity': "rotate",
-               'scale': 0.01,
+               #'scale': 0.01,
                #'lag': 8,
                #'init': "blockortho",
                'do_hpsearch': False

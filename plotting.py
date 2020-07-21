@@ -53,6 +53,9 @@ def plot_hidden_weights(dir: str, dict_name: str, param_name: str, vmin: float, 
 
     sd = torch.load(path + dict_name, map_location='cpu')
     hidden_weights = sd[param_name].detach().numpy()
+    if len(hidden_weights.shape) < 2:
+        hidden_weights = hidden_weights.reshape(-1, 1)
+    print(hidden_weights.shape)
 
     #plt.title(name + ' weights ' + dir)
     fig, ax = plt.subplots()
