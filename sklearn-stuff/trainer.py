@@ -34,7 +34,7 @@ def train_models():
 
     for channel in range(49):
 
-        model = lm.LogisticRegression()
+        model = lm.LogisticRegression(solver='saga')
 
         model.fit(x, y[:, channel])
 

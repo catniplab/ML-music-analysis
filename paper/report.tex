@@ -36,20 +36,53 @@ Because fitting a linear regression model is a convex optimization problem, we w
 
 Using the information encoded in the weights and bias, we should be able to recover the fact that all the songs were in C major, but I don't know how to do that yet.
 
+
 \section{Latent LDS}
 
 One can initialize a latent LDS so that it forgets everything at every time step and behaves like the regression model. Hopefully, this initialization is good for finding a superior solution to the problem using the LDS. We can also use the weights of the trained latent LDS to initialize a tanh RNN. First, we investigate the various ways the hidden weights of the latent LDS can be initialized.
 
 \begin{figure}
     \centering
-    \includegraphics{figures/jsb_losses.png}
-    \caption{Negative log likelihoods achieved by various models.}
+    \includegraphics{figures/jsb_lds_losses.png}
+    \caption{Loss of different latent LDS models compared to regression.}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics{figures/regression_bias.png}
-    \caption{Accuracy achieved by various models.}
+    \includegraphics{figures/jsb_lds_accs.png}
+    \caption{Accuracy of different latent LDS models compared to regression.}
 \end{figure}
+
+As we can see from these comparisons, scaled down critical (power-law) initialization performs the best while overfitting the least (having weights high in magnitude seems to encourage overfitting, especially for tanh RNNs).
+
+We will plot the weights and hidden eigenvalues of this model.
+
+\begin{figure}
+    \centering
+    \includegraphics{figures/scrit_lds_in_weights.png}
+    \caption{Input weights of scaled down critical initialization.}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics{figures/scrit_lds_hid_weights.png}
+    \caption{Hidden weights of scaled down critical initialization.}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics{figures/scrit_lds_out_weights.png}
+    \caption{Output weights of scaled down critical initialization.}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics{figures/scrit_lds_eigs.png}
+    \caption{Eigenvalues of hidden weight matrix after training of scaled down power law LDS.}
+\end{figure}
+
+\section{RNNs}
+
+A tanh RNN can be initialized using the weights of the trained LDS. This increases performance noticeably, but in the case of some initializations it drastically increases overfitting.
 
 \end{document}

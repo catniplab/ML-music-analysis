@@ -111,14 +111,15 @@ def _initialize_lds(model: nn.Module, initializer: dict) -> nn.Module:
         reg_sd = torch.load(initializer['path'])
 
         sq = torch.Size([88, 88])
-        model.rnn.weight_ih_l0.data[0 : 88, 0 : 88] = initializer['scale']*make_identity(sq)
+        model.rnn.weight_ih_l0.weight.data[0 : 88, 0 : 88] = make_identity(sq)
 
-        hid_shape = model.rnn.weight_hh_l0.data.shape
-        model.rnn.weight_hh_l0.data = torch.zeros(hid_shape)
+        hid_shape = model.rnn.weight_hh_l0.weight.data.shape
+        model.rnn.weight_hh_l0.weight.data = torch.zeros(hid_shape)
+        scale = initializer['scale']
         for i in range(88, hid_shape[0]):
-            model.rnn.weight_hh_l0.data[i, i] = 1.0/(i - 87)
+            model.rnn.weight_hh_l0.weight.data[i, i] = scale/(i - 87)
             if i < hid_shape[0] - 1:
-                model.rnn.weight_hh_l0.data[i, i + 1] = 1
+                model.rnn.weight_hh_l0.weight.data[i, i + 1] = scale
 
         out_shape = model.output_weights.weight.data.shape
         model.output_weights.weight.data = torch.zeros(out_shape)
@@ -135,14 +136,14 @@ def _initialize_tanh(model: nn.Module, initializer: dict) -> nn.Module:
     Initialize the model in place based on the weights of a trained linear dynamical system. Since the architecture is so similar to LDS, there are no tweaks applied.
     """
 
-    if initializer['init'] == "lds":
+    #if initializer['init'] == "lds":
 
-        lds_sd = torch.load(initializer['path'])
+    lds_sd = torch.load(initializer['path'])
 
-        model.rnn.weight_ih_l0.data = lds_sd['rnn.weight_ih_l0.weight']
-        model.rnn.weight_hh_l0.data = lds_sd['rnn.weight_hh_l0.weight']
-        model.output_weights.weight.data = lds_sd['output_weights.weight']
-
+    model.rnn.weight_ih_l0.data = lds_sd['rnn.weight_ih_l0.weight']
+    model.rnn.weight_hh_l0.data = lds_sd['rnn.weight_hh_l0.weight']
+    model.output_weights.weight.data = lds_sd['output_weights.weight']
+"""
     elif initializer['init'] == "critical":
 
         reg_sd = torch.load(initializer['path'])
@@ -163,7 +164,7 @@ def _initialize_tanh(model: nn.Module, initializer: dict) -> nn.Module:
 
     elif initializer['init'] != 'default':
         raise ValueError("Initialization {} not recognized.".format(initializer['init']))
-
+"""
 
 def _initialize(model: nn.Module, initializer: dict, architecture: str) -> nn.Module:
     """

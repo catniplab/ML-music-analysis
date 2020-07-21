@@ -9,25 +9,50 @@ from src.load_data import get_loader
 from src.models import get_model
 
 # a list of configs whose results we want to plot
-useful_configs = [ {'architecture': "TANH", 'init': "zero", 'do_hpsearch': False},
-                   {'architecture': "LDS", 'init': "zero", 'do_hpsearch': False},
+useful_configs = [
+                   {'architecture': "TANH", 'init': "zero", 'do_hpsearch': False},
+                   #{'architecture': "LDS", 'init': "zero", 'do_hpsearch': False},
                    {'architecture': "TANH", 'init': "identity", 'scale': 0.01, 'do_hpsearch': False},
-                   {'architecture': "LDS", 'init': "identity", 'scale': 0.01, 'do_hpsearch': False},
+                   #{'architecture': "LDS", 'init': "identity", 'scale': 0.01, 'do_hpsearch': False},
                    {'architecture': "TANH", 'init': "identity", 'scale': 1, 'do_hpsearch': False},
-                   {'architecture': "LDS", 'init': "identity", 'scale': 1, 'do_hpsearch': False},
+                   #{'architecture': "LDS", 'init': "identity", 'scale': 1, 'do_hpsearch': False},
                    {'architecture': "TANH", 'init': "blockortho", 'scale': 0.01, 'do_hpsearch': False},
-                   {'architecture': "LDS", 'init': "blockortho", 'scale': 0.01, 'do_hpsearch': False},
+                   #{'architecture': "LDS", 'init': "blockortho", 'scale': 0.01, 'do_hpsearch': False},
                    {'architecture': "TANH", 'init': "blockortho", 'scale': 1, 'do_hpsearch': False},
-                   {'architecture': "LDS", 'init': "blockortho", 'scale': 1, 'do_hpsearch': False},
+                   #{'architecture': "LDS", 'init': "blockortho", 'scale': 1, 'do_hpsearch': False},
                    {'architecture': "TANH", 'init': "normal", 'scale': 0.01, 'do_hpsearch': False},
-                   {'architecture': "LDS", 'init': "normal", 'scale': 0.01, 'do_hpsearch': False},
+                   #{'architecture': "LDS", 'init': "normal", 'scale': 0.01, 'do_hpsearch': False},
+                   #{'architecture': "LDS", 'init': 'critical', 'scale': 1, 'do_hpsearch': False},
+                   {'architecture': "TANH", 'init': 'critical', 'scale': 1, 'do_hpsearch': False},
+                   #{'architecture': "LDS", 'init': 'critical', 'scale': 0.1, 'do_hpsearch': False},
+                   {'architecture': "TANH", 'init': 'critical', 'scale': 0.1, 'do_hpsearch': False},
                    {'architecture': "REGRESSION", 'init': "default", 'do_hpsearch': False, 'lag': 0},
-                   {'architecture': "REGRESSION", 'init': "default", 'do_hpsearch': False, 'lag': 7},
-                   {'architecture': "REGRESSION_WIDE", 'init': "default", 'window': 7,'do_hpsearch': False}
+                   #{'architecture': "REGRESSION", 'init': "default", 'do_hpsearch': False, 'lag': 7},
+                   #{'architecture': "REGRESSION_WIDE", 'init': "default", 'window': 7,'do_hpsearch': False}
                  ]
 
 # labels corresponding
-labels = ['RNN:\nzeros', 'LDS:\nzeros', 'RNN:\ndiag', 'LDS:\ndiag', 'RNN:\nidentity', 'LDS:\nidentity', 'RNN:\n sbrot', 'LDS:\n sbrot', 'RNN:\nbrot', 'LDS:\nbrot', 'RNN:\nnormal', 'LDS:\nnormal', 'Reg', 'Reg:\nlag 7', 'Reg:\nwidth 7']
+labels = [
+          'RNN:\nzeros',
+          #'LDS:\nzeros',
+          'RNN:\ndiag',
+          #'LDS:\ndiag',
+          'RNN:\nidentity',
+          #'LDS:\nidentity',
+          'RNN:\n sbrot',
+          #'LDS:\n sbrot',
+          'RNN:\nbrot',
+          #'LDS:\nbrot',
+          'RNN:\nnormal',
+          #'LDS:\nnormal',
+          #'LDS:\ncritical',
+          #'LDS:\nscritical',
+          'RNN:\ncritical',
+          'RNN:\nscritical',
+          'Reg',
+          #'Reg:\nlag 7',
+          #'Reg:\nwidth 7'
+          ]
 
 # find the directories with these configurations
 config_dict = {

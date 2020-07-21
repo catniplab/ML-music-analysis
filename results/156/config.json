@@ -1,0 +1,309 @@
+{
+  "architecture": "TANH",
+  "base_dir": "/home/kadile/Projects/ML-music-analysis",
+  "batch_size": 128,
+  "cuda": false,
+  "damping": 0.001,
+  "dampings": {
+    "dtype": "float64",
+    "py/object": "numpy.ndarray",
+    "values": [
+      0.01,
+      0.0031622776601683794,
+      0.001,
+      0.00031622776601683794,
+      0.0001
+    ]
+  },
+  "dataset": "JSB_Chorales",
+  "decay": 1.0,
+  "decays": [
+    1.0
+  ],
+  "detect_anomaly": false,
+  "do_hpsearch": false,
+  "ema_decay": 0.999,
+  "ema_decays": {
+    "dtype": "float64",
+    "py/object": "numpy.ndarray",
+    "values": [
+      0.98,
+      0.955,
+      0.9299999999999999,
+      0.905,
+      0.88
+    ]
+  },
+  "gpu": 0,
+  "gradient_clipping": 1,
+  "hidden_size": 300,
+  "hps_epochs": 50,
+  "init": "critical",
+  "input_size": 88,
+  "jit": false,
+  "lag": 0,
+  "learning_rates": {
+    "dtype": "float64",
+    "py/object": "numpy.ndarray",
+    "values": [
+      0.01,
+      0.0031622776601683794,
+      0.001,
+      0.00031622776601683794,
+      0.0001
+    ]
+  },
+  "lr": 0.00316,
+  "num_epochs": 150,
+  "num_layers": 1,
+  "optmzr": "Adam",
+  "output_size": 88,
+  "parity": "rotate",
+  "path": "results/154/final_state_dict.pt",
+  "readout": "linear",
+  "regularization": 0.0,
+  "regularizations": {
+    "dtype": "float64",
+    "py/object": "numpy.ndarray",
+    "values": [
+      0.01,
+      0.0031622776601683794,
+      0.001,
+      0.00031622776601683794,
+      0.0001
+    ]
+  },
+  "save_every_epoch": false,
+  "save_final_model": true,
+  "save_init_model": true,
+  "scale": 0.1,
+  "seed": 250786781,
+  "t_distrib": {
+    "_batch_shape": {
+      "py/newargs": {
+        "py/tuple": [
+          {
+            "py/tuple": []
+          }
+        ]
+      },
+      "py/object": "torch.Size",
+      "py/seq": []
+    },
+    "_event_shape": {
+      "py/newargs": {
+        "py/tuple": [
+          {
+            "py/tuple": []
+          }
+        ]
+      },
+      "py/object": "torch.Size",
+      "py/seq": []
+    },
+    "angle": 0.7853981633974483,
+    "bern": {
+      "_batch_shape": {
+        "py/newargs": {
+          "py/tuple": [
+            {
+              "py/tuple": [
+                1
+              ]
+            }
+          ]
+        },
+        "py/object": "torch.Size",
+        "py/seq": [
+          1
+        ]
+      },
+      "_event_shape": {
+        "py/id": 11
+      },
+      "_param": {
+        "py/id": 13
+      },
+      "probs": {
+        "py/reduce": [
+          {
+            "py/function": "torch._utils._rebuild_tensor_v2"
+          },
+          {
+            "py/tuple": [
+              {
+                "py/reduce": [
+                  {
+                    "py/function": "torch.storage._load_from_bytes"
+                  },
+                  {
+                    "py/tuple": [
+                      {
+                        "py/b64": "gAKKCmz8nEb5IGqoUBkugAJN6QMugAJ9cQAoWBAAAABwcm90b2NvbF92ZXJzaW9ucQFN6QNYDQAAAGxpdHRsZV9lbmRpYW5xAohYCgAAAHR5cGVfc2l6ZXNxA31xBChYBQAAAHNob3J0cQVLAlgDAAAAaW50cQZLBFgEAAAAbG9uZ3EHSwR1dS6AAihYBwAAAHN0b3JhZ2VxAGN0b3JjaApGbG9hdFN0b3JhZ2UKcQFYDgAAADk0MTk3NjY4MDc2NTYwcQJYAwAAAGNwdXEDSwFOdHEEUS6AAl1xAFgOAAAAOTQxOTc2NjgwNzY1NjBxAWEuAQAAAAAAAAAAAAA/"
+                      }
+                    ]
+                  }
+                ]
+              },
+              0,
+              {
+                "py/tuple": [
+                  1
+                ]
+              },
+              {
+                "py/tuple": [
+                  1
+                ]
+              },
+              false,
+              {
+                "py/reduce": [
+                  {
+                    "py/type": "collections.OrderedDict"
+                  },
+                  {
+                    "py/tuple": []
+                  },
+                  null,
+                  null,
+                  {
+                    "py/tuple": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "py/object": "torch.distributions.bernoulli.Bernoulli"
+    },
+    "normal": {
+      "_batch_shape": {
+        "py/newargs": {
+          "py/tuple": [
+            {
+              "py/tuple": [
+                1
+              ]
+            }
+          ]
+        },
+        "py/object": "torch.Size",
+        "py/seq": [
+          1
+        ]
+      },
+      "_event_shape": {
+        "py/id": 11
+      },
+      "loc": {
+        "py/reduce": [
+          {
+            "py/function": "torch._utils._rebuild_tensor_v2"
+          },
+          {
+            "py/tuple": [
+              {
+                "py/reduce": [
+                  {
+                    "py/function": "torch.storage._load_from_bytes"
+                  },
+                  {
+                    "py/tuple": [
+                      {
+                        "py/b64": "gAKKCmz8nEb5IGqoUBkugAJN6QMugAJ9cQAoWBAAAABwcm90b2NvbF92ZXJzaW9ucQFN6QNYDQAAAGxpdHRsZV9lbmRpYW5xAohYCgAAAHR5cGVfc2l6ZXNxA31xBChYBQAAAHNob3J0cQVLAlgDAAAAaW50cQZLBFgEAAAAbG9uZ3EHSwR1dS6AAihYBwAAAHN0b3JhZ2VxAGN0b3JjaApGbG9hdFN0b3JhZ2UKcQFYDgAAADk0MTk3NjY3Njk0NDE2cQJYAwAAAGNwdXEDSwFOdHEEUS6AAl1xAFgOAAAAOTQxOTc2Njc2OTQ0MTZxAWEuAQAAAAAAAAAAAAAA"
+                      }
+                    ]
+                  }
+                ]
+              },
+              0,
+              {
+                "py/tuple": [
+                  1
+                ]
+              },
+              {
+                "py/tuple": [
+                  1
+                ]
+              },
+              false,
+              {
+                "py/reduce": [
+                  {
+                    "py/type": "collections.OrderedDict"
+                  },
+                  {
+                    "py/tuple": []
+                  },
+                  null,
+                  null,
+                  {
+                    "py/tuple": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "py/object": "torch.distributions.normal.Normal",
+      "scale": {
+        "py/reduce": [
+          {
+            "py/function": "torch._utils._rebuild_tensor_v2"
+          },
+          {
+            "py/tuple": [
+              {
+                "py/reduce": [
+                  {
+                    "py/function": "torch.storage._load_from_bytes"
+                  },
+                  {
+                    "py/tuple": [
+                      {
+                        "py/b64": "gAKKCmz8nEb5IGqoUBkugAJN6QMugAJ9cQAoWBAAAABwcm90b2NvbF92ZXJzaW9ucQFN6QNYDQAAAGxpdHRsZV9lbmRpYW5xAohYCgAAAHR5cGVfc2l6ZXNxA31xBChYBQAAAHNob3J0cQVLAlgDAAAAaW50cQZLBFgEAAAAbG9uZ3EHSwR1dS6AAihYBwAAAHN0b3JhZ2VxAGN0b3JjaApGbG9hdFN0b3JhZ2UKcQFYDgAAADk0MTk3NjY2NzYwODk2cQJYAwAAAGNwdXEDSwFOdHEEUS6AAl1xAFgOAAAAOTQxOTc2NjY3NjA4OTZxAWEuAQAAAAAAAAAK1yM8"
+                      }
+                    ]
+                  }
+                ]
+              },
+              0,
+              {
+                "py/tuple": [
+                  1
+                ]
+              },
+              {
+                "py/tuple": [
+                  1
+                ]
+              },
+              false,
+              {
+                "py/reduce": [
+                  {
+                    "py/type": "collections.OrderedDict"
+                  },
+                  {
+                    "py/tuple": []
+                  },
+                  null,
+                  null,
+                  {
+                    "py/tuple": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "py/object": "__main__.MyDistrib"
+  },
+  "window": 1
+}

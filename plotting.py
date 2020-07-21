@@ -55,12 +55,15 @@ def plot_hidden_weights(dir: str, dict_name: str, param_name: str, vmin: float, 
     hidden_weights = sd[param_name].detach().numpy()
     if len(hidden_weights.shape) < 2:
         hidden_weights = hidden_weights.reshape(-1, 1)
-    print(hidden_weights.shape)
+    #print(hidden_weights.shape)
 
     #plt.title(name + ' weights ' + dir)
-    fig, ax = plt.subplots()
+    fig = plt.figure(figsize=(5,5))
+    ax = fig.add_axes([0.1,0.1,0.8,0.8])
+    #fig, ax = plt.subplots()
     ax.pcolor(hidden_weights, vmin=vmin, vmax=vmax, cmap='MyMap')
     ax.set_aspect('equal')
+    #fig.set_size(5, 5)
     fig.show()
     plt.gca().invert_yaxis()
 
