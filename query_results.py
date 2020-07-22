@@ -56,12 +56,12 @@ labels = [
 
 # find the directories with these configurations
 config_dict = {
-               'architecture': "REGRESSION",
-               'lag': 0,
+               'architecture': "LDS",
+               #'lag': 0,
                #'window': 7,
-               #'init': "blockortho",
+               'init': "normal",
                #'parity': "rotate",
-               #'scale': 0.01,
+               'scale': 0.01,
                #'lag': 8,
                #'init': "blockortho",
                'do_hpsearch': False

@@ -40,13 +40,79 @@ def plot_scalar(dir: str, name: str):
     plt.show()
 
 
-def plot_hidden_weights(dir: str, dict_name: str, param_name: str, vmin: float, vmax: float):
+def naive_sort_w_matrix(array):
+    """
+    :param array: array to be sorted
+    :return: a sorted version of the array, greatest to least, with the appropriate permutation matrix
+    """
+
+    size = len(array)
+
+    def make_transposition(i, j):
+
+        mat = np.identity(size)
+
+        mat[i, i] = 0
+        mat[j, j] = 0
+
+        mat[i, j] = 1
+        mat[j, i] = 1
+
+        return mat
+
+    sort_array = np.zeros(size)
+    permutation = np.identity(size)
+
+    for i in range(size):
+
+        big = -float("inf")
+        ix = i
+
+        for j in range(i, size):
+
+            if array[j] > big:
+                big = array[j]
+                ix = j
+
+        sort_array[i] = big
+        permutation = make_transposition(i, ix) @ permutation
+
+    return sort_array, permutation
+
+
+def order_by_eig_entries(matrix):
+
+    vals, vecs = la.eig(matrix)
+
+    maxva, val, vec = 0.0, vals[0], vecs[0]
+
+    for i in range(len(vals)):
+
+        if np.absolute(vals[i]) > maxva:
+            maxva = np.absolute(vals[i])
+            val = vals[i]
+            vec = vecs[i]
+
+    svec, permutation = naive_sort_w_matrix(vec)
+
+    return permutation
+
+
+def plot_hidden_weights(dir: str,
+                        dict_name: str,
+                        param_name: str,
+                        vmin: float,
+                        vmax: float,
+                        transform=None,
+                        token="hid"):
     """
     :param dir: directory of the file storage system whose results we are looking at
     :param dict_name: name of the .pt file whose .weight_hh_l0.weight we will visualize
     :param param_name: name of the key in the dictionary we are interested in.
     :param vmin: expected minimum weight
     :param vmax: expected maximum weight
+    :param transform: function which gets permutation matrix to reorder the rows or columns of the weights
+    :param token: 'in', 'hid' or 'out' determines how precisely to transform the matrix
     """
 
     path = 'results/' + dir + '/'
@@ -57,15 +123,32 @@ def plot_hidden_weights(dir: str, dict_name: str, param_name: str, vmin: float, 
         hidden_weights = hidden_weights.reshape(-1, 1)
     #print(hidden_weights.shape)
 
+    matrix = None
+
+    if not transform == None:
+
+        matrix = transform(hidden_weights)
+
+        transmat = np.transpose(matrix)
+
+        if token == 'hid':
+            hidden_weights = transmat @ hidden_weights @ matrix
+        elif token == 'in':
+            hidden_weights = transmat @ hidden_weights
+        elif token == 'out':
+            hidden_weights = hidden_weights @ matrix
+
     #plt.title(name + ' weights ' + dir)
-    fig = plt.figure(figsize=(5,5))
+    fig = plt.figure(figsize=(8, 8), dpi=200)
     ax = fig.add_axes([0.1,0.1,0.8,0.8])
     #fig, ax = plt.subplots()
-    ax.pcolor(hidden_weights, vmin=vmin, vmax=vmax, cmap='MyMap')
+    ax.pcolor(hidden_weights, vmin=vmin, vmax=vmax, cmap='MyMap', antialiased=False)
     ax.set_aspect('equal')
     #fig.set_size(5, 5)
     fig.show()
     plt.gca().invert_yaxis()
+
+    return matrix
 
 
 def plot_eigs(dir: str, name: str, lim: float):
@@ -85,7 +168,7 @@ def plot_eigs(dir: str, name: str, lim: float):
     fig, ax = plt.subplots()
     ax.set_xlim([-lim, lim])
     ax.set_ylim([-lim, lim])
-    ax.scatter(np.real(vals), np.imag(vals))
+    ax.scatter(np.real(vals), np.imag(vals), s=6)
     ax.set_aspect('equal')
     fig.show()
 
