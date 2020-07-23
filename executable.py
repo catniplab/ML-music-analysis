@@ -41,7 +41,7 @@ class MyDistrib(distribs.distribution.Distribution):
 
 # custom configuration
 config_updates = {
-                  'architecture': "REGRESSION_WIDE",
+                  'architecture': "REGRESSION",
                   'readout': None,
                   'optmzr': "SecondOrder",
                   'init': "regression",
@@ -62,7 +62,7 @@ config_updates = {
 
                   'ema_decay': 0.999,
                   'damping': 0.001,
-                  'regularization': 0.01,
+                  #'regularization': 0.01,
 
                   'do_hpsearch': False,
                   #'ema_decays': [0.999],

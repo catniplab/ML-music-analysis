@@ -118,7 +118,7 @@ def plot_hidden_weights(dir: str,
     path = 'results/' + dir + '/'
 
     sd = torch.load(path + dict_name, map_location='cpu')
-    hidden_weights = sd[param_name].detach().numpy()
+    hidden_weights = sd[param_name].detach().numpy()[27 : 75, 27 : 75]
     if len(hidden_weights.shape) < 2:
         hidden_weights = hidden_weights.reshape(-1, 1)
     #print(hidden_weights.shape)
@@ -320,3 +320,21 @@ def duration_histogram(name: str, set: str):
     plt.title("Note duration distribution: " + name + " " + set)
 
     plt.show()
+
+
+def plot_sklearn_weights(model_list, vmin, vmax):
+
+    weights = np.zeros((49, 49))
+
+    for i, model in enumerate(model_list):
+        weights[i] = model.coef_
+
+    #plt.title(name + ' weights ' + dir)
+    fig = plt.figure(figsize=(8, 8), dpi=200)
+    ax = fig.add_axes([0.1,0.1,0.8,0.8])
+    #fig, ax = plt.subplots()
+    ax.pcolor(weights, vmin=vmin, vmax=vmax, cmap='MyMap', antialiased=False)
+    ax.set_aspect('equal')
+    #fig.set_size(5, 5)
+    fig.show()
+    plt.gca().invert_yaxis()

@@ -6,7 +6,7 @@ from scipy.io import loadmat
 
 # notes 27 through 75 are the ones which are actually played
 
-data_dict = loadmat('../data/JSB_Chorales.mat')
+data_dict = loadmat('data/JSB_Chorales.mat')
 train_arrays = data_dict['traindata'][0]
 
 
@@ -34,7 +34,7 @@ def train_models():
 
     for channel in range(49):
 
-        model = lm.LogisticRegression(penalty='none', solver='newton-cg')
+        model = lm.LogisticRegression(solver='saga', penalty='elasticnet', l1_ratio=0.91, random_state=24)
 
         model.fit(x, y[:, channel])
 
