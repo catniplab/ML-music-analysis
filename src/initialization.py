@@ -166,6 +166,26 @@ def _initialize_tanh(model: nn.Module, initializer: dict) -> nn.Module:
         raise ValueError("Initialization {} not recognized.".format(initializer['init']))
 """
 
+
+def _initialize_reg(model: nn.Module, initializer: dict):
+    """
+    :param model: a wide regression model whose weights are to be initialized
+    :param initializer: a dictionary containing all information about initialization, critically, it contains the path of a pre-trained regression model
+    The idea is to initialize a regression model acting on more time steps to behave as a trained one which acts on fewer time steps.
+    """
+
+    if initializer['init'] == 'regression':
+
+        sd = torch.load(initializer['path'])
+
+        wshape = model.weights.weight.data.shape
+        model.weights.weight.data = torch.zeros(wshape)
+        model.weights.weight.data[:, 88:] = sd['weights.weight']
+
+    elif initializer['init'] != 'default':
+        raise ValueError("Initialization {} not recognized".format(initializer['init']))
+
+
 def _initialize(model: nn.Module, initializer: dict, architecture: str) -> nn.Module:
     """
     :param model: model to be initialized
@@ -179,3 +199,6 @@ def _initialize(model: nn.Module, initializer: dict, architecture: str) -> nn.Mo
 
     elif architecture == "TANH":
         _initialize_tanh(model, initializer)
+
+    elif architecture == "REGRESSION_WIDE":
+        _initialize_reg(model, initializer)

@@ -41,13 +41,13 @@ class MyDistrib(distribs.distribution.Distribution):
 
 # custom configuration
 config_updates = {
-                  'architecture': "TANH",
-                  'readout': "linear",
-                  'optmzr': "Adam",
-                  'init': "critical",
-                  'parity': "rotate",
-                  't_distrib': MyDistrib(0.25*math.pi, 0.01),
-                  'path': "results/154/final_state_dict.pt",
+                  'architecture': "REGRESSION_WIDE",
+                  'readout': None,
+                  'optmzr': "SecondOrder",
+                  'init': "regression",
+                  #'parity': "rotate",
+                  #'t_distrib': MyDistrib(0.25*math.pi, 0.01),
+                  'path': "results/116/final_state_dict.pt",
 
                   #'num_epochs': 300,
                   #'hps_epochs': 100,
@@ -55,14 +55,14 @@ config_updates = {
                   'scale': 0.1,
 
                   #'lag': 7,
-                  #'window': 2,
+                  'window': 2,
 
-                  'decay': 1.0,
+                  'decay': 1,
                   'lr': 0.00316,
 
                   'ema_decay': 0.999,
                   'damping': 0.001,
-                  #'regularization': 0.001,
+                  'regularization': 0.01,
 
                   'do_hpsearch': False,
                   #'ema_decays': [0.999],
