@@ -324,10 +324,12 @@ def duration_histogram(name: str, set: str):
 
 def plot_sklearn_weights(model_list, vmin, vmax):
 
-    weights = np.zeros((49, 49))
+    weights = np.zeros((49))
 
     for i, model in enumerate(model_list):
-        weights[i] = model.coef_
+        weights[i] = model.intercept_
+    if len(weights.shape) < 2:
+        weights = weights.reshape(-1, 1)
 
     #plt.title(name + ' weights ' + dir)
     fig = plt.figure(figsize=(8, 8), dpi=200)

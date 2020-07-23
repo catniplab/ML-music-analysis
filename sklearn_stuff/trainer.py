@@ -2,7 +2,10 @@ import sys
 import math
 import numpy as np
 import sklearn.linear_model as lm
+
 from scipy.io import loadmat
+
+from sklearn.linear_model.logistic import _logistic_loss
 
 # notes 27 through 75 are the ones which are actually played
 
@@ -32,6 +35,8 @@ def train_models():
 
     model_list = []
 
+    loss = 0
+
     for channel in range(49):
 
         model = lm.LogisticRegression(solver='saga', penalty='elasticnet', l1_ratio=0.91, random_state=24)
@@ -39,6 +44,10 @@ def train_models():
         model.fit(x, y[:, channel])
 
         model_list.append(model)
+
+        #loss += _logistic_loss(model.coef_, model.intercept_, x, y[channel], 1 / model.C)
+
+    print(loss)
 
     return model_list
 
@@ -101,11 +110,7 @@ def compute_loss(set: str, model_list):
             for channel in range(49):
 
                 model = model_list[channel]
-                pred = model.predict(x.reshape(1, -1))[0]
-                if pred == 0.0:
-                    pred += 0.00001
-                if pred == 1.0:
-                    pred -= 0.00001
+                pred = 1.0/(1.0 + np.exp(-(model.coef_ @ x + model.intercept_)))
 
                 tot += y[channel]*math.log(pred) + (1 - y[channel])*math.log(1 - pred)
 
