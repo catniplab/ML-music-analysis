@@ -4,9 +4,9 @@ import json
 import numpy as np
 import torch
 
-from src.metrics import MaskedBCE, compute_loss
-from src.load_data import get_loader
-from src.models import get_model
+from src.neural_nets.metrics import MaskedBCE, compute_loss
+from src.neural_nets.load_data import get_loader
+from src.neural_nets.models import get_model
 
 # a list of configs whose results we want to plot
 useful_configs = [
@@ -30,6 +30,26 @@ useful_configs = [
                    #{'architecture': "REGRESSION", 'init': "default", 'do_hpsearch': False, 'lag': 7},
                    #{'architecture': "REGRESSION_WIDE", 'init': "default", 'window': 7,'do_hpsearch': False}
                  ]
+
+reg_configs = [
+               {'architecture': "REGRESSION", 'lag': 1, 'window': 1, 'do_hpsearch': False},
+               {'architecture': "REGRESSION", 'lag': 1, 'window': 2, 'do_hpsearch': False},
+               {'architecture': "REGRESSION", 'lag': 1, 'window': 3, 'do_hpsearch': False},
+               {'architecture': "REGRESSION", 'lag': 1, 'window': 4, 'do_hpsearch': False},
+               {'architecture': "REGRESSION", 'lag': 1, 'window': 5, 'do_hpsearch': False},
+               {'architecture': "REGRESSION", 'lag': 1, 'window': 6, 'do_hpsearch': False},
+               {'architecture': "REGRESSION", 'lag': 1, 'window': 7, 'do_hpsearch': False}
+              ]
+
+reg_labels = [
+              'Width 1',
+              'Width 2',
+              'Width 3',
+              'Width 4',
+              'Width 5',
+              'Width 6',
+              'Width 7'
+             ]
 
 # labels corresponding
 labels = [
@@ -124,7 +144,7 @@ def find_results(configs, success=False):
     return good_dirs
 
 
-def find_recent_metrics(config_dicts):
+def find_recent_metrics(config_dicts, eval_loss=False):
     """
     :param config_dicts: list of dictionaries whose metrics we want to find
     :return: a pair: a triple of losses and a triple of accuracies. Each entry is train, test, loss.
@@ -153,56 +173,56 @@ def find_recent_metrics(config_dicts):
         val_accs.append(recent_metrics['validAccuracy']['values'][-1])
 
         # compute the unregularized loss for the model over each dataset, just in case
-        # we must read some information about the model to properly construct the data loaders
-        config_handle = open(recent_dir + '/config.json')
-        recent_configs = json.loads(config_handle.read())
-        config_handle.close()
-        dataset = recent_configs['dataset']
-        batch_size = recent_configs['batch_size']
-        architecture = recent_configs['architecture']
+        if eval_loss:
 
-        # determine if there is a certain part of the sequences we need to cover up
-        init_mask = 0
-        if architecture == "REGRESSION":
-            init_mask = recent_configs['lag']
-        elif architecture == "REGRESSION_WIDE":
-            init_mask = recent_configs['window']
+            # we must read some information about the model to properly construct the data loaders
+            config_handle = open(recent_dir + '/config.json')
+            recent_configs = json.loads(config_handle.read())
+            config_handle.close()
+            dataset = recent_configs['dataset']
+            batch_size = recent_configs['batch_size']
+            architecture = recent_configs['architecture']
 
-        train_loader, test_loader, val_loader = get_loader(dataset, batch_size, init_mask)
+            # determine if there is a certain part of the sequences we need to cover up
+            init_mask = 0
+            if architecture == "REGRESSION":
+                init_mask = recent_configs['lag']
+            elif architecture == "REGRESSION_WIDE":
+                init_mask = recent_configs['window']
 
-        # loss function without regularization
-        loss_fcn = MaskedBCE(0)
+            train_loader, test_loader, val_loader = get_loader(dataset, batch_size, init_mask)
 
-        # get the configuration for the model and construct it
-        # initializer is not required
-        model_dict = {'architecture': architecture,
-                      'readout': recent_configs['readout'],
-                      'gradient_clipping': recent_configs['gradient_clipping'],
-                      'jit': recent_configs['jit'],
-                      'lag': recent_configs['lag'],
-                      'window': recent_configs['window'],
-                      'input_size': recent_configs['input_size'],
-                      'hidden_size': recent_configs['hidden_size'],
-                      'num_layers': recent_configs['num_layers'],
-                      'output_size': recent_configs['output_size']
-                     }
-        state_dict = torch.load(str(recent_dir) + '/final_state_dict.pt', map_location='cpu')
-        model = get_model(model_dict, {'init': "default"}, False)
-        model.load_state_dict(state_dict)
+            # loss function without regularization
+            loss_fcn = MaskedBCE(0)
 
-        # compute and record the losses
-        train_losses.append(compute_loss(loss_fcn, model, train_loader))
-        test_losses.append(compute_loss(loss_fcn, model, test_loader))
-        val_losses.append(compute_loss(loss_fcn, model, val_loader))
+            # get the configuration for the model and construct it
+            # initializer is not required
+            model_dict = {'architecture': architecture,
+                          'readout': recent_configs['readout'],
+                          'gradient_clipping': recent_configs['gradient_clipping'],
+                          'jit': recent_configs['jit'],
+                          'lag': recent_configs['lag'],
+                          'window': recent_configs['window'],
+                          'input_size': recent_configs['input_size'],
+                          'hidden_size': recent_configs['hidden_size'],
+                          'num_layers': recent_configs['num_layers'],
+                          'output_size': recent_configs['output_size']
+                         }
+            state_dict = torch.load(str(recent_dir) + '/final_state_dict.pt', map_location='cpu')
+            model = get_model(model_dict, {'init': "default"}, False)
+            model.load_state_dict(state_dict)
 
-    # append the baselines
-    #train_losses.append(61)
-    #test_losses.append(61)
-    #val_losses.append(61)
+            # compute and record the losses
+            train_losses.append(compute_loss(loss_fcn, model, train_loader))
+            test_losses.append(compute_loss(loss_fcn, model, test_loader))
+            val_losses.append(compute_loss(loss_fcn, model, val_loader))
 
-    #train_accs.append(.0442)
-    #test_accs.append(.0442)
-    #val_accs.append(.0442)
+    else:
+
+        # take note of all the most recent accuracies
+        train_losses.append(recent_metrics['trainLoss']['values'][-1])
+        test_losses.append(recent_metrics['testLoss']['values'][-1])
+        val_losses.append(recent_metrics['validLoss']['values'][-1])
 
     return ((train_losses, test_losses, val_losses), (train_accs, test_accs, val_accs))
 

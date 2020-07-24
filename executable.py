@@ -40,6 +40,9 @@ class MyDistrib(distribs.distribution.Distribution):
 
 
 # custom configuration
+# it should be noted that when architecture is REGRESSION
+# most of the optimization is just handled by sklearn
+# all that matters is lag and window
 config_updates = {
                   'architecture': "REGRESSION",
                   'readout': None,
@@ -54,8 +57,8 @@ config_updates = {
                   'hidden_size': 300,
                   'scale': 0.1,
 
-                  #'lag': 7,
-                  'window': 2,
+                  'lag': 1,
+                  'window': 1,
 
                   'decay': 1,
                   'lr': 0.00316,
