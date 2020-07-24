@@ -9,33 +9,66 @@ from sklearn.linear_model.logistic import _logistic_loss
 
 # notes 27 through 75 are the ones which are actually played
 
-data_dict = loadmat('data/JSB_Chorales.mat')
-train_arrays = data_dict['traindata'][0]
+def get_dataset(name: str, set: str, lag: int, window: int, format='listofarrays'):
+
+    data_dict = loadmat(name)
+    arrays = data_dict[set][0]
+
+    offset = lag + window
+
+    xlist = []
+    ylist = []
+
+    for array in arrays:
+
+        T = len(array)
+
+        xlist.append(array[0 : T - offset])
+        ylist.append(array[offset:])
+
+    if format == 'listofarrays':
+
+        return xlist, ylist
+
+    elif format == 'flattened':
+
+        size = 0
+        for xseq in xlist:
+            size += len(x)
+
+        x = np.zeros((size, 49))
+        y = np.zeros((size, 49))
+
+        ix = 0
+
+        for xseq, yseq in zip(xlist, ylist):
+
+            T = len(xlist)
+
+            x[ix : ix + T] = xseq
+            y[ix : ix + T] = yseq
+
+            ix += T
+
+        return x, y
 
 
-def train_models():
+    else:
+        raise ValueError("Format {} not recognized".format(format))
 
-    size = 0
-    for array in train_arrays:
-        size += len(array)
+    T = arrays.shape[1]
 
-    x = np.zeros((size, 49))
-    count = 0
-    for array in train_arrays:
-        t = len(array)
-        x[count : count + t - 1] = array[0 : -1, 27 : 76]
-        count += t
+    x = arrays[:, T - offset, 27 : 76]
+    y = arrays[:, offset:, 27 : 76]
 
-    y = np.zeros((size, 49))
-    count = 0
-    for array in train_arrays:
-        t = len(array)
-        y[count : count + t - 1] = array[1:, 27 : 76]
-        count += t
+    return x, y
+
+
+def train_models(dataset: str, lag: int, window: int):
+
+    x, y = get_dataset(dataset, 'traindata', lag, window)
 
     model_list = []
-
-    loss = 0
 
     for channel in range(49):
 
@@ -45,14 +78,10 @@ def train_models():
 
         model_list.append(model)
 
-        #loss += _logistic_loss(model.coef_, model.intercept_, x, y[channel], 1 / model.C)
-
-    print(loss)
-
     return model_list
 
 
-def compute_accuracy(set: str, model_list):
+def compute_accuracy(set: str, model_list, lag: int, window: int):
 
     arrays = data_dict[set][0]
 
@@ -64,8 +93,8 @@ def compute_accuracy(set: str, model_list):
 
         for t in range(len(array) - 1):
 
-            x = array[t, 27 : 76]
-            y = array[t + 1, 27 : 76]
+            xt = array[t]
+            yt = array[t + 1]
 
             tp = 0
             fp = 0
@@ -112,7 +141,7 @@ def compute_loss(set: str, model_list):
                 model = model_list[channel]
                 pred = 1.0/(1.0 + np.exp(-(model.coef_ @ x + model.intercept_)))
 
-                tot += y[channel]*math.log(pred) + (1 - y[channel])*math.log(1 - pred)
+                tot -= y[channel]*math.log(pred) + (1 - y[channel])*math.log(1 - pred)
 
             tot_over_time += tot
 
