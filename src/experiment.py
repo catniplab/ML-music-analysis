@@ -54,17 +54,12 @@ def cfg():
     lr = 0.001
     decay = 1.0
     optmzr = "SGD"
-    # second order optimizer params
-    ema_decay = 0.99
-    damping = 0.001
     regularization = 0.0
 
     # hyperparameter search
     do_hpsearch = False
     learning_rates = 10**np.linspace(-2, -4, 5)
-    decays = 0.98 - np.linspace(0, 0.1, num=5)
-    dampings = 10**np.linspace(-2, -4, num=5)
-    ema_decays = 0.98 - np.linspace(0, 0.1, num=5)
+    decays = 1 - np.linspace(0, 0.1, num=5)
     regularizations = 10**np.linspace(-2, -4, num=5)
     hps_epochs = 50
 
@@ -77,7 +72,7 @@ def cfg():
     gradient_clipping = 1
     jit = False # not fully implemented
     # for regression
-    lag = 0
+    lag = 1
     window = 1
     # for neural networks
     input_size = 88
@@ -85,12 +80,7 @@ def cfg():
     num_layers = 1
     output_size = 88
 
-    # supported initializations
-    # default
-    # identity
-    # blockortho
-    # orthogonal
-    # stdnormal
+    # see models.py and initialization.py for details
     init = 'default'
     scale = 1.0
     parity = None # see models.py
@@ -185,7 +175,8 @@ def train_iter(device: device,
                test_loader: DataLoader,
                val_loader: DataLoader,
                _log,
-               _run):
+               _run,
+               logging=True):
 
     input_tensor = input_tensor.to(device)
 
@@ -200,63 +191,44 @@ def train_iter(device: device,
     optimizer.step()
 
     # use sacred to log training loss and accuracy
-    _run.log_scalar("trainLoss", loss.cpu().detach().item())
-    train_acc = compute_acc(model, train_loader)
-    _run.log_scalar("trainAccuracy", train_acc)
+    if logging:
+        train_acc = compute_acc(model, train_loader)
+        _run.log_scalar("trainLoss", loss.cpu().detach().item())
+        _run.log_scalar("trainAccuracy", train_acc)
 
     # save a copy of the model and make sacred remember it each epoch
-    if save_every_epoch:
+    if save_every_epoch and logging:
         sd = deepcopy(model.state_dict())
         torch.save(init_sd, save_dir + 'state_dict_' + str(epoch) + '.pt')
         _run.add_artifact(save_dir + 'state_dict_' + str(epoch) + '.pt')
 
 
-# a single optimization step
-# meant for hp search where we aren't saving anything
-@ex.capture
-def hps_train_iter(device: device,
-                   cuda_device: torch.cuda.device,
-                   input_tensor: Tensor,
-                   target: Tensor,
-                   mask: Tensor,
-                   model: nn.Module,
-                   loss_fcn: nn.Module,
-                   optimizer: optim.Optimizer,
-                   _log,
-                   _run):
-
-    input_tensor = input_tensor.to(device)
-
-    # number of songs in this batch
-    N = input_tensor.shape[0]
-
-    output, hidden_tensors = model(input_tensor)
-
-    loss = loss_fcn(output, target, mask, model)/N
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-
-
 # train a neural network
+# returns the final loss and accuracy on the training, testing, and validation sets
 @ex.capture
-def pytorch_experiment(cuda: bool,
+def pytorch_train_loop(cuda: bool,
                        model_dict: dict,
                        initializer: dict,
                        train_loader: DataLoader,
                        test_loader: DataLoader,
                        valid_loader: DataLoader,
-                       regularization: float,
                        lr: float,
+                       decay: float,
+                       regularization: float,
+                       num_epochs: int,
+                       save_init_model,
+                       save_every_epoch,
+                       save_final_model,
                        _seed,
                        _log,
-                       _run):
+                       _run,
+                       logging=True):
 
     # construct and initialize the model
     model = get_model(model_dict, initializer, cuda)
 
     # save a copy of the initial model and make sacred remember it
-    if save_init_model:
+    if save_init_model and logging:
         init_sd = deepcopy(model.state_dict())
         torch.save(init_sd, save_dir + 'initial_state_dict.pt')
         _run.add_artifact(save_dir + 'initial_state_dict.pt')
@@ -308,26 +280,40 @@ def pytorch_experiment(cuda: bool,
                            test_loader,
                            val_loader,
                            _log,
-                           _run)
+                           _run,
+                           logging=logging)
 
             # learning rate decay
             scheduler.step()
 
             # use sacred to log testing and validation loss and accuracy
-            test_loss = compute_loss(loss_fcn, model, test_loader)
-            _run.log_scalar("testLoss", test_loss)
-            val_loss = compute_loss(loss_fcn, model, val_loader)
-            _run.log_scalar("validLoss", val_loss)
-            test_acc = compute_acc(model, test_loader)
-            _run.log_scalar("testAccuracy", test_acc)
-            val_acc = compute_acc(model, val_loader)
-            _run.log_scalar("validAccuracy", val_acc)
+            if logging:
+
+                test_loss = compute_loss(loss_fcn, model, test_loader)
+                val_loss = compute_loss(loss_fcn, model, val_loader)
+                test_acc = compute_acc(model, test_loader)
+                val_acc = compute_acc(model, val_loader)
+
+                _run.log_scalar("testLoss", test_loss)
+                _run.log_scalar("validLoss", val_loss)
+                _run.log_scalar("testAccuracy", test_acc)
+                _run.log_scalar("validAccuracy", val_acc)
 
         # save a copy of the trained model and make sacred remember it
-        if save_final_model:
+        if save_final_model and logging:
             fin_sd = deepcopy(model.state_dict())
             torch.save(fin_sd, save_dir + 'final_state_dict.pt')
             _run.add_artifact(save_dir + 'final_state_dict.pt')
+
+    train_loss = compute_loss(loss_fcn, model, train_loader)
+    test_loss = compute_loss(loss_fcn, model, test_loader)
+    val_loss = compute_loss(loss_fcn, model, val_loader)
+
+    train_acc = compute_acc(model, train_loader)
+    test_acc = compute_acc(model, test_loader)
+    val_acc = compute_acc(model, val_loader)
+
+    return ((train_loss, test_loss, val_loss), (train_acc, test_acc, val_acc))
 
 
 # main function
@@ -420,116 +406,64 @@ def train_loop(cuda,
         # standard training loop
         if not do_hpsearch:
 
-            pytorch_experiment(cuda,
-                               model_dict,
-                               initializer,
-                               train_loader,
-                               test_loader,
-                               valid_loader,
-                               regularization,
-                               lr,
-                               _seed,
-                               _log,
-                               _run)
+            # the training loop function returns the metrics achieved at the end of training
+            # they will be logged by default, no need to do anything with them here
+            metrics = pytorch_train_loop(cuda,
+                                         model_dict,
+                                         initializer,
+                                         train_loader,
+                                         test_loader,
+                                         valid_loader,
+                                         lr,
+                                         decay,
+                                         regularization,
+                                         num_epochs,
+                                         _seed,
+                                         _log,
+                                         _run)
 
         # only goal here is to find the best hyper parameters
         else:
 
-            raise ValueError("Hyperparameter search needs to be refactored.")
+            hyperparams = product(learning_rates, decays, regularizations).flatten()
 
-            min_loss = float('inf')
+            min_test_loss = float('inf')
+            best_lr = 0
+            best_dcay = 0
+            best_reg = 0
 
-            best_decay = 1.0
-            best_lr = 0.1
+            for rate, dcay, reg in hyperparams:
 
-            for i, dcay in enumerate(decays):
+                # train a model with the given hyperparameters
+                # don't log anything, otherwise we will have a ridiculous amount of extraneous info
+                metrics = pytorch_train_loop(cuda,
+                                             model_dict,
+                                             initializer,
+                                             train_loader,
+                                             test_loader,
+                                             valid_loader,
+                                             rate,
+                                             dcay,
+                                             reg,
+                                             hps_epochs,
+                                             _seed,
+                                             _log,
+                                             _run,
+                                             logging=False)
 
-                for j, lr in enumerate(learning_rates):
+                # loss is first index, test set is second index
+                test_loss = metrics[0][1]
 
-                    # construct and initialize the model
-                    model = get_model(model_dict, initializer, cuda)
+                # compare loss against other hyperparams and update if necessary
+                if test_loss < min_test_loss:
+                    best_lr = rate
+                    best_dcay = dcay
+                    best_reg = reg
 
-                    # save a copy of the initial model and make sacred remember it
-                    if save_init_model:
-                        init_sd = deepcopy(model.state_dict())
-                        torch.save(init_sd, save_dir + 'initial_state_dict_' + str(i) + '_' + str(j) + '.pt')
-                        _run.add_artifact(save_dir + 'initial_state_dict_' + str(i) + '_' + str(j) + '.pt')
-
-                    # if we are on cuda we construct the device and run everything on it
-                    cuda_device = NullContext()
-                    device = torch.device('cpu')
-                    if cuda:
-                        dev_name = 'cuda:' + str(gpu)
-                        cuda_device = torch.cuda.device(dev_name)
-                        device = torch.device(dev_name)
-                        model = model.to(device)
-
-                    with cuda_device:
-
-                        # see metrics.py
-                        loss_fcn = MaskedBCE(regularization)
-
-                        # construct the optimizer
-                        optimizer = None
-                        if optmzr == "SGD":
-                            optimizer = optim.SGD(model.parameters(), lr=lr)
-                        elif optmzr == "Adam":
-                            optimizer = optim.Adam(model.parameters(), lr=lr)
-                        elif optmzr == "RMSprop":
-                            optimizer = optim.RMSprop(model.parameters(), lr=lr)
-                        else:
-                            raise ValueError("Optimizer {} not recognized.".format(optmzr))
-
-                        # learning rate decay
-                        scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: dcay**epoch)
-
-                        # begin training loop
-                        for epoch in tqdm(range(hps_epochs)):
-
-                            for input_tensor, target, mask in train_loader:
-                                hps_train_iter(device,
-                                               cuda_device,
-                                                input_tensor,
-                                                target,
-                                                mask,
-                                                model,
-                                                loss_fcn,
-                                                optimizer,
-                                                _log,
-                                                _run)
-
-                            # learning rate decay
-                            scheduler.step()
-
-                        # after training, compute average test loss
-                        num_seqs = 0
-                        test_loss = 0
-
-                        for input_tensor, target, mask in test_loader:
-
-                            num_seqs += input_tensor.shape[0]
-
-                            output, hiddens = model(input_tensor)
-                            loss = loss_fcn(output, target, mask, model)
-                            test_loss += loss.cpu().detach().item()
-
-                        test_loss /= num_seqs
-
-                        # compare against other hyperparameters
-                        if test_loss < min_loss:
-                            min_loss = test_loss
-                            best_decay = dcay
-                            best_lr = lr
-
-                    # save a copy of the initial model and make sacred remember it
-                    if save_final_model:
-                        init_sd = deepcopy(model.state_dict())
-                        torch.save(init_sd, save_dir + 'final_state_dict_' + str(i) + '_' + str(j) + '.pt')
-                        _run.add_artifact(save_dir + 'final_state_dict_' + str(i) + '_' + str(j) + '.pt')
-
-            # use sacred to record the best hyperparameters
-            _run.log_scalar("decay", best_decay)
+            # record the best hyperparameters
             _run.log_scalar("learning_rate", best_lr)
+            _run.log_scalar("decay", best_dcay)
+            _run.log_scalar("regularization", best_reg)
 
     # wait a second then remove the temporary directory used for storing artifacts
     sleep(1)

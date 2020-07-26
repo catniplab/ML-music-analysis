@@ -62,14 +62,9 @@ config_updates = {
 
                   'decay': 1,
                   'lr': 0.00316,
-
-                  'ema_decay': 0.999,
-                  'damping': 0.001,
                   #'regularization': 0.01,
 
                   'do_hpsearch': False,
-                  #'ema_decays': [0.999],
-                  #'dampings': [0.001],
                   'decays': [1.0],
                   #'learning_rates': 10**np.linspace(-1, -3, num=5),
 
