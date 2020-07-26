@@ -19,6 +19,17 @@ from torch.distributions.distribution import Distribution
 
 from math import sin, cos
 
+def get_regression_params(path: str):
+    """
+    :param path: directory where we will find the files containing the parameters of a regression model
+    :return: weights and bias of the regression model
+    """
+
+    weights = np.load(path + '/coefs.npy')
+    bias = np.load(path + '/intercepts.npy')
+
+    return torch.tensor(weights), torch.tensor(bias)
+
 
 def make_identity(shape: torch.Size) -> torch.Tensor:
     """
@@ -36,7 +47,6 @@ def make_identity(shape: torch.Size) -> torch.Tensor:
 
 def make_block_ortho(shape: torch.Size,
                      t_distrib: Distribution,
-                     architecture="",
                      parity=None) -> torch.Tensor:
     """
     :param shape: shape of the block orthogonal matrix that we desire
@@ -74,19 +84,23 @@ def _initialize_lds(model: nn.Module, initializer: dict) -> nn.Module:
     initialize the model in place based on the weights of a trained regression model
     """
 
-    reg_sd = torch.load(initializer['path'])
+    weights, bias = get_regression_params(initializer['path'])
 
     # top block of input weights will be identity, everything else will be random
     sq = torch.Size([88, 88])
     model.rnn.weight_ih_l0.weight.data[0 : 88, 0 : 88] = make_identity(sq)
+    model.rnn.weight_ih_l0.bias.data = torch.zeros(model.rnn.weight_ih_l0.bias.data.shape)
 
     # output weights are based on regression weights
-    model.output_weights.weight.data = torch.zeros(model.output_weights.weight.data.shape)
-    model.output_weights.weight.data[0 : 88, 0 : 88] = reg_sd['weights.weight']
+    out_shape = model.output_weights.weight.data.shape
+    model.output_weights.weight.data = torch.zeros(out_shape)
+    model.output_weights.weight.data[27 : 75, 27 : 75] = weights
+    model.output_weights.bias.data[27 : 75] = bias
 
     # the hidden matrix must erase the systems memory at each time step
     hid_size = model.rnn.weight_hh_l0.weight.data.shape
     model.rnn.weight_hh_l0.weight.data = torch.zeros(hid_size)
+    #model.rnn.weight_hh_l0.bias.data = torch.zeros(hid_size[0])
 
     slen = hid_size[0] - 88
     sub_size = torch.Size([slen, slen])

@@ -463,8 +463,7 @@ def train_loop(cuda,
                 test_loss = metrics[0][1]
 
                 # compare loss against other hyperparams and update if necessary
-                if test_loss == test_loss and test_loss < min_test_loss:
-                    min_test_loss = test_loss
+                if test_loss < min_test_loss:
                     best_lr = rate
                     best_dcay = dcay
                     best_reg = reg

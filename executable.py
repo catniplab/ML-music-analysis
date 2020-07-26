@@ -44,28 +44,29 @@ class MyDistrib(distribs.distribution.Distribution):
 # most of the optimization is just handled by sklearn
 # all that matters is lag and window
 config_updates = {
-                  'architecture': "REGRESSION",
-                  'readout': None,
-                  'optmzr': "SecondOrder",
-                  'init': "regression",
+                  'architecture': "LDS",
+                  'readout': "linear",
+                  'optmzr': "Adam",
+                  'init': "blockortho",
                   #'parity': "rotate",
                   #'t_distrib': MyDistrib(0.25*math.pi, 0.01),
-                  'path': "results/116/final_state_dict.pt",
+                  'path': "results/164",
 
                   #'num_epochs': 300,
                   #'hps_epochs': 100,
                   'hidden_size': 300,
-                  'scale': 0.1,
+                  'scale': 0.01,
 
-                  'lag': 1,
-                  'window': 1,
+                  #'lag': 1,
+                  #'window': 1,
 
                   'decay': 1,
                   'lr': 0.00316,
-                  #'regularization': 0.01,
+                  'regularization': 0.001,
 
                   'do_hpsearch': False,
                   'decays': [1.0],
+                  #'regularizations': [0.0001],
                   #'learning_rates': 10**np.linspace(-1, -3, num=5),
 
                   'save_init_model': True,

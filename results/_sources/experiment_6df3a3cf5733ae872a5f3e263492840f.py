@@ -173,7 +173,7 @@ def train_iter(device: device,
                save_dir: str,
                train_loader: DataLoader,
                test_loader: DataLoader,
-               valid_loader: DataLoader,
+               val_loader: DataLoader,
                _log,
                _run,
                logging=True):
@@ -292,9 +292,9 @@ def pytorch_train_loop(cuda: bool,
             if logging:
 
                 test_loss = compute_loss(loss_fcn, model, test_loader)
-                val_loss = compute_loss(loss_fcn, model, valid_loader)
+                val_loss = compute_loss(loss_fcn, model, val_loader)
                 test_acc = compute_acc(model, test_loader)
-                val_acc = compute_acc(model, valid_loader)
+                val_acc = compute_acc(model, val_loader)
 
                 _run.log_scalar("testLoss", test_loss)
                 _run.log_scalar("validLoss", val_loss)
@@ -309,11 +309,11 @@ def pytorch_train_loop(cuda: bool,
 
     train_loss = compute_loss(loss_fcn, model, train_loader)
     test_loss = compute_loss(loss_fcn, model, test_loader)
-    val_loss = compute_loss(loss_fcn, model, valid_loader)
+    val_loss = compute_loss(loss_fcn, model, val_loader)
 
     train_acc = compute_acc(model, train_loader)
     test_acc = compute_acc(model, test_loader)
-    val_acc = compute_acc(model, valid_loader)
+    val_acc = compute_acc(model, val_loader)
 
     return ((train_loss, test_loss, val_loss), (train_acc, test_acc, val_acc))
 
@@ -399,7 +399,7 @@ def train_loop(cuda,
         torch.autograd.set_detect_anomaly(detect_anomaly)
 
         # construct the pytorch data loaders
-        train_loader, test_loader, valid_loader = get_loader(dataset, batch_size)
+        train_loader, test_loader, val_loader = get_loader(dataset, batch_size)
 
         # standard training loop
         if not do_hpsearch:
@@ -444,7 +444,7 @@ def train_loop(cuda,
                                              initializer,
                                              train_loader,
                                              test_loader,
-                                             valid_loader,
+                                             val_loader,
                                              optmzr,
                                              rate,
                                              dcay,
@@ -463,8 +463,7 @@ def train_loop(cuda,
                 test_loss = metrics[0][1]
 
                 # compare loss against other hyperparams and update if necessary
-                if test_loss == test_loss and test_loss < min_test_loss:
-                    min_test_loss = test_loss
+                if test_loss < min_test_loss:
                     best_lr = rate
                     best_dcay = dcay
                     best_reg = reg

@@ -1,0 +1,35 @@
+{
+  "decay": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2020-07-26T14:01:45.300597"
+    ],
+    "values": [
+      1.0
+    ]
+  },
+  "learning_rate": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2020-07-26T14:01:45.300522"
+    ],
+    "values": [
+      0.0001
+    ]
+  },
+  "regularization": {
+    "steps": [
+      0
+    ],
+    "timestamps": [
+      "2020-07-26T14:01:45.300612"
+    ],
+    "values": [
+      0.0001
+    ]
+  }
+}
