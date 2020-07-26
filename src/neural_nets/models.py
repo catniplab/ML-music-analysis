@@ -94,12 +94,7 @@ def get_model(model_dict: dict, initializer: dict, cuda: bool):
     if readout == 'linear':
         model = LinReadOutModel(model_dict)
     else:
-        if architecture == "REGRESSION":
-            model = REGRESSION(model_dict['lag'])
-        elif architecture == "REGRESSION_WIDE":
-            model = REGRESSION_WIDE(model_dict['window'])
-        else:
-            raise ValueError("Architecture {} not recognized.".format(model_dict['architecture']))
+        raise ValueError("readout {} not recognized.".format(readout))
 
     # initialize the model if necessary
     if initializer['init'] != 'default':
@@ -110,7 +105,7 @@ def get_model(model_dict: dict, initializer: dict, cuda: bool):
 
     # if running on the cpu we may want to use just-in-time compilation
     if not cuda and model_dict['jit']:
-        print("Warning: I haven't fully implemented jit compatibility and it might not be useful anyway.")
+        print("Warning: haven't fully implemented jit compatibility and it might not be useful anyway.")
         model = jit.script(model)
 
     return model
