@@ -340,3 +340,32 @@ def plot_sklearn_weights(model_list, vmin, vmax):
     #fig.set_size(5, 5)
     fig.show()
     plt.gca().invert_yaxis()
+
+
+def training_curve(dir: str, title: str):
+
+    metric_dict = json.loads(open('results/' + dir + '/metrics.json').read())
+
+    train = metric_dict['trainLoss']['values']
+    test = metric_dict['testLoss']['values']
+    val = metric_dict['validLoss']['values']
+
+    num_epochs = len(test) - 1
+    steps_per_epoch = (len(train) - 1)//num_epochs
+
+    train_vals = [train[0]]
+    for i in range(num_epochs):
+        train_vals.append(np.mean(train[steps_per_epoch*i : steps_per_epoch*(i + 1)]))
+
+    plt.plot(range(num_epochs + 1), train_vals, label='Train')
+    plt.plot(range(num_epochs + 1), test, label='Test')
+    plt.plot(range(num_epochs + 1), val, label='Validation')
+
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+
+    plt.title(title)
+
+    plt.legend()
+    plt.show()
+

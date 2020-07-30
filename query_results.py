@@ -10,23 +10,23 @@ from src.neural_nets.models import get_model
 
 # a list of configs whose results we want to plot
 useful_configs = [
-                   {'architecture': "TANH", 'init': "zero", 'do_hpsearch': False},
-                   #{'architecture': "LDS", 'init': "zero", 'do_hpsearch': False},
-                   {'architecture': "TANH", 'init': "identity", 'scale': 0.01, 'do_hpsearch': False},
+                   #{'architecture': "TANH", 'init': "zero", 'do_hpsearch': False},
+                   {'architecture': "LDS", 'init': "zero", 'do_hpsearch': False},
+                   #{'architecture': "TANH", 'init': "identity", 'scale': 0.01, 'do_hpsearch': False},
                    #{'architecture': "LDS", 'init': "identity", 'scale': 0.01, 'do_hpsearch': False},
-                   {'architecture': "TANH", 'init': "identity", 'scale': 1, 'do_hpsearch': False},
+                   #{'architecture': "TANH", 'init': "identity", 'scale': 1, 'do_hpsearch': False},
                    #{'architecture': "LDS", 'init': "identity", 'scale': 1, 'do_hpsearch': False},
-                   {'architecture': "TANH", 'init': "blockortho", 'scale': 0.01, 'do_hpsearch': False},
-                   #{'architecture': "LDS", 'init': "blockortho", 'scale': 0.01, 'do_hpsearch': False},
-                   {'architecture': "TANH", 'init': "blockortho", 'scale': 1, 'do_hpsearch': False},
+                   #{'architecture': "TANH", 'init': "blockortho", 'scale': 0.01, 'do_hpsearch': False},
+                   {'architecture': "LDS", 'init': "blockortho", 'scale': 0.01, 'do_hpsearch': False},
+                   #{'architecture': "TANH", 'init': "blockortho", 'scale': 1, 'do_hpsearch': False},
                    #{'architecture': "LDS", 'init': "blockortho", 'scale': 1, 'do_hpsearch': False},
-                   {'architecture': "TANH", 'init': "normal", 'scale': 0.01, 'do_hpsearch': False},
+                   #{'architecture': "TANH", 'init': "normal", 'scale': 0.01, 'do_hpsearch': False},
                    #{'architecture': "LDS", 'init': "normal", 'scale': 0.01, 'do_hpsearch': False},
                    #{'architecture': "LDS", 'init': 'critical', 'scale': 1, 'do_hpsearch': False},
-                   {'architecture': "TANH", 'init': 'critical', 'scale': 1, 'do_hpsearch': False},
+                   #{'architecture': "TANH", 'init': 'critical', 'scale': 1, 'do_hpsearch': False},
                    #{'architecture': "LDS", 'init': 'critical', 'scale': 0.1, 'do_hpsearch': False},
-                   {'architecture': "TANH", 'init': 'critical', 'scale': 0.1, 'do_hpsearch': False},
-                   {'architecture': "REGRESSION", 'init': "default", 'do_hpsearch': False, 'lag': 0},
+                   #{'architecture': "TANH", 'init': 'critical', 'scale': 0.1, 'do_hpsearch': False},
+                   {'architecture': "REGRESSION", 'init': "regression", 'do_hpsearch': False, 'lag': 1},
                    #{'architecture': "REGRESSION", 'init': "default", 'do_hpsearch': False, 'lag': 7},
                    #{'architecture': "REGRESSION_WIDE", 'init': "default", 'window': 7,'do_hpsearch': False}
                  ]
@@ -53,23 +53,23 @@ reg_labels = [
 
 # labels corresponding
 labels = [
-          'RNN:\nzeros',
-          #'LDS:\nzeros',
-          'RNN:\ndiag',
+          #'RNN:\nzeros',
+          'LDS:\nzeros',
+          #'RNN:\ndiag',
           #'LDS:\ndiag',
-          'RNN:\nidentity',
+          #'RNN:\nidentity',
           #'LDS:\nidentity',
-          'RNN:\n sbrot',
-          #'LDS:\n sbrot',
-          'RNN:\nbrot',
+          #'RNN:\n sbrot',
+          'LDS:\n sbrot',
+          #'RNN:\nbrot',
           #'LDS:\nbrot',
-          'RNN:\nnormal',
+          #'RNN:\nnormal',
           #'LDS:\nnormal',
           #'LDS:\ncritical',
           #'LDS:\nscritical',
-          'RNN:\ncritical',
-          'RNN:\nscritical',
-          'Reg',
+          #'RNN:\ncritical',
+          #'RNN:\nscritical',
+          'Regression',
           #'Reg:\nlag 7',
           #'Reg:\nwidth 7'
           ]
@@ -144,9 +144,11 @@ def find_results(configs, success=False):
     return good_dirs
 
 
-def find_recent_metrics(config_dicts, eval_loss=False):
+def find_recent_metrics(config_dicts, eval_loss=False, initial=False):
     """
     :param config_dicts: list of dictionaries whose metrics we want to find
+    :param eval_loss: whether or not we re-compute the loss (regularized loss may've been computed during training)
+    :param initial: whether or not to use the initial state dictionaries
     :return: a pair: a triple of losses and a triple of accuracies. Each entry is train, test, loss.
     """
 
@@ -173,7 +175,7 @@ def find_recent_metrics(config_dicts, eval_loss=False):
         val_accs.append(recent_metrics['validAccuracy']['values'][-1])
 
         # compute the unregularized loss for the model over each dataset, just in case
-        if eval_loss:
+        if eval_loss and cdict['architecture'] != "REGRESSION":
 
             # we must read some information about the model to properly construct the data loaders
             config_handle = open(recent_dir + '/config.json')
@@ -208,7 +210,10 @@ def find_recent_metrics(config_dicts, eval_loss=False):
                           'num_layers': recent_configs['num_layers'],
                           'output_size': recent_configs['output_size']
                          }
-            state_dict = torch.load(str(recent_dir) + '/final_state_dict.pt', map_location='cpu')
+            dict_name = '/final_state_dict.pt'
+            if initial:
+                dict_name = '/initial_state_dict.pt'
+            state_dict = torch.load(str(recent_dir) + dict_name, map_location='cpu')
             model = get_model(model_dict, {'init': "default"}, False)
             model.load_state_dict(state_dict)
 
