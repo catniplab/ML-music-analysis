@@ -52,7 +52,7 @@ config_updates = {
                   #'t_distrib': MyDistrib(0.25*math.pi, 0.01),
                   'path': "results/164",
 
-                  #'num_epochs': 300,
+                  'num_epochs': 200,
                   #'hps_epochs': 100,
                   'hidden_size': 300,
                   'scale': 0.01,
@@ -61,8 +61,8 @@ config_updates = {
                   #'window': 1,
 
                   'decay': 1,
-                  'lr': 0.00316,
-                  'regularization': 0.001,
+                  'lr': 0.001,
+                  'regularization': 0.0,
 
                   'do_hpsearch': False,
                   'decays': [1.0],

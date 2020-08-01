@@ -118,7 +118,7 @@ def plot_hidden_weights(dir: str,
     path = 'results/' + dir + '/'
 
     sd = torch.load(path + dict_name, map_location='cpu')
-    hidden_weights = sd[param_name].detach().numpy()[27 : 75, 27 : 75]
+    hidden_weights = sd[param_name].detach().numpy()
     if len(hidden_weights.shape) < 2:
         hidden_weights = hidden_weights.reshape(-1, 1)
     #print(hidden_weights.shape)
@@ -322,12 +322,14 @@ def duration_histogram(name: str, set: str):
     plt.show()
 
 
-def plot_sklearn_weights(model_list, vmin, vmax):
+def plot_sklearn_weights(dir: str, vmin, vmax, bias=False):
 
-    weights = np.zeros((49))
+    weights = None
+    if bias:
+        weights = np.load('results/' + dir + '/intercepts.npy')
+    else:
+        weights = np.load('results/' + dir + '/coefs.npy')
 
-    for i, model in enumerate(model_list):
-        weights[i] = model.intercept_
     if len(weights.shape) < 2:
         weights = weights.reshape(-1, 1)
 

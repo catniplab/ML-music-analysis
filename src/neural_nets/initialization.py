@@ -94,7 +94,11 @@ def _initialize_lds(model: nn.Module, initializer: dict) -> nn.Module:
     # output weights are based on regression weights
     out_shape = model.output_weights.weight.data.shape
     model.output_weights.weight.data = torch.zeros(out_shape)
+    mean_bias = torch.mean(bias).detach().item()
+    model.output_weights.weight.data[0 : 27, :] = mean_bias*torch.ones((27, 300))
+    model.output_weights.weight.data[75 : 88, :] = mean_bias*torch.ones((13, 300))
     model.output_weights.weight.data[27 : 75, 27 : 75] = weights
+    model.output_weights.bias.data = mean_bias*torch.ones(88)
     model.output_weights.bias.data[27 : 75] = bias
 
     # the hidden matrix must erase the systems memory at each time step
