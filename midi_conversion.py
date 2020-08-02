@@ -214,21 +214,24 @@ def to_midi(min_note, piano_roll_song, filename):
 def make_music(model, piano_roll, true_steps, input_steps, free_steps):
 
     # first few steps of the song will be the original music
-    song = np.zeros((true_steps + input_steps + free_steps, 88), dtype='uint8')
+    T = true_steps + input_steps + free_steps
+    song = np.zeros((T, 88), dtype='uint8')
     song[0 : true_steps] = piano_roll[0 : true_steps]
 
     # format the input to the model
     tsis = true_steps + input_steps
-    input_tensor = torch.tensor(piano_roll[0 : tsis], dtype=torch.float)
+    input_tensor = 2*torch.abs(torch.randn((T, 88)))
+    input_tensor[0 : tsis] = torch.tensor(piano_roll[0 : tsis], dtype=torch.float)
     input_tensor = input_tensor.unsqueeze(0)
 
     # format the output of the model
     # the next few steps will be the output of the model given the true song as input
     output_tensor, hiddens = model(input_tensor)
     binary = (torch.sigmoid(output_tensor) > 0.5).type(torch.uint8)
-    reformatted = binary.reshape(tsis, 88).detach().numpy()
-    song[true_steps : input_steps] = reformatted[true_steps : input_steps]
+    reformatted = binary.reshape(T, 88).detach().numpy()
+    song[true_steps:] = reformatted[true_steps:]
 
+    """
     # the last steps of the model will be the model making predictions off of its own output
     for i in range(free_steps):
 
@@ -240,5 +243,6 @@ def make_music(model, piano_roll, true_steps, input_steps, free_steps):
         binary = (torch.sigmoid(new_output) > 0.5).type(torch.uint8)
         reformatted = binary.reshape(88).detach().type(torch.uint8).numpy()
         song[t] = reformatted
+    """
 
     return song

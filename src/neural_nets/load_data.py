@@ -59,7 +59,7 @@ def collate_fun(init_mask: int, batch):
     return inputs, outputs, mask
 
 
-def get_loader(dataset: str, batch_size: int, init_mask=0, low_off_notes=0, high_off_notes=88) -> Tuple:
+def get_loader(dataset: str, batch_size: int, init_mask=0) -> Tuple:
     """
     :param dataset: The name of the dataset we want to use. Either JSB_Chorales, MuseData, Nottingham, or Piano_midi.
     :param batch_size: how many sequences to train on at once.
