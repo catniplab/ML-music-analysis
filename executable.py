@@ -55,7 +55,7 @@ config_updates = {
                   'low_off_notes': 27,
                   'high_off_notes': 75,
 
-                  #'num_epochs': 200,
+                  'num_epochs': 300,
                   #'hps_epochs': 100,
                   'hidden_size': 300,
                   'scale': 0.01,
@@ -64,7 +64,7 @@ config_updates = {
                   #'window': 1,
 
                   'decay': 0.99,
-                  'lr': 0.001,
+                  'lr': 0.00316,
                   'regularization': 0.0,
 
                   'do_hpsearch': False,

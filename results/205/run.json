@@ -1,0 +1,108 @@
+{
+  "artifacts": [
+    "initial_state_dict.pt",
+    "final_state_dict.pt"
+  ],
+  "command": "train_loop",
+  "experiment": {
+    "base_dir": "/home/kadile/Projects/ML-music-analysis/src",
+    "dependencies": [
+      "numpy==1.18.1",
+      "sacred==0.8.1",
+      "torch==1.5.0",
+      "torchsso==0.1.1",
+      "tqdm==4.42.1"
+    ],
+    "mainfile": "experiment.py",
+    "name": "45418",
+    "repositories": [
+      {
+        "commit": "a02ef503ef29251317d53ef992bcd93928fb21c2",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "a02ef503ef29251317d53ef992bcd93928fb21c2",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "a02ef503ef29251317d53ef992bcd93928fb21c2",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "a02ef503ef29251317d53ef992bcd93928fb21c2",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "a02ef503ef29251317d53ef992bcd93928fb21c2",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      }
+    ],
+    "sources": [
+      [
+        "experiment.py",
+        "_sources/experiment_da24f33b85eb0e5b9c68e3baac353828.py"
+      ],
+      [
+        "neural_nets/load_data.py",
+        "_sources/load_data_c99acce3bc14ed61b1acc5985c73a859.py"
+      ],
+      [
+        "neural_nets/metrics.py",
+        "_sources/metrics_9bdcc0632387d639ed46d5d2ae3a5187.py"
+      ],
+      [
+        "neural_nets/models.py",
+        "_sources/models_fb8488dd7d8663196c6cd6844cd8cbc1.py"
+      ],
+      [
+        "regression/trainer.py",
+        "_sources/trainer_cee5a348c2f8e36549300575c041c848.py"
+      ]
+    ]
+  },
+  "heartbeat": "2020-08-02T08:30:00.937732",
+  "host": {
+    "ENV": {},
+    "cpu": "Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz",
+    "hostname": "Wintermute",
+    "os": [
+      "Linux",
+      "Linux-5.4.0-42-generic-x86_64-with-debian-bullseye-sid"
+    ],
+    "python_version": "3.7.6"
+  },
+  "meta": {
+    "command": "train_loop",
+    "options": {
+      "--beat-interval": null,
+      "--capture": null,
+      "--comment": null,
+      "--debug": false,
+      "--enforce_clean": false,
+      "--file_storage": null,
+      "--force": false,
+      "--help": false,
+      "--loglevel": null,
+      "--mongo_db": null,
+      "--name": null,
+      "--pdb": false,
+      "--print-config": false,
+      "--priority": null,
+      "--queue": false,
+      "--s3": null,
+      "--sql": null,
+      "--tiny_db": null,
+      "--unobserved": false
+    }
+  },
+  "resources": [],
+  "result": null,
+  "start_time": "2020-08-02T08:25:38.987717",
+  "status": "COMPLETED",
+  "stop_time": "2020-08-02T08:30:00.934182"
+}
