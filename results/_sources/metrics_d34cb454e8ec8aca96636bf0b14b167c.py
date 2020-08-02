@@ -82,9 +82,6 @@ class Accuracy(nn.Module):
 
         target = target[:, :, self.low : self.high]
 
-        #print(prediction)
-        #print(target)
-
         # sum over notes
         tru_pos = torch.sum(prediction*target, dim=2)
         # Bay et al sum over time but this yields way higher results than Boulanger-Lewandowski

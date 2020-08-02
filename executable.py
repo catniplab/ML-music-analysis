@@ -44,15 +44,18 @@ class MyDistrib(distribs.distribution.Distribution):
 # most of the optimization is just handled by sklearn
 # all that matters is lag and window
 config_updates = {
-                  'architecture': "LDS",
+                  'architecture': "TANH",
                   'readout': "linear",
                   'optmzr': "Adam",
                   'init': "blockortho",
                   #'parity': "rotate",
                   #'t_distrib': MyDistrib(0.25*math.pi, 0.01),
-                  'path': "results/164",
+                  'path': "results/199/final_state_dict.pt",
 
-                  'num_epochs': 200,
+                  'low_off_notes': 27,
+                  'high_off_notes': 75,
+
+                  #'num_epochs': 200,
                   #'hps_epochs': 100,
                   'hidden_size': 300,
                   'scale': 0.01,
@@ -60,7 +63,7 @@ config_updates = {
                   #'lag': 1,
                   #'window': 1,
 
-                  'decay': 1,
+                  'decay': 0.99,
                   'lr': 0.001,
                   'regularization': 0.0,
 
