@@ -220,29 +220,27 @@ def make_music(model, piano_roll, true_steps, input_steps, free_steps):
 
     # format the input to the model
     tsis = true_steps + input_steps
-    input_tensor = 2*torch.abs(torch.randn((T, 88)))
-    input_tensor[0 : tsis] = torch.tensor(piano_roll[0 : tsis], dtype=torch.float)
+    input_tensor = torch.tensor(piano_roll[0 : tsis], dtype=torch.float)
     input_tensor = input_tensor.unsqueeze(0)
 
     # format the output of the model
     # the next few steps will be the output of the model given the true song as input
     output_tensor, hiddens = model(input_tensor)
     binary = (torch.sigmoid(output_tensor) > 0.5).type(torch.uint8)
-    reformatted = binary.reshape(T, 88).detach().numpy()
-    song[true_steps:] = reformatted[true_steps:]
+    reformatted = binary.reshape(tsis, 88).detach().numpy()
+    song[true_steps : true_steps + input_steps] = reformatted[true_steps : true_steps + input_steps]
 
-    """
     # the last steps of the model will be the model making predictions off of its own output
-    for i in range(free_steps):
+    for t in range(tsis, tsis + free_steps):
 
-        t = tsis + i
-
-        last_output = torch.tensor(song[t - 1], dtype=torch.float).unsqueeze(0).unsqueeze(0)
+        # get the last frame of the new song, double the intensity since it is both input and last step
+        last_output = 2*torch.tensor(song[0 : t - 1], dtype=torch.float).unsqueeze(0)
+        shp = last_output.shape
+        last_output += 0.1*torch.randn(shp)
 
         new_output, hiddens = model(last_output)
-        binary = (torch.sigmoid(new_output) > 0.5).type(torch.uint8)
+        binary = (torch.sigmoid(new_output[0, -1]) > 0.5).type(torch.uint8)
         reformatted = binary.reshape(88).detach().type(torch.uint8).numpy()
         song[t] = reformatted
-    """
 
     return song
