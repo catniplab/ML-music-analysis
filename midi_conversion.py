@@ -113,6 +113,7 @@ def to_midi(min_note, piano_roll_song, filename):
 
     track.append(mido.MetaMessage('key_signature', key='C', time=0))
     track.append(mido.MetaMessage('time_signature', numerator=4, denominator=4, clocks_per_click=24, notated_32nd_notes_per_beat=8, time=0))
+    #track.append(mido.MetaMessage('set_tempo', tempo=705882))
 
     # keep track of which notes are being played at the given time
     on_notes = []
@@ -130,6 +131,10 @@ def to_midi(min_note, piano_roll_song, filename):
 
         # did anything change at this time step
         nothing_happened = True
+
+        # if this is the last time step, that counts as something happening
+        if i == piano_roll_song.shape[0] - 1:
+            nothing_happened = False
 
         # loop through notes
         for j in range(piano_roll_song.shape[1]):
@@ -190,7 +195,7 @@ def to_midi(min_note, piano_roll_song, filename):
             if len(old_messages) > 0:
 
                 # make the last old message lag the appropriate time
-                old_messages[-1].time = 200*since_change
+                old_messages[-1].time = 120*since_change
 
                 # append the old messages
                 for msg in old_messages:
@@ -211,7 +216,7 @@ def to_midi(min_note, piano_roll_song, filename):
     mid.save(filename)
 
 
-def make_music(model, piano_roll, true_steps, input_steps, free_steps):
+def make_music(model, piano_roll, true_steps, input_steps, free_steps, history):
 
     # first few steps of the song will be the original music
     T = true_steps + input_steps + free_steps
@@ -230,17 +235,39 @@ def make_music(model, piano_roll, true_steps, input_steps, free_steps):
     reformatted = binary.reshape(tsis, 88).detach().numpy()
     song[true_steps : true_steps + input_steps] = reformatted[true_steps : true_steps + input_steps]
 
+    # some tricks to keep the system from falling into a periodic orbit
+    last_binary = None
+    periodicity_detected = False
+
     # the last steps of the model will be the model making predictions off of its own output
     for t in range(tsis, tsis + free_steps):
 
         # get the last frame of the new song, double the intensity since it is both input and last step
-        last_output = 2*torch.tensor(song[0 : t - 1], dtype=torch.float).unsqueeze(0)
+        last_output = 2*torch.tensor(song[t - 1 - history : t - 1], dtype=torch.float).unsqueeze(0)
         shp = last_output.shape
         last_output += 0.1*torch.randn(shp)
+        if periodicity_detected:
+            last_output += 0.2*torch.randn(shp)
 
         new_output, hiddens = model(last_output)
         binary = (torch.sigmoid(new_output[0, -1]) > 0.5).type(torch.uint8)
         reformatted = binary.reshape(88).detach().type(torch.uint8).numpy()
+
+        # filter out note blasts
+        if np.sum(reformatted) > 8:
+            ixs = [i for i in range(88) if reformatted[i] > 0]
+            num = np.sum(reformatted, dtype='int') - 8
+            reformatted = np.zeros(reformatted.shape)
+            for i in range(num//2, len(ixs) - num//2):
+                reformatted[ixs[i]] = 1
+
+
         song[t] = reformatted
+
+        now = song[t]
+        last = song[t - 1]
+        ago = song[t - 2]
+        if np.sum(now*last) < 3 or np.sum(now*ago) < 3:
+            periodicity_detected = True
 
     return song
