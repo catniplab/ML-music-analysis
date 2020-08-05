@@ -245,9 +245,11 @@ def make_music(model, piano_roll, true_steps, input_steps, free_steps, history):
         # get the last frame of the new song, double the intensity since it is both input and last step
         last_output = 2*torch.tensor(song[t - 1 - history : t - 1], dtype=torch.float).unsqueeze(0)
         shp = last_output.shape
-        last_output += 0.1*torch.randn(shp)
+        last_output += 0.1*torch.randn((1, history, 88))
         if periodicity_detected:
-            last_output += 0.2*torch.randn(shp)
+            print(t)
+            last_output += 0.5*torch.randn(88)
+            periodicity_detected = False
 
         new_output, hiddens = model(last_output)
         binary = (torch.sigmoid(new_output[0, -1]) > 0.5).type(torch.uint8)
@@ -265,9 +267,10 @@ def make_music(model, piano_roll, true_steps, input_steps, free_steps, history):
         song[t] = reformatted
 
         now = song[t]
-        last = song[t - 1]
-        ago = song[t - 2]
-        if np.sum(now*last) < 3 or np.sum(now*ago) < 3:
+        two = song[t - 2]
+        three = song[t - 3]
+        four = song[t - 4]
+        if np.sum(now*two) > 7 or np.sum(now*three) > 7 or np.sum(now*four) > 7:
             periodicity_detected = True
 
     return song
