@@ -1,9 +1,10 @@
 """
-This script is used for translating between midi and the binary piano roll format.
-We will also be using it for synthesizing new music.
+These functions are used for translating between midi and the binary piano roll format,
+as well as synthesizing new music.
 """
 
 import numpy as np
+import random
 import torch
 import mido
 import os
@@ -216,7 +217,22 @@ def to_midi(min_note, piano_roll_song, filename):
     mid.save(filename)
 
 
-def make_music(model, piano_roll, true_steps, input_steps, free_steps, history):
+def make_music(model,
+               piano_roll,
+               true_steps: int,
+               input_steps: int,
+               free_steps: int,
+               history: int,
+               variance: float):
+    """
+    :param model: pytorch model which will be used to synthesize new music
+    :param piano roll: 2D binary array indicating which notes are played at a given time
+    :param true_steps: how many frames of the new song are to be copied directly from the original
+    :param input_steps: how many frames of the new song are to be the output of the model being fed piano_roll
+    :param free_steps: how many frames of the new song are to be the model predicting the next frame based off of the song constructed so far
+    :param history: how many time steps the model will look back in the past while constructing the new song
+    :param variance: variance of the noise to be added to the hidden state (in order to avoid stable periodic orbits)
+    """
 
     # first few steps of the song will be the original music
     T = true_steps + input_steps + free_steps
@@ -245,24 +261,38 @@ def make_music(model, piano_roll, true_steps, input_steps, free_steps, history):
         # get the last frame of the new song, double the intensity since it is both input and last step
         last_output = 2*torch.tensor(song[t - 1 - history : t - 1], dtype=torch.float).unsqueeze(0)
         shp = last_output.shape
-        last_output += 0.1*torch.randn((1, history, 88))
-        if periodicity_detected:
-            print(t)
-            last_output += 0.5*torch.randn(88)
-            periodicity_detected = False
+        last_output[:, :, 25 : 75] += variance*torch.randn((1, history, 50))
 
+        # add some extra noise to the input to some channels to knock the system out of a limit cycle
+        """
+        if periodicity_detected:
+
+            # randomly select 10 channels to add noise too
+            for i in range(10):
+
+                ix = random.randint(25, 75)
+                last_output[:, :, ix] += 0.5*torch.randn((1, history))
+
+            #last_output += 0.5*torch.randn((1, history, 88))
+
+            periodicity_detected = False
+        """
+
+        # use the model to predict the next frame
         new_output, hiddens = model(last_output)
         binary = (torch.sigmoid(new_output[0, -1]) > 0.5).type(torch.uint8)
         reformatted = binary.reshape(88).detach().type(torch.uint8).numpy()
 
         # filter out note blasts
         if np.sum(reformatted) > 8:
-            ixs = [i for i in range(88) if reformatted[i] > 0]
+
             num = np.sum(reformatted, dtype='int') - 8
+            ixs = [i for i in range(88) if reformatted[i] > 0]
+
             reformatted = np.zeros(reformatted.shape)
+
             for i in range(num//2, len(ixs) - num//2):
                 reformatted[ixs[i]] = 1
-
 
         song[t] = reformatted
 
@@ -270,7 +300,7 @@ def make_music(model, piano_roll, true_steps, input_steps, free_steps, history):
         two = song[t - 2]
         three = song[t - 3]
         four = song[t - 4]
-        if np.sum(now*two) > 7 or np.sum(now*three) > 7 or np.sum(now*four) > 7:
+        if np.sum(now*two) > 3 or np.sum(now*three) > 3 or np.sum(now*four) > 3:
             periodicity_detected = True
 
     return song
