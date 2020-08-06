@@ -141,13 +141,7 @@ def sklearn_experiment(dataset: str,
 
     num_notes = high_off_notes - low_off_notes
 
-    models = reg.train_models(dataset,
-                              num_epochs,
-                              low_off_notes,
-                              high_off_notes,
-                              _seed,
-                              lag=lag,
-                              window=window)
+    models = reg.train_models(dataset, num_epochs, num_notes, _seed, lag=lag, window=window)
 
     coefs = np.zeros((num_notes, num_notes*window))
     intercepts = np.zeros(num_notes*window)
@@ -164,7 +158,7 @@ def sklearn_experiment(dataset: str,
 
         else:
             coefs[i] = model.coef_
-            intercepts[i] = model.intercept_
+            intercepts[i] = models.intercept_
 
     np.save(save_dir + 'coefs.npy', coefs)
     np.save(save_dir + 'intercepts.npy', intercepts)
@@ -172,53 +166,17 @@ def sklearn_experiment(dataset: str,
     _run.add_artifact(save_dir + 'coefs.npy')
     _run.add_artifact(save_dir + 'intercepts.npy')
 
-    train_loss = reg.compute_loss(models,
-                                  dataset,
-                                  'traindata',
-                                  low_off_notes,
-                                  high_off_notes,
-                                  lag=lag,
-                                  window=window)
-    test_loss = reg.compute_loss(models,
-                                 dataset,
-                                 'testdata',
-                                 low_off_notes,
-                                 high_off_notes,
-                                 lag=lag,
-                                 window=window)
-    valid_loss = reg.compute_loss(models,
-                                  dataset,
-                                  'validdata',
-                                  low_off_notes,
-                                  high_off_notes,
-                                  lag=lag,
-                                  window=window)
+    train_loss = reg.compute_loss(models, dataset, 'traindata', lag=lag, window=window)
+    test_loss = reg.compute_loss(models, dataset, 'testdata', lag=lag, window=window)
+    valid_loss = reg.compute_loss(models, dataset, 'validdata', lag=lag, window=window)
 
     _run.log_scalar('trainLoss', train_loss)
     _run.log_scalar('testLoss', test_loss)
     _run.log_scalar('validLoss', valid_loss)
 
-    train_acc = reg.compute_accuracy(models,
-                                     dataset,
-                                     'traindata',
-                                     low_off_notes,
-                                     high_off_notes,
-                                     lag=lag,
-                                     window=window)
-    test_acc = reg.compute_accuracy(models,
-                                    dataset,
-                                    'testdata',
-                                    low_off_notes,
-                                    high_off_notes,
-                                    lag=lag,
-                                    window=window)
-    valid_acc = reg.compute_accuracy(models,
-                                     dataset,
-                                     'validdata',
-                                     low_off_notes,
-                                     high_off_notes,
-                                     lag=lag,
-                                     window=window)
+    train_acc = reg.compute_accuracy(models, dataset, 'traindata', lag=lag, window=window)
+    test_acc = reg.compute_accuracy(models, dataset, 'testdata', lag=lag, window=window)
+    valid_acc = reg.compute_accuracy(models, dataset, 'validdata', lag=lag, window=window)
 
     _run.log_scalar('trainAccuracy', train_acc)
     _run.log_scalar('testAccuracy', test_acc)

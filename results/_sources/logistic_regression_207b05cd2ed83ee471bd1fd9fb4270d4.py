@@ -77,7 +77,22 @@ def get_dataset(dataname: str, key: str, lag=1, window=1, format='flattened'):
         raise ValueError("Format {} not recognized".format(format))
 
 
-def train_models(dataname: str, _seed, lag=1, window=1):
+# some of the notes might be off the entire time, find them!
+def find_off_notes(x):
+
+    off_notes = []
+
+    num_notes = x.shape[1]
+
+    for note in range(num_notes):
+
+        if not 1 in x[:, note]:
+            off_notes.append(note)
+
+    return off_notes
+
+
+def train_models(dataname: str, num_epochs: int, num_notes: int, _seed, lag=1, window=1):
     """
     :param dataname: which dataset to use for training
     :param lag: how many steps into the future are we predicting
@@ -87,17 +102,25 @@ def train_models(dataname: str, _seed, lag=1, window=1):
     # load the data
     x, y = get_dataset(dataname, 'traindata', lag=lag, window=window)
 
+    off_notes = find_off_notes(x)
+
     # model is needed for every channel (note)
     model_list = []
 
     # train every model
-    for channel in tqdm(range(48)):
+    for channel in tqdm(range(num_notes)):
 
-        model = lm.LogisticRegression(solver='saga', penalty='elasticnet', l1_ratio=0.9, random_state=_seed)
+        # append a placeholder to the model list if this note is not played
+        if channel in off_notes:
+            model_list.append(None)
 
-        model.fit(x, y[:, channel])
+        # otherwise train the model on this particular note and append it
+        else:
+            model = lm.LogisticRegression(solver='saga', penalty='elasticnet', l1_ratio=0.9,     random_state=_seed, max_iter=num_epochs)
 
-        model_list.append(model)
+            model.fit(x, y[:, channel])
+
+            model_list.append(model)
 
     return model_list
 
@@ -110,6 +133,9 @@ def compute_accuracy(model_list, dataname: str, key: str, lag=1, window=1):
     :param lag: how many steps into the future are we predicting
     :param window: how many steps are we predicting
     """
+
+    # how many notes we are predicting
+    num_notes = len(model_list)
 
     # load the data
     x, y = get_dataset(dataname, key, lag=lag, window=window, format='listofarrays')
@@ -130,15 +156,17 @@ def compute_accuracy(model_list, dataname: str, key: str, lag=1, window=1):
             fn = 0
 
             # compute for each note
-            for channel in range(48):
+            for channel in range(num_notes):
 
                 # get the appropriate model and prediction
                 model = model_list[channel]
-                pred = model.predict(xt.reshape(1, -1))[0]
 
-                tp += yt[channel]*pred
-                fp += (1 - yt[channel])*pred
-                fn += yt[channel]*(1 - pred)
+                if model != None:
+                    pred = model.predict(xt.reshape(1, -1))[0]
+
+                    tp += yt[channel]*pred
+                    fp += (1 - yt[channel])*pred
+                    fn += yt[channel]*(1 - pred)
 
             # avoid nans
             if tp == 0 and fp == 0 and fn == 0:
@@ -160,6 +188,9 @@ def compute_loss(model_list, dataname: str, key: str, lag=1, window=1):
     :param window: how many steps are we predicting
     """
 
+    # how many notes we are predicting
+    num_notes = len(model_list)
+
     # load the data
     x, y = get_dataset(dataname, key, lag=lag, window=window, format='listofarrays')
 
@@ -176,7 +207,7 @@ def compute_loss(model_list, dataname: str, key: str, lag=1, window=1):
             # accumulate over each note
             tot = 0
 
-            for channel in range(48):
+            for channel in range(num_notes):
 
                 model = model_list[channel]
 

@@ -164,7 +164,7 @@ def sklearn_experiment(dataset: str,
 
         else:
             coefs[i] = model.coef_
-            intercepts[i] = model.intercept_
+            intercepts[i] = models.intercept_
 
     np.save(save_dir + 'coefs.npy', coefs)
     np.save(save_dir + 'intercepts.npy', intercepts)
