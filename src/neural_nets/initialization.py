@@ -84,7 +84,13 @@ def _initialize_lds(model: nn.Module, initializer: dict) -> nn.Module:
     initialize the model in place based on the weights of a trained regression model
     """
 
+    low_off = initializer['low_off_notes']
+    high_off = initializer['high_off_notes']
+
     weights, bias = get_regression_params(initializer['path'])
+
+    hid_size = model.rnn.weight_hh_l0.weight.data.shape[0]
+    reg_size = len(bias)
 
     # top block of input weights will be identity, everything else will be random
     sq = torch.Size([88, 88])
@@ -95,11 +101,11 @@ def _initialize_lds(model: nn.Module, initializer: dict) -> nn.Module:
     out_shape = model.output_weights.weight.data.shape
     model.output_weights.weight.data = torch.zeros(out_shape)
     mean_bias = torch.mean(bias).detach().item()
-    model.output_weights.weight.data[0 : 27, :] = mean_bias*torch.ones((27, 300))
-    model.output_weights.weight.data[75 : 88, :] = mean_bias*torch.ones((13, 300))
-    model.output_weights.weight.data[27 : 75, 27 : 75] = weights
+    model.output_weights.weight.data[0 : low_off, :] = mean_bias*torch.ones((low_off, hid_size))
+    model.output_weights.weight.data[high_off : 88, :] = mean_bias*torch.ones((88 - high_off, hid_size))
+    model.output_weights.weight.data[low_off : high_off, low_off : high_off] = weights
     model.output_weights.bias.data = mean_bias*torch.ones(88)
-    model.output_weights.bias.data[27 : 75] = bias
+    model.output_weights.bias.data[low_off : high_off] = bias
 
     # the hidden matrix must erase the systems memory at each time step
     hid_size = model.rnn.weight_hh_l0.weight.data.shape
@@ -161,28 +167,6 @@ def _initialize_tanh(model: nn.Module, initializer: dict) -> nn.Module:
     model.rnn.weight_ih_l0.data = lds_sd['rnn.weight_ih_l0.weight']
     model.rnn.weight_hh_l0.data = lds_sd['rnn.weight_hh_l0.weight']
     model.output_weights.weight.data = lds_sd['output_weights.weight']
-"""
-    elif initializer['init'] == "critical":
-
-        reg_sd = torch.load(initializer['path'])
-
-        sq = torch.Size([88, 88])
-        model.rnn.weight_ih_l0.data[0 : 88, 0 : 88] = initializer['scale']*make_identity(sq)
-
-        hid_shape = model.rnn.weight_hh_l0.data.shape
-        model.rnn.weight_hh_l0.data = torch.zeros(hid_shape)
-        for i in range(88, hid_shape[0]):
-            model.rnn.weight_hh_l0.data[i, i] = 1.0/(i - 87)
-            if i < hid_shape[0] - 1:
-                model.rnn.weight_hh_l0.data[i, i + 1] = 1
-
-        out_shape = model.output_weights.weight.data.shape
-        model.output_weights.weight.data = torch.zeros(out_shape)
-        model.output_weights.weight.data[0 : 88, 0 : 88] = reg_sd['weights.weight']
-
-    elif initializer['init'] != 'default':
-        raise ValueError("Initialization {} not recognized.".format(initializer['init']))
-"""
 
 
 def _initialize(model: nn.Module, initializer: dict, architecture: str) -> nn.Module:
