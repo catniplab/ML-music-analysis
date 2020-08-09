@@ -1,0 +1,91 @@
+{
+  "artifacts": [
+    "cyberbach.mid",
+    "cyberbach.wav"
+  ],
+  "command": "music_synthesis",
+  "experiment": {
+    "base_dir": "/home/kadile/Projects/ML-music-analysis/src",
+    "dependencies": [
+      "numpy==1.18.1",
+      "sacred==0.8.1",
+      "scipy==1.4.1",
+      "torch==1.5.0",
+      "torchsso==0.1.1",
+      "tqdm==4.42.1"
+    ],
+    "mainfile": "music_maker.py",
+    "name": "713539",
+    "repositories": [
+      {
+        "commit": "a6f1ada2689bb58dec80be73390aa731877bee5b",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "a6f1ada2689bb58dec80be73390aa731877bee5b",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      },
+      {
+        "commit": "a6f1ada2689bb58dec80be73390aa731877bee5b",
+        "dirty": true,
+        "url": "https://github.com/catniplab/ML-music-analysis.git"
+      }
+    ],
+    "sources": [
+      [
+        "midi/utils.py",
+        "_sources/utils_b954d8b349a5a4c4dfa34f09541c4f62.py"
+      ],
+      [
+        "music_maker.py",
+        "_sources/music_maker_f4ff261bb79f60c6193dec8f5023b10d.py"
+      ],
+      [
+        "neural_nets/models.py",
+        "_sources/models_2a002dc0f835e2c1d501c38efa7dd430.py"
+      ]
+    ]
+  },
+  "heartbeat": "2020-08-09T20:41:08.822835",
+  "host": {
+    "ENV": {},
+    "cpu": "Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz",
+    "hostname": "Wintermute",
+    "os": [
+      "Linux",
+      "Linux-5.4.0-42-generic-x86_64-with-debian-bullseye-sid"
+    ],
+    "python_version": "3.7.6"
+  },
+  "meta": {
+    "command": "music_synthesis",
+    "options": {
+      "--beat-interval": null,
+      "--capture": null,
+      "--comment": null,
+      "--debug": false,
+      "--enforce_clean": false,
+      "--file_storage": null,
+      "--force": false,
+      "--help": false,
+      "--loglevel": null,
+      "--mongo_db": null,
+      "--name": null,
+      "--pdb": false,
+      "--print-config": false,
+      "--priority": null,
+      "--queue": false,
+      "--s3": null,
+      "--sql": null,
+      "--tiny_db": null,
+      "--unobserved": false
+    }
+  },
+  "resources": [],
+  "result": null,
+  "start_time": "2020-08-09T20:41:06.552622",
+  "status": "COMPLETED",
+  "stop_time": "2020-08-09T20:41:08.818301"
+}

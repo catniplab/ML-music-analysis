@@ -1,0 +1,10 @@
+INFO - 713539 - Running command 'music_synthesis'
+INFO - 713539 - Started run with ID "1"
+Playing tmp_910602131/cyberbach.mid
+MIDI file: tmp_910602131/cyberbach.mid
+Format: 1  Tracks: 1  Divisions: 480
+Output tmp_910602131/cyberbach.wav
+Playing time: ~29 seconds
+Notes cut: 0
+Notes lost totally: 0
+INFO - 713539 - Completed after 0:00:02

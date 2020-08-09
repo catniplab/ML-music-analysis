@@ -1,5 +1,5 @@
 """
-This script provides an example of how to call experiment.py
+This script provides an example of how to call model_trainer.py
 """
 
 from importlib import reload
@@ -9,9 +9,9 @@ import torch
 import torch.distributions as distribs
 import numpy as np
 
-import src.experiment
-reload(src.experiment)
-from src.experiment import ex  # importing experiment here is crucial (why?)
+import src.model_trainer
+reload(src.model_trainer)
+from src.model_trainer import ex  # importing experiment here is crucial (why?)
 
 from sacred.observers import FileStorageObserver, RunObserver
 
@@ -21,6 +21,7 @@ import os
 debug_mode = False
 
 
+# this is a custom distribution that I use for some the experiments with block orthogonal initialization
 class MyDistrib(distribs.distribution.Distribution):
 
    def __init__(self, angle: float, variance: float):
@@ -92,7 +93,7 @@ if __name__ == "__main__":
    else:
 
       # store in local directory for now
-      ex.observers.append(FileStorageObserver(base_dir + '/results'))
+      ex.observers.append(FileStorageObserver(base_dir + '/models'))
 
       # run the experiment after adding observer
       ex.run(config_updates={**config_updates})

@@ -1,5 +1,5 @@
 """
-This script creates an instance of a sacred experiment and defines default configurations.
+This script creates an instance of a sacred experiment and defines default configurations for training a neural network or a regression model.
 """
 
 from src.neural_nets.models import get_model
@@ -67,9 +67,9 @@ def cfg():
     hps_epochs = 50
 
     # Supported architectures
-    # LINEAR (LDS)
-    # REGRESSION (regress next note based on last note)
-    # REGRESSION_8_STEP (regress next note based on last 8 notes)
+    # REGRESSION
+    # LDS
+    # TANH
     architecture = 'LDS'
     readout = 'linear'
     gradient_clipping = 1

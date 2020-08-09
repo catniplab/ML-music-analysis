@@ -1,3 +1,7 @@
+"""
+This script contains functions which can assist in querying the directory containing the trained models. There is a lot of overlap with the utilities here and those in plotting.py
+"""
+
 import os
 import json
 
