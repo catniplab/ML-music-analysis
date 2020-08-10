@@ -51,23 +51,23 @@ config_updates = {
                   'init': "blockortho",
                   #'parity': "rotate",
                   #'t_distrib': MyDistrib(0.25*math.pi, 0.01),
-                  'path': "models/209/final_state_dict.pt",
+                  'path': "models/216/final_state_dict.pt",
 
-                  'dataset': "Nottingham",
+                  'dataset': "JSB_Chorales",
 
-                  'low_off_notes': 10,
-                  'high_off_notes': 72,
+                  'low_off_notes': 27,
+                  'high_off_notes': 75,
 
-                  'num_epochs': 300,
+                  'num_epochs': 200,
                   #'hps_epochs': 100,
-                  'hidden_size': 100,
+                  'hidden_size': 120,
                   'scale': 0.01,
 
                   #'lag': 1,
                   #'window': 1,
 
-                  'decay': 1,
-                  'lr': 0.001,
+                  'decay': 0.98,
+                  'lr': 0.00316,
                   'regularization': 0.0,
 
                   'do_hpsearch': False,

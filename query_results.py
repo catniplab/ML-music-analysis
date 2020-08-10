@@ -80,12 +80,12 @@ labels = [
 
 # find the directories with these configurations
 config_dict = {
-               'architecture': "LDS",
-               #'lag': 0,
-               #'window': 7,
-               'init': "normal",
+               'architecture': "REGRESSION",
+               'lag': 1,
+               'window': 1,
+               #'init': "default",
                #'parity': "rotate",
-               'scale': 0.01,
+               #'scale': 0.01,
                #'lag': 8,
                #'init': "blockortho",
                'do_hpsearch': False
@@ -96,13 +96,13 @@ def find_results(configs, success=False):
 
     good_dirs = []
 
-    dirs = os.listdir('results')
+    dirs = os.listdir('models')
 
     for dir in dirs:
 
         if dir != "_sources":
 
-            config_file = open('results/' + dir + '/config.json')
+            config_file = open('models/' + dir + '/config.json')
             config_contents = config_file.read()
             config_file.close()
 
@@ -125,7 +125,7 @@ def find_results(configs, success=False):
 
                 try:
 
-                    metric_file = open('results/' + dir + '/metrics.json')
+                    metric_file = open('models/' + dir + '/metrics.json')
                     metric_contents = metric_file.read()
                     metric_file.close()
 
