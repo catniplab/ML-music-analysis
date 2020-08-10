@@ -95,6 +95,8 @@ def music_synthesis(dataset,
                     _log,
                     _run):
 
+    _seed_all(_seed)
+
     # save artifacts to a temporary directory that gets erased when the experiment is over
     save_dir = 'tmp_' + str(_seed)
     os.system('mkdir ' + save_dir)

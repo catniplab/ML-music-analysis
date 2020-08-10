@@ -169,6 +169,35 @@ def _initialize_tanh(model: nn.Module, initializer: dict) -> nn.Module:
     model.output_weights.weight.data = lds_sd['output_weights.weight']
 
 
+def _initialize_gru(model: nn.Module, initializer: dict) -> nn.Module:
+    """
+    :param model: tanh recurrent neural network
+    :param initializer: initialize the hidden weights based on this dictionary
+    Initialize the model in place based on the weights of a trained tanh network
+    """
+
+    tanh_sd = torch.load(initializer['path'])
+
+    in_shp = model.rnn.weight_ih_l0.data.shape
+    model.rnn.weight_ih_l0.data = torch.zeros(in_shp)
+    model.rnn.weight_ih_l0.data[2*in_shp[0]//3:] = tanh_sd['rnn.weight_ih_l0']
+
+    in_shp = model.rnn.bias_ih_l0.data.shape[0]
+    model.rnn.bias_ih_l0.data = torch.zeros(in_shp)
+    model.rnn.bias_ih_l0.data[2*in_shp//3:] = tanh_sd['rnn.bias_ih_l0']
+
+    hid_shp = model.rnn.weight_hh_l0.data.shape
+    model.rnn.weight_hh_l0.data = torch.zeros(hid_shp)
+    model.rnn.weight_hh_l0.data[2*hid_shp[0]//3:] = tanh_sd['rnn.weight_hh_l0']
+
+    hid_shp = model.rnn.bias_hh_l0.data.shape[0]
+    model.rnn.bias_hh_l0.data = torch.zeros(hid_shp)
+    model.rnn.bias_hh_l0.data[2*hid_shp//3:] = tanh_sd['rnn.bias_hh_l0']
+
+    model.output_weights.weight.data = tanh_sd['output_weights.weight']
+    model.output_weights.bias.data = tanh_sd['output_weights.bias']
+
+
 def _initialize(model: nn.Module, initializer: dict, architecture: str) -> nn.Module:
     """
     :param model: model to be initialized
@@ -182,6 +211,9 @@ def _initialize(model: nn.Module, initializer: dict, architecture: str) -> nn.Mo
 
     elif architecture == "TANH":
         _initialize_tanh(model, initializer)
+
+    elif architecture == "GRU":
+        _initialize_gru(model, initializer)
 
     else:
         raise ValueError("Architecture {} not recognized for initialization.".format(architecture))
