@@ -80,9 +80,10 @@ labels = [
 
 # find the directories with these configurations
 config_dict = {
-               'architecture': "REGRESSION",
-               'lag': 1,
-               'window': 1,
+               'architecture': "TANH",
+               #'lag': 1,
+               #'window': 1,
+               'dataset': "JSB_Chorales",
                #'init': "default",
                #'parity': "rotate",
                #'scale': 0.01,
