@@ -83,7 +83,7 @@ config_dict = {
                'architecture': "TANH",
                #'lag': 1,
                #'window': 1,
-               'dataset': "JSB_Chorales",
+               'dataset': "Nottingham",
                #'init': "default",
                #'parity': "rotate",
                #'scale': 0.01,
