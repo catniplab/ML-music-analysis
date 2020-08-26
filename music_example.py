@@ -20,7 +20,15 @@ import os
 debug_mode = False
 
 
-config_updates = {}
+config_updates = {
+                  'dataset': "Nottingham",
+                  'key': "traindata",
+                  'index': 1,
+                  'variance': 0,
+                  'hidden_size': 100,
+                  'sdpath': "models/209/final_state_dict.pt",
+                  'song_name': "cybernottingham"
+                 }
 
 
 if __name__ == "__main__":

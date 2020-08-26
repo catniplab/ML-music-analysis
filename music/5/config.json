@@ -1,0 +1,20 @@
+{
+  "architecture": "TANH",
+  "convert2wav": true,
+  "dataset": "Nottingham",
+  "free_steps": 100,
+  "hidden_size": 100,
+  "history": 50,
+  "index": 0,
+  "input_size": 88,
+  "input_steps": 100,
+  "key": "traindata",
+  "num_layers": 1,
+  "output_size": 88,
+  "readout": "linear",
+  "sdpath": "models/209/final_state_dict.pt",
+  "seed": 674274935,
+  "song_name": "cybernottingham",
+  "true_steps": 0,
+  "variance": 0
+}

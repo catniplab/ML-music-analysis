@@ -1,0 +1,20 @@
+{
+  "architecture": "TANH",
+  "convert2wav": true,
+  "dataset": "JSB_Chorales",
+  "free_steps": 100,
+  "hidden_size": 300,
+  "history": 50,
+  "index": 0,
+  "input_size": 88,
+  "input_steps": 100,
+  "key": "traindata",
+  "num_layers": 1,
+  "output_size": 88,
+  "readout": "linear",
+  "sdpath": "models/204/final_state_dict.pt",
+  "seed": 915893823,
+  "song_name": "cyberbach",
+  "true_steps": 0,
+  "variance": 0
+}

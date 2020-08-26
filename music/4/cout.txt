@@ -1,0 +1,10 @@
+INFO - 576012 - Running command 'music_synthesis'
+INFO - 576012 - Started run with ID "4"
+Playing tmp_757653800/cyberbach.mid
+MIDI file: tmp_757653800/cyberbach.mid
+Format: 1  Tracks: 1  Divisions: 480
+Output tmp_757653800/cyberbach.wav
+Playing time: ~29 seconds
+Notes cut: 0
+Notes lost totally: 0
+INFO - 576012 - Completed after 0:00:04

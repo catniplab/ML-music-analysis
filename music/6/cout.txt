@@ -1,0 +1,10 @@
+INFO - 367056 - Running command 'music_synthesis'
+INFO - 367056 - Started run with ID "6"
+Playing tmp_414205898/cybernottingham.mid
+MIDI file: tmp_414205898/cybernottingham.mid
+Format: 1  Tracks: 1  Divisions: 480
+Output tmp_414205898/cybernottingham.wav
+Playing time: ~29 seconds
+Notes cut: 0
+Notes lost totally: 0
+INFO - 367056 - Completed after 0:00:03
